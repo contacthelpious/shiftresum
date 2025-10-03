@@ -10,50 +10,16 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { ResumeDataSchema } from '@/lib/definitions';
 
 const ParseResumeInputSchema = z.object({
   resumeContent: z.string().describe('The entire text content of a resume.'),
 });
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
-// The output should be a partial structure of the resume data,
-// as not all fields may be present in every resume.
-export const ParseResumeOutputSchema = z.object({
-    personalInfo: z.object({
-      name: z.string().optional(),
-      email: z.string().optional(),
-      phone: z.string().optional(),
-      location: z.string().optional(),
-      website: z.string().optional(),
-      summary: z.string().optional(),
-    }).optional(),
-    experience: z.array(z.object({
-      company: z.string().optional(),
-      role: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      description: z.string().optional(),
-    })).optional(),
-    education: z.array(z.object({
-      institution: z.string().optional(),
-      degree: z.string().optional(),
-      graduationDate: z.string().optional(),
-      details: z.string().optional(),
-    })).optional(),
-    skills: z.array(z.object({
-      name: z.string().optional(),
-    })).optional(),
-    projects: z.array(z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      link: z.string().optional(),
-    })).optional(),
-    certifications: z.array(z.object({
-      name: z.string().optional(),
-      issuingOrganization: z.string().optional(),
-      date: z.string().optional(),
-    })).optional(),
-}).describe('The structured data extracted from the resume.');
+const ParseResumeOutputSchema = ResumeDataSchema.deepPartial().describe(
+  'The structured data extracted from the resume.'
+);
 export type ParseResumeOutput = z.infer<typeof ParseResumeOutputSchema>;
 
 export async function parseResume(input: ParseResumeInput): Promise<ParseResumeOutput> {
