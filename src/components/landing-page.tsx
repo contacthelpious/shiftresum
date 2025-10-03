@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wand2, Palette, FileDown, History } from 'lucide-react';
 import { Logo } from './logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { UploadResumeButton } from './upload-resume-button';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 
@@ -57,10 +58,11 @@ export default function LandingPage() {
             <p className="mt-4 text-lg text-muted-foreground md:text-xl">
               ResumeFlow combines a beautiful resume builder with AI to help you land your dream job. Create a professional resume in minutes.
             </p>
-            <div className="mt-8 flex justify-center gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" asChild>
                 <Link href="/dashboard">Create My Resume</Link>
               </Button>
+              <UploadResumeButton />
             </div>
           </div>
         </section>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -24,6 +24,26 @@ export default function DashboardPage() {
     defaultValues: defaultResumeData,
     mode: 'onBlur',
   });
+
+  useEffect(() => {
+    try {
+      const parsedDataString = sessionStorage.getItem('parsedResumeData');
+      if (parsedDataString) {
+        const parsedData = JSON.parse(parsedDataString);
+        // Validate and merge with defaults before resetting the form
+        const result = ResumeDataSchema.safeParse(parsedData);
+        if (result.success) {
+          methods.reset(result.data);
+        } else {
+          console.error("Failed to parse resume data from sessionStorage:", result.error);
+        }
+        // Clean up sessionStorage
+        sessionStorage.removeItem('parsedResumeData');
+      }
+    } catch (error) {
+      console.error("Error processing sessionStorage data:", error);
+    }
+  }, [methods]);
 
   const resumeData = methods.watch();
 

@@ -4,6 +4,64 @@ import 'dotenv/config';
 import { generateInitialResumeDraft } from '@/ai/flows/generate-initial-resume-draft';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
+import { parseResume } from '@/ai/flows/parse-resume';
+import { defaultResumeData, ResumeDataSchema } from '@/lib/definitions';
+import { merge } from 'lodash';
+import mammoth from 'mammoth';
+import pdf from 'pdf-parse/lib/pdf-parse.js';
+
+async function getFileContent(file: File): Promise<string> {
+    const arrayBuffer = await file.arrayBuffer();
+    if (file.type === 'application/pdf') {
+        const data = await pdf(Buffer.from(arrayBuffer));
+        return data.text;
+    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const { value } = await mammoth.extractRawText({ arrayBuffer });
+        return value;
+    }
+    throw new Error('Unsupported file type. Please upload a PDF or DOCX.');
+}
+
+export async function parseResumeAction(formData: FormData) {
+    try {
+        const file = formData.get('resume') as File;
+        if (!file) {
+            throw new Error('No file provided.');
+        }
+        
+        const resumeContent = await getFileContent(file);
+        
+        if (!resumeContent.trim()) {
+            throw new Error('The document appears to be empty.');
+        }
+
+        const parsedData = await parseResume({ resumeContent });
+        
+        // Deep merge partial data from AI with default structure to ensure all keys are present
+        const fullData = merge({}, defaultResumeData, parsedData);
+        
+        // Add unique IDs to array items if they don't have one from the merge
+        fullData.experience.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.education.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.skills.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.projects.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.certifications.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+
+        // Final validation before sending to client
+        const finalValidation = ResumeDataSchema.safeParse(fullData);
+        
+        if (!finalValidation.success) {
+            console.error("Final validation failed after merging in action:", finalValidation.error);
+            throw new Error("Parsed data structure is invalid after processing.");
+        }
+
+        return { success: true, data: finalValidation.data };
+    } catch (error) {
+        console.error('[Parse Resume Action Error]', error);
+        const message = error instanceof Error ? error.message : 'Failed to parse resume.';
+        return { success: false, error: message };
+    }
+}
 
 export async function getInitialResumeDraftAction(prompt: string) {
     try {
