@@ -45,14 +45,7 @@ export function DashboardHeader() {
                 <Logo />
             </Link>
         </div>
-        <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-                <Link href="/builder">Builder</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-                <Link href="/pricing">Pricing</Link>
-            </Button>
-        </div>
+        
         <div className="flex-1 flex justify-end">
             <div className="flex items-center space-x-4">
               {isUserLoading ? (
