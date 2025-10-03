@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -53,6 +54,10 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
       toast({ title: "Successfully signed in with Google." });
       handleSuccess();
     } catch (error: any) {
+      if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
+        // User cancelled the sign-in, so we do nothing.
+        return;
+      }
       console.error(error);
       toast({
         variant: "destructive",
