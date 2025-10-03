@@ -43,10 +43,10 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
           {personalInfo?.name || 'Your Name'}
         </h1>
         <div className="flex justify-center items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2 flex-wrap">
-          {personalInfo?.location && <span className="flex items-center gap-1.5"><MapPin size={12} />{personalInfo.location}</span>}
-          {personalInfo?.email && <span className="flex items-center gap-1.5"><Mail size={12} />{personalInfo.email}</span>}
-          {personalInfo?.phone && <span className="flex items-center gap-1.5"><Phone size={12} />{personalInfo.phone}</span>}
-          {personalInfo?.website && <span className="flex items-center gap-1.5"><Globe size={12} />{personalInfo.website}</span>}
+          {personalInfo?.location && <span key="location" className="flex items-center gap-1.5"><MapPin size={12} />{personalInfo.location}</span>}
+          {personalInfo?.email && <span key="email" className="flex items-center gap-1.5"><Mail size={12} />{personalInfo.email}</span>}
+          {personalInfo?.phone && <span key="phone" className="flex items-center gap-1.5"><Phone size={12} />{personalInfo.phone}</span>}
+          {personalInfo?.website && <span key="website" className="flex items-center gap-1.5"><Globe size={12} />{personalInfo.website}</span>}
         </div>
       </header>
 
@@ -146,10 +146,10 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
             <header className="mb-6">
                 <h1 className="text-3xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
                 <div className="flex items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2 flex-wrap">
-                    {personalInfo?.location && <span className="flex items-center gap-1.5"><MapPin size={12} />{personalInfo.location}</span>}
-                    {personalInfo?.email && <span className="flex items-center gap-1.5"><Mail size={12} />{personalInfo.email}</span>}
-                    {personalInfo?.phone && <span className="flex items-center gap-1.5"><Phone size={12} />{personalInfo.phone}</span>}
-                    {personalInfo?.website && <span className="flex items-center gap-1.5"><Globe size={12} />{personalInfo.website}</span>}
+                    {personalInfo?.location && <span key="location" className="flex items-center gap-1.5"><MapPin size={12} />{personalInfo.location}</span>}
+                    {personalInfo?.email && <span key="email" className="flex items-center gap-1.5"><Mail size={12} />{personalInfo.email}</span>}
+                    {personalInfo?.phone && <span key="phone" className="flex items-center gap-1.5"><Phone size={12} />{personalInfo.phone}</span>}
+                    {personalInfo?.website && <span key="website" className="flex items-center gap-1.5"><Globe size={12} />{personalInfo.website}</span>}
                 </div>
             </header>
             <div className="space-y-5">
@@ -236,10 +236,10 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                 <div>
                     <h2 className="text-base font-bold uppercase tracking-wider mb-2" style={{ color }}>Contact</h2>
                     <div className="space-y-1 text-xs text-card-foreground">
-                        {personalInfo?.location && <p className="flex items-center gap-1.5"><MapPin size={12} className="shrink-0"/>{personalInfo.location}</p>}
-                        {personalInfo?.email && <p className="flex items-center gap-1.5"><Mail size={12} className="shrink-0"/>{personalInfo.email}</p>}
-                        {personalInfo?.phone && <p className="flex items-center gap-1.5"><Phone size={12} className="shrink-0"/>{personalInfo.phone}</p>}
-                        {personalInfo?.website && <p className="flex items-center gap-1.5"><Globe size={12} className="shrink-0"/>{personalInfo.website}</p>}
+                        {personalInfo?.location && <p key="location" className="flex items-center gap-1.5"><MapPin size={12} className="shrink-0"/>{personalInfo.location}</p>}
+                        {personalInfo?.email && <p key="email" className="flex items-center gap-1.5"><Mail size={12} className="shrink-0"/>{personalInfo.email}</p>}
+                        {personalInfo?.phone && <p key="phone" className="flex items-center gap-1.5"><Phone size={12} className="shrink-0"/>{personalInfo.phone}</p>}
+                        {personalInfo?.website && <p key="website" className="flex items-center gap-1.5"><Globe size={12} className="shrink-0"/>{personalInfo.website}</p>}
                     </div>
                 </div>
 
@@ -440,10 +440,10 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                     <div>
                         <h2 className="text-sm font-bold uppercase tracking-widest mb-2 border-b-2 border-white/50 pb-1">Contact</h2>
                         <div className="space-y-2 text-xs">
-                            {personalInfo?.location && <p className="flex items-start gap-2"><MapPin size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.location}</span></p>}
-                            {personalInfo?.email && <p className="flex items-start gap-2"><Mail size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.email}</span></p>}
-                            {personalInfo?.phone && <p className="flex items-start gap-2"><Phone size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.phone}</span></p>}
-                            {personalInfo?.website && <p className="flex items-start gap-2"><Globe size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.website}</span></p>}
+                            {personalInfo?.location && <p key="location" className="flex items-start gap-2"><MapPin size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.location}</span></p>}
+                            {personalInfo?.email && <p key="email" className="flex items-start gap-2"><Mail size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.email}</span></p>}
+                            {personalInfo?.phone && <p key="phone" className="flex items-start gap-2"><Phone size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.phone}</span></p>}
+                            {personalInfo?.website && <p key="website" className="flex items-start gap-2"><Globe size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.website}</span></p>}
                         </div>
                     </div>
                     
