@@ -28,22 +28,23 @@ export default function DashboardPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className={`grid h-[calc(100vh-4rem)] ${activeTab === 'design' ? 'md:grid-cols-1' : 'md:grid-cols-2'} no-print`}>
-        <Tabs defaultValue="content" onValueChange={setActiveTab} className="flex flex-col md:col-span-1">
-          <div className="px-4 py-2 border-b">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="content">
-                <Feather className="mr-2 h-4 w-4" /> Content
-              </TabsTrigger>
-              <TabsTrigger value="design">
-                <LayoutTemplate className="mr-2 h-4 w-4" /> Design
-              </TabsTrigger>
-              <TabsTrigger value="ai">
-                <Wand2 className="mr-2 h-4 w-4" /> AI Assistant
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
+      <Tabs defaultValue="content" onValueChange={setActiveTab} className="flex flex-col h-[calc(100vh-4rem)]">
+        <div className="px-4 py-2 border-b no-print">
+          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3">
+            <TabsTrigger value="content">
+              <Feather className="mr-2 h-4 w-4" /> Content
+            </TabsTrigger>
+            <TabsTrigger value="design">
+              <LayoutTemplate className="mr-2 h-4 w-4" /> Design
+            </TabsTrigger>
+            <TabsTrigger value="ai">
+              <Wand2 className="mr-2 h-4 w-4" /> AI Assistant
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <div className={`grid flex-1 ${activeTab === 'design' ? 'md:grid-cols-1' : 'md:grid-cols-2'} no-print`}>
+          <div className="flex flex-col md:col-span-1">
             <TabsContent value="content" className="mt-0 flex-1">
               <ScrollArea className="h-full">
                 <div className="p-4 lg:p-6">
@@ -58,7 +59,7 @@ export default function DashboardPage() {
                     <ResumePreview 
                         resumeData={resumeData} 
                         designOptions={designOptions} 
-                        className="transform scale-[0.5] origin-top"
+                        className="transform scale-[0.4] sm:scale-[0.6] origin-top"
                     />
                   </div>
                   <TemplateCustomizer 
@@ -75,17 +76,18 @@ export default function DashboardPage() {
                  </div>
               </ScrollArea>
             </TabsContent>
-        </Tabs>
+          </div>
 
-        {/* Preview Panel for Content and AI tabs on desktop */}
-        <div className={activeTab === 'design' ? 'hidden' : 'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto'}>
-          <ResumePreview 
-            resumeData={resumeData}
-            designOptions={designOptions}
-            className="transform scale-[0.4] sm:scale-[0.6] md:scale-[0.4] lg:scale-[0.6] xl:scale-[0.7] origin-top"
-          />
+          {/* Preview Panel for Content and AI tabs on desktop */}
+          <div className={activeTab === 'design' ? 'hidden' : 'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto'}>
+            <ResumePreview 
+              resumeData={resumeData}
+              designOptions={designOptions}
+              className="transform scale-[0.4] sm:scale-[0.6] md:scale-[0.4] lg:scale-[0.6] xl:scale-[0.7] origin-top"
+            />
+          </div>
         </div>
-      </div>
+      </Tabs>
 
       {/* Print Container */}
       <div className="print-container hidden print:block">
