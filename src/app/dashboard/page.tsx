@@ -9,10 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResumeData, ResumeDataSchema, defaultResumeData, DesignOptions, defaultDesignOptions } from '@/lib/definitions';
 import { ResumeEditor } from '@/components/dashboard/resume-editor';
 import { TemplateCustomizer } from '@/components/dashboard/template-customizer';
-import { AiAssistant } from '@/components/dashboard/ai-assistant';
 import { ResumePreview } from '@/components/dashboard/resume-preview';
 import { Download, LayoutTemplate, Feather } from 'lucide-react';
 import { DownloadTab } from '@/components/dashboard/download-tab';
+import { cn } from '@/lib/utils';
 
 
 export default function DashboardPage() {
@@ -80,8 +80,11 @@ export default function DashboardPage() {
               </TabsContent>
             </div>
 
-            {/* Preview Panel for Content and AI tabs on desktop */}
-            <div className={'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto'}>
+            {/* Preview Panel for Content and Download tabs on desktop */}
+            <div className={cn(
+              'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto',
+              { 'md:hidden': activeTab === 'design' }
+            )}>
               <ResumePreview 
                 resumeData={resumeData}
                 designOptions={designOptions}
