@@ -5,9 +5,9 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DesignOptions } from '@/lib/definitions';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Palette, Pen, Type } from 'lucide-react';
+import { Palette, Pen, Type, X } from 'lucide-react';
 
 interface TemplateCustomizerProps {
   designOptions: DesignOptions;
@@ -35,35 +35,35 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
   const renderSheetContent = () => {
+    let content;
     switch (openSheet) {
       case 'template':
-        return (
+        content = (
           <>
-            <SheetHeader><SheetTitle>Template</SheetTitle></SheetHeader>
-            <div className="p-4">
-              <Select
-                value={designOptions.template}
-                onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'classic' | 'modern'}))}
-              >
-                <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="modern">Modern</SelectItem>
-                  <SelectItem value="classic" disabled>Classic (Coming Soon)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <h3 className="font-semibold mb-4">Template</h3>
+            <Select
+              value={designOptions.template}
+              onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'classic' | 'modern'}))}
+            >
+              <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="modern">Modern</SelectItem>
+                <SelectItem value="classic" disabled>Classic (Coming Soon)</SelectItem>
+              </SelectContent>
+            </Select>
           </>
         );
+        break;
       case 'color':
-        return (
+        content = (
           <>
-            <SheetHeader><SheetTitle>Accent Color</SheetTitle></SheetHeader>
-            <div className="p-4 flex flex-wrap gap-3 justify-center">
+            <h3 className="font-semibold mb-4">Accent Color</h3>
+            <div className="flex flex-wrap gap-3 justify-center">
               {colors.map(color => (
                 <button
                   key={color.value}
                   title={color.name}
-                  className={`h-10 w-10 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-transparent'}`}
+                  className={`h-8 w-8 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-transparent'}`}
                   style={{ backgroundColor: color.value }}
                   onClick={() => setDesignOptions(prev => ({...prev, color: color.value}))}
                 />
@@ -71,11 +71,12 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
             </div>
           </>
         );
+        break;
       case 'font':
-        return (
+        content = (
           <>
-            <SheetHeader><SheetTitle>Typography</SheetTitle></SheetHeader>
-            <div className="p-4 space-y-4">
+            <h3 className="font-semibold mb-4">Typography</h3>
+            <div className="space-y-2">
               <Label>Font Family</Label>
               <Select
                  value={designOptions.font}
@@ -91,40 +92,59 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
             </div>
           </>
         );
+        break;
       default:
         return null;
+    }
+    return (
+        <div className="p-4 relative">
+            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setOpenSheet(null)}><X className="h-4 w-4" /></Button>
+            {content}
+        </div>
+    )
+  }
+
+  const toggleSheet = (sheet: OpenSheet) => {
+    if (openSheet === sheet) {
+      setOpenSheet(null);
+    } else {
+      setOpenSheet(sheet);
     }
   }
 
   return (
-    <Sheet open={!!openSheet} onOpenChange={(isOpen) => !isOpen && setOpenSheet(null)}>
-      <div className="fixed bottom-0 left-0 right-0 p-2 bg-background/80 backdrop-blur-sm border-t z-10">
-        <div className="container mx-auto max-w-xs">
-          <div className="grid grid-cols-3 gap-1">
-            <SheetTrigger asChild onClick={() => setOpenSheet('template')}>
-              <Button variant="outline" className="flex-col h-14 text-xs">
-                <Pen className="mb-1 h-4 w-4"/>
-                <span>Template</span>
-              </Button>
-            </SheetTrigger>
-            <SheetTrigger asChild onClick={() => setOpenSheet('color')}>
-              <Button variant="outline" className="flex-col h-14 text-xs">
-                <Palette className="mb-1 h-4 w-4" />
-                <span>Color</span>
-              </Button>
-            </SheetTrigger>
-            <SheetTrigger asChild onClick={() => setOpenSheet('font')}>
-              <Button variant="outline" className="flex-col h-14 text-xs">
-                <Type className="mb-1 h-4 w-4" />
-                <span>Font</span>
-              </Button>
-            </SheetTrigger>
-          </div>
+    <div className="fixed bottom-0 left-0 right-0 p-2 z-10">
+        <div className="container mx-auto max-w-sm">
+            <AnimatePresence>
+                {openSheet && (
+                    <motion.div
+                        initial={{ opacity: 0, y: "100%" }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: "100%" }}
+                        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        className="mb-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg"
+                    >
+                        {renderSheetContent()}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <div className="p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg">
+                <div className="grid grid-cols-3 gap-1">
+                    <Button variant={openSheet === 'template' ? 'secondary' : 'ghost'} className="flex-col h-12 text-xs" onClick={() => toggleSheet('template')}>
+                        <Pen className="mb-1 h-4 w-4"/>
+                        <span>Template</span>
+                    </Button>
+                    <Button variant={openSheet === 'color' ? 'secondary' : 'ghost'} className="flex-col h-12 text-xs" onClick={() => toggleSheet('color')}>
+                        <Palette className="mb-1 h-4 w-4" />
+                        <span>Color</span>
+                    </Button>
+                    <Button variant={openSheet === 'font' ? 'secondary' : 'ghost'} className="flex-col h-12 text-xs" onClick={() => toggleSheet('font')}>
+                        <Type className="mb-1 h-4 w-4" />
+                        <span>Font</span>
+                    </Button>
+                </div>
+            </div>
         </div>
-      </div>
-      <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-lg h-auto max-h-[40vh]">
-        {renderSheetContent()}
-      </SheetContent>
-    </Sheet>
+    </div>
   );
 }
