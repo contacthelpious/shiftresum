@@ -18,9 +18,9 @@ export default function DashboardPage() {
     const router = useRouter();
 
     const resumesRef = useMemoFirebase(() => {
-        if (!user) return null;
+        if (isUserLoading || !user) return null;
         return collection(firestore, 'users', user.uid, 'resumes');
-    }, [firestore, user]);
+    }, [firestore, user, isUserLoading]);
 
     const { data: resumes, isLoading: isResumesLoading } = useCollection<ResumeData>(resumesRef);
 
@@ -80,7 +80,7 @@ export default function DashboardPage() {
                 </Button>
             </CardHeader>
             <CardContent>
-              {isResumesLoading ? (
+              {isResumesLoading && !resumes ? (
                  <div className="text-center py-12">
                    <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
                    <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
