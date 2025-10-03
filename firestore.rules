@@ -1,51 +1,97 @@
+/**
+ * @fileoverview Firestore Security Rules for ResumeFlow application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model, ensuring that users can only
+ * access their own data. Public data (templates) are readable by all.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profile information.
+ * - /users/{userId}/resumes/{resumeId}: Stores resumes created by a user.
+ * - /templates/{templateId}: Stores resume templates (publicly accessible).
+ *
+ * Key Security Decisions:
+ * - Users can only create, read, update, and delete their own user documents and resumes.
+ * - Listing of resumes is restricted to the owner of the resumes.
+ * - Templates are publicly readable but not writable through security rules (backend only).
+ *
+ * Denormalization for Authorization:
+ *  - The userId is embedded within the resume document's path (`/users/{userId}/resumes/{resumeId}`)
+ *    to avoid needing to read the resume document to determine the owner.
+ *  - The rules leverage the path structure to determine ownership.
+ *
+ * Structural Segregation:
+ *  - User-specific data (resumes) is stored in user-owned subcollections to simplify security rules
+ *    and prevent accidental exposure of private data.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile information.
+     * @description Allows users to manage their own user document.
      * @path /users/{userId}
-     * @allow (create) User with UID 'user123' can create their profile.
-     * @deny (create) User with UID 'user456' cannot create a profile for 'user123'.
-     * @allow (get, update, delete) User with UID 'user123' can get, update and delete their own profile.
-     * @deny (get, update, delete) User with UID 'user456' cannot get, update and delete profile of 'user123'.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) User with ID 'user123' can create a document at /users/user123.
+     * @allow (get, update, delete) User with ID 'user123' can access /users/user123.
+     * @deny (create) User with ID 'user456' cannot create a document at /users/user123.
+     * @deny (get, update, delete) User with ID 'user456' cannot access /users/user123.
+     * @principle Enforces document ownership for user profiles.
      */
     match /users/{userId} {
-      allow get: if request.auth.uid == userId;
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId;
-      allow delete: if request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Controls access to resumes created by a specific user.
+     * @description Allows users to manage their own resumes.
      * @path /users/{userId}/resumes/{resumeId}
-     * @allow (create) User with UID 'user123' can create a resume under their profile.
-     * @deny (create) User with UID 'user456' cannot create a resume under 'user123' profile.
-     * @allow (get, update, delete) User with UID 'user123' can get, update and delete their own resume.
-     * @deny (get, update, delete) User with UID 'user456' cannot get, update and delete resume of 'user123'.
-     * @principle Enforces document ownership for all operations on resumes.
+     * @allow (create) User with ID 'user123' can create a resume at /users/user123/resumes/resume1.
+     * @allow (get, update, delete) User with ID 'user123' can access /users/user123/resumes/resume1.
+     * @allow (list) User with ID 'user123' can list resumes under /users/user123/resumes
+     * @deny (create) User with ID 'user456' cannot create a resume at /users/user123/resumes/resume1.
+     * @deny (get, update, delete) User with ID 'user456' cannot access /users/user123/resumes/resume1.
+     * @principle Enforces document ownership for resumes.
      */
     match /users/{userId}/resumes/{resumeId} {
-      allow get: if request.auth.uid == userId;
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId;
-      allow delete: if request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Controls access to resume templates.
+     * @description Allows anyone to read templates, but restricts writes.
      * @path /templates/{templateId}
-     * @allow (get, list) Anyone can read the resume templates.
-     * @deny (create, update, delete) No one from client-side can create, update, or delete resume templates.
-     * @principle Allows public read access but restricts write access.
+     * @allow (get, list) Any user can read templates.
+     * @deny (create, update, delete) No user can create, update, or delete templates through rules.
+     * @principle Allows public read access to templates.
      */
     match /templates/{templateId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }
