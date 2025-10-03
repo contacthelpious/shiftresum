@@ -6,16 +6,18 @@ import Link from 'next/link';
 
 const tiers = [
   {
-    name: 'Free',
-    price: '$0',
-    description: 'Get started and create your first resume.',
+    name: 'Weekly',
+    price: '$2',
+    priceAnnotation: '/ week',
+    description: 'Try out all the Pro features for a week.',
     features: [
-      '1 Resume',
-      'AI Suggestions (3 per day)',
-      '5 Templates',
-      'PDF Export',
+      'Unlimited Resumes',
+      'Unlimited AI Suggestions',
+      'All Templates & Colors',
+      'Remove "ResumeFlow" Branding',
+      'Priority Support',
     ],
-    cta: 'Get Started',
+    cta: 'Start Trial',
     href: '/signup'
   },
   {
@@ -34,21 +36,6 @@ const tiers = [
     href: '/signup',
     popular: true,
   },
-  {
-    name: 'Weekly',
-    price: '$2',
-    priceAnnotation: '/ week',
-    description: 'Try out all the Pro features for a week.',
-    features: [
-      'Unlimited Resumes',
-      'Unlimited AI Suggestions',
-      'All Templates & Colors',
-      'Remove "ResumeFlow" Branding',
-      'Priority Support',
-    ],
-    cta: 'Start Trial',
-    href: '/signup'
-  },
 ];
 
 export default function PricingPage() {
@@ -64,7 +51,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-3">
+        <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-2">
           {tiers.map((tier) => (
             <Card key={tier.name} className={`flex flex-col ${tier.popular ? 'border-primary ring-2 ring-primary' : ''}`}>
               {tier.popular && (
