@@ -28,7 +28,7 @@ export default function DashboardPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="grid h-[calc(100vh-4rem)] md:grid-cols-[1fr_1fr] no-print">
+      <div className={`grid h-[calc(100vh-4rem)] ${activeTab === 'design' ? 'md:grid-cols-1' : 'md:grid-cols-2'} no-print`}>
         <Tabs defaultValue="content" onValueChange={setActiveTab} className="flex flex-col md:col-span-1">
           <div className="px-4 py-2 border-b">
             <TabsList className="grid w-full grid-cols-3">
