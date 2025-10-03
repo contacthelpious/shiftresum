@@ -62,11 +62,13 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         )}
                         onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
                     >
-                        <div className="transform scale-[0.2] origin-top-left pointer-events-none -mb-16">
-                            <ResumePreview 
-                                resumeData={resumeData}
-                                designOptions={{...designOptions, template: template.value}}
-                            />
+                        <div className="h-[210px] overflow-hidden bg-muted/30">
+                          <div className="transform scale-[0.18] origin-top-left pointer-events-none">
+                              <ResumePreview 
+                                  resumeData={resumeData}
+                                  designOptions={{...designOptions, template: template.value}}
+                              />
+                          </div>
                         </div>
                         <p className="text-xs text-center font-medium bg-muted/50 py-1">{template.name}</p>
                     </div>
