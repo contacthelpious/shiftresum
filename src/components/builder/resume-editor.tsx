@@ -46,7 +46,7 @@ export function ResumeEditor() {
   return (
     <Form {...useFormContext()}>
       <div className="space-y-4">
-        <Accordion type="multiple" defaultValue={['personal-info', 'experience']} className="w-full">
+        <Accordion type="single" collapsible defaultValue="personal-info" className="w-full">
           <AccordionItem value="personal-info">
             <AccordionTrigger className="text-lg font-medium">Personal Information</AccordionTrigger>
             <AccordionContent>
@@ -124,7 +124,7 @@ export function ResumeEditor() {
                     </div>
                   )
                 })}
-                <Button variant="outline" onClick={() => appendExperience({company: '', role: '', startDate: '', endDate: '', description: []})}>Add Experience</Button>
+                <Button variant="outline" onClick={() => appendExperience({id: crypto.randomUUID(), company: '', role: '', startDate: '', endDate: '', description: []})}>Add Experience</Button>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -150,7 +150,27 @@ export function ResumeEditor() {
                     )} />
                   </div>
                 ))}
-                <Button variant="outline" onClick={() => appendEducation({institution: '', degree: '', graduationDate: '', details: ''})}>Add Education</Button>
+                <Button variant="outline" onClick={() => appendEducation({id: crypto.randomUUID(), institution: '', degree: '', graduationDate: '', details: ''})}>Add Education</Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+           <AccordionItem value="skills">
+            <AccordionTrigger className="text-lg font-medium">Skills</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4 pt-2">
+                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {skillFields.map((field, index) => (
+                      <div key={field.id} className="flex items-center gap-2">
+                        <FormField name={`skills.${index}.name`} render={({ field }) => (
+                          <FormItem className="flex-1"><FormControl><Input {...field} /></FormControl></FormItem>
+                        )} />
+                        <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => removeSkill(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </div>
+                    ))}
+                 </div>
+                <Button variant="outline" onClick={() => appendSkill({ id: crypto.randomUUID(), name: '' })}>Add Skill</Button>
+                <AiSkillGenerator append={appendSkill} />
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -173,7 +193,7 @@ export function ResumeEditor() {
                     )} />
                   </div>
                 ))}
-                <Button variant="outline" onClick={() => appendProject({name: '', description: '', link: ''})}>Add Project</Button>
+                <Button variant="outline" onClick={() => appendProject({id: crypto.randomUUID(), name: '', description: '', link: ''})}>Add Project</Button>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -196,28 +216,8 @@ export function ResumeEditor() {
                             )} />
                         </div>
                     ))}
-                    <Button variant="outline" onClick={() => appendCertification({name: '', issuingOrganization: '', date: ''})}>Add Certification</Button>
+                    <Button variant="outline" onClick={() => appendCertification({id: crypto.randomUUID(), name: '', issuingOrganization: '', date: ''})}>Add Certification</Button>
                 </div>
-            </AccordionContent>
-          </AccordionItem>
-          
-          <AccordionItem value="skills">
-            <AccordionTrigger className="text-lg font-medium">Skills</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4 pt-2">
-                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {skillFields.map((field, index) => (
-                      <div key={field.id} className="flex items-center gap-2">
-                        <FormField name={`skills.${index}.name`} render={({ field }) => (
-                          <FormItem className="flex-1"><FormControl><Input {...field} /></FormControl></FormItem>
-                        )} />
-                        <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => removeSkill(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </div>
-                    ))}
-                 </div>
-                <Button variant="outline" onClick={() => appendSkill({ id: crypto.randomUUID(), name: '' })}>Add Skill</Button>
-                <AiSkillGenerator append={appendSkill} />
-              </div>
             </AccordionContent>
           </AccordionItem>
 
