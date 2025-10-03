@@ -30,8 +30,8 @@ export default function DashboardPage() {
     <FormProvider {...methods}>
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="px-4 py-2 border-b no-print flex justify-center">
-            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3">
+          <div className="px-4 py-2 border-b no-print w-full flex justify-center">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger value="content">
                 <Feather className="mr-2 h-4 w-4" /> Content
               </TabsTrigger>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
                       <ResumePreview 
                           resumeData={resumeData} 
                           designOptions={designOptions} 
-                          className="transform scale-[0.6] origin-top md:scale-[0.8]"
+                          className="transform scale-[0.4] origin-top sm:scale-[0.5] md:scale-[0.8]"
                       />
                     </div>
                     <TemplateCustomizer 
