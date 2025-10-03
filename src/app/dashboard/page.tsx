@@ -16,6 +16,7 @@ import { Wand2, LayoutTemplate, Feather } from 'lucide-react';
 
 export default function DashboardPage() {
   const [designOptions, setDesignOptions] = useState<DesignOptions>(defaultDesignOptions);
+  const [activeTab, setActiveTab] = useState('content');
   
   const methods = useForm<ResumeData>({
     resolver: zodResolver(ResumeDataSchema),
@@ -28,7 +29,7 @@ export default function DashboardPage() {
   return (
     <FormProvider {...methods}>
       <div className="grid h-[calc(100vh-4rem)] md:grid-cols-[1fr_1fr] no-print">
-        <Tabs defaultValue="content" className="flex flex-col md:col-span-1">
+        <Tabs defaultValue="content" onValueChange={setActiveTab} className="flex flex-col md:col-span-1">
           <div className="px-4 py-2 border-b">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="content">
@@ -42,13 +43,18 @@ export default function DashboardPage() {
               </TabsTrigger>
             </TabsList>
           </div>
-          <ScrollArea className="flex-1">
-            <TabsContent value="content" className="mt-0 p-4 lg:p-6">
-              <ResumeEditor />
+          
+            <TabsContent value="content" className="mt-0 flex-1">
+              <ScrollArea className="h-full">
+                <div className="p-4 lg:p-6">
+                    <ResumeEditor />
+                </div>
+              </ScrollArea>
             </TabsContent>
-            <TabsContent value="design" className="mt-0 p-0 md:hidden">
-                <div className="relative h-[calc(100vh-8rem)] overflow-y-auto bg-muted/40">
-                  <div className="flex justify-center items-start pt-8 pb-40">
+
+            <TabsContent value="design" className="mt-0 flex-1">
+                <div className="relative h-full overflow-y-auto bg-muted/40">
+                  <div className="flex justify-center items-start pt-8 pb-40 h-full">
                     <ResumePreview 
                         resumeData={resumeData} 
                         designOptions={designOptions} 
@@ -61,14 +67,18 @@ export default function DashboardPage() {
                   />
                 </div>
             </TabsContent>
-            <TabsContent value="ai" className="mt-0 p-4 lg:p-6">
-              <AiAssistant />
+            
+            <TabsContent value="ai" className="mt-0 flex-1">
+               <ScrollArea className="h-full">
+                 <div className="p-4 lg:p-6">
+                    <AiAssistant />
+                 </div>
+              </ScrollArea>
             </TabsContent>
-          </ScrollArea>
         </Tabs>
 
         {/* Preview Panel for Content and AI tabs on desktop */}
-        <div className="hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto">
+        <div className={activeTab === 'design' ? 'hidden' : 'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto'}>
           <ResumePreview 
             resumeData={resumeData}
             designOptions={designOptions}
