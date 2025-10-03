@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,9 @@ export default function LandingPage() {
         <div className="container flex h-16 items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
+            <Button variant="ghost" asChild>
+              <Link href="/pricing">Pricing</Link>
+            </Button>
             <Button variant="ghost" asChild>
               <Link href="/login">Log In</Link>
             </Button>
@@ -114,8 +118,9 @@ export default function LandingPage() {
         <div className="container flex h-20 items-center justify-between text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} ResumeFlow. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="#" className="hover:text-primary">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary">Terms of Service</Link>
+            <Link href="/about" className="hover:text-primary">About</Link>
+            <Link href="/contact" className="hover:text-primary">Contact</Link>
+            <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
           </div>
         </div>
       </footer>
