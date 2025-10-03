@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profile information.
+     * @path /users/{userId}
+     * @allow (create) User with UID 'user123' can create their profile.
+     * @deny (create) User with UID 'user456' cannot create a profile for 'user123'.
+     * @allow (get, update, delete) User with UID 'user123' can get, update and delete their own profile.
+     * @deny (get, update, delete) User with UID 'user456' cannot get, update and delete profile of 'user123'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if request.auth.uid == userId;
+      allow list: if false;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+      allow delete: if request.auth.uid == userId;
+    }
+
+    /**
+     * @description Controls access to resumes created by a specific user.
+     * @path /users/{userId}/resumes/{resumeId}
+     * @allow (create) User with UID 'user123' can create a resume under their profile.
+     * @deny (create) User with UID 'user456' cannot create a resume under 'user123' profile.
+     * @allow (get, update, delete) User with UID 'user123' can get, update and delete their own resume.
+     * @deny (get, update, delete) User with UID 'user456' cannot get, update and delete resume of 'user123'.
+     * @principle Enforces document ownership for all operations on resumes.
+     */
+    match /users/{userId}/resumes/{resumeId} {
+      allow get: if request.auth.uid == userId;
+      allow list: if false;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+      allow delete: if request.auth.uid == userId;
+    }
+
+    /**
+     * @description Controls access to resume templates.
+     * @path /templates/{templateId}
+     * @allow (get, list) Anyone can read the resume templates.
+     * @deny (create, update, delete) No one from client-side can create, update, or delete resume templates.
+     * @principle Allows public read access but restricts write access.
+     */
+    match /templates/{templateId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the ResumeFlow application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "oauthProvider": {
+          "type": "string",
+          "description": "The authentication provider used, e.g., 'google', 'linkedin', or 'email'."
+        },
+        "oauthId": {
+          "type": "string",
+          "description": "The unique user ID provided by the OAuth provider (if applicable)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "planType": {
+          "type": "string",
+          "description": "The user's subscription plan type (e.g., 'free', 'weekly', 'monthly')."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "createdAt"
+      ]
+    },
+    "Resume": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Resume",
+      "type": "object",
+      "description": "Represents a resume created by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resume entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Resume)"
+        },
+        "templateId": {
+          "type": "string",
+          "description": "Reference to Template. (Relationship: Template 1:N Resume)"
+        },
+        "dataJson": {
+          "type": "string",
+          "description": "JSON data containing the content of the resume."
+        },
+        "designSettings": {
+          "type": "string",
+          "description": "JSON data containing design settings for the resume (e.g., fonts, colors)."
+        },
+        "versions": {
+          "type": "array",
+          "description": "Array of resume version IDs, for version control.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the resume was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "templateId",
+        "dataJson",
+        "designSettings",
+        "createdAt"
+      ]
+    },
+    "Template": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Template",
+      "type": "object",
+      "description": "Represents a resume template.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the template entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the template."
+        },
+        "schema": {
+          "type": "string",
+          "description": "JSON schema defining the structure of the resume data for this template."
+        },
+        "previewImage": {
+          "type": "string",
+          "description": "URL of the preview image for the template.",
+          "format": "uri"
+        },
+        "premiumFlag": {
+          "type": "boolean",
+          "description": "Indicates whether the template is a premium template."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "schema",
+        "previewImage",
+        "premiumFlag"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  Accessible only by the user with matching UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching their Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/resumes/{resumeId}",
+        "definition": {
+          "entityName": "Resume",
+          "schema": {
+            "$ref": "#/backend/entities/Resume"
+          },
+          "description": "Stores resumes created by the user. Accessible only by the user with matching UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching their Firebase Auth UID."
+            },
+            {
+              "name": "resumeId",
+              "description": "The unique identifier for the resume."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/templates/{templateId}",
+        "definition": {
+          "entityName": "Template",
+          "schema": {
+            "$ref": "#/backend/entities/Template"
+          },
+          "description": "Stores resume templates. Publicly accessible.",
+          "params": [
+            {
+              "name": "templateId",
+              "description": "The unique identifier for the template."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure security, scalability, and debuggability, following the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization and structural segregation to simplify security rules and enable secure list operations.\n\n**Authorization Independence**: This is achieved through path-based ownership for private data and denormalization where needed. Specifically:\n*   User data is stored under `/users/{userId}`, ensuring only the authenticated user can access their own data.\n*   Resumes are stored under `/users/{userId}/resumes/{resumeId}` ensuring that the user owns the data. No `get()` calls are needed to verify ownership.\n\n**Clarity of Intent (Debuggability)**: The structure makes authorization intent explicit by using clear, hierarchical paths that directly represent ownership. This avoids implicit authorization logic and makes rules easier to understand and debug.\n\n**DBAC (No Custom Claims)**: Authorization relies solely on `request.auth.uid`, roles are derived from ownership of data through the path structure.\n\n**QAPs (Rules are not Filters)**: The structure enables secure `list` operations by segregating data based on ownership. Listing resumes under `/users/{userId}/resumes` only requires checking that `request.auth.uid == userId`.\n\n**Invariants**: The structure supports the integrity of ownership by embedding ownership directly in the path. Timestamps are inherently supported by Firestore, and denormalized data (if any) would be updated via server-side functions to maintain consistency.\n\n**Denormalization Strategy**: If, in the future, a collaborative feature is implemented such that multiple users can access a resume, a `members` map would be added to the `resume` document, listing the `uid` and `role` of each member. This ensures Authorization Independence.\n\n**Structural Segregation**: The structure separates user-specific data (resumes) into user-owned subcollections. This simplifies security rules and avoids mixing data with different access needs in the same collection."
+  }
+}
