@@ -27,6 +27,17 @@ export function ResumeEditor() {
     name: "skills",
   });
 
+  const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({
+    control,
+    name: "projects",
+  });
+
+  const { fields: certificationFields, append: appendCertification, remove: removeCertification } = useFieldArray({
+    control,
+    name: "certifications",
+  });
+
+
   return (
     <Form {...useFormContext()}>
       <div className="space-y-4">
@@ -114,6 +125,52 @@ export function ResumeEditor() {
             </AccordionContent>
           </AccordionItem>
           
+          <AccordionItem value="projects">
+            <AccordionTrigger className="text-lg font-medium">Projects</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-6 pt-2">
+                {projectFields.map((field, index) => (
+                  <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
+                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeProject(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <FormField name={`projects.${index}.name`} render={({ field }) => (
+                      <FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`projects.${index}.link`} render={({ field }) => (
+                      <FormItem><FormLabel>Project Link</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`projects.${index}.description`} render={({ field }) => (
+                      <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                ))}
+                <Button variant="outline" onClick={() => appendProject({name: '', description: '', link: ''})}>Add Project</Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="certifications">
+            <AccordionTrigger className="text-lg font-medium">Certifications</AccordionTrigger>
+            <AccordionContent>
+                <div className="space-y-6 pt-2">
+                    {certificationFields.map((field, index) => (
+                        <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
+                            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeCertification(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                            <FormField name={`certifications.${index}.name`} render={({ field }) => (
+                                <FormItem><FormLabel>Certification Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                            )} />
+                             <FormField name={`certifications.${index}.issuingOrganization`} render={({ field }) => (
+                                <FormItem><FormLabel>Issuing Organization</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                            )} />
+                            <FormField name={`certifications.${index}.date`} render={({ field }) => (
+                                <FormItem><FormLabel>Date</FormLabel><FormControl><Input placeholder="e.g. June 2023" {...field} /></FormControl></FormItem>
+                            )} />
+                        </div>
+                    ))}
+                    <Button variant="outline" onClick={() => appendCertification({name: '', issuingOrganization: '', date: ''})}>Add Certification</Button>
+                </div>
+            </AccordionContent>
+          </AccordionItem>
+          
           <AccordionItem value="skills">
             <AccordionTrigger className="text-lg font-medium">Skills</AccordionTrigger>
             <AccordionContent>
@@ -132,6 +189,7 @@ export function ResumeEditor() {
               </div>
             </AccordionContent>
           </AccordionItem>
+
         </Accordion>
       </div>
     </Form>

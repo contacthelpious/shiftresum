@@ -39,11 +39,31 @@ export const SkillSchema = z.object({
 
 export type Skill = z.infer<typeof SkillSchema>;
 
+export const ProjectSchema = z.object({
+  id: z.string().default(() => crypto.randomUUID()),
+  name: z.string().default(''),
+  description: z.string().default(''),
+  link: z.string().url({ message: "Invalid URL format." }).or(z.literal('')).default(''),
+});
+
+export type Project = z.infer<typeof ProjectSchema>;
+
+export const CertificationSchema = z.object({
+    id: z.string().default(() => crypto.randomUUID()),
+    name: z.string().default(''),
+    issuingOrganization: z.string().default(''),
+    date: z.string().default(''),
+});
+
+export type Certification = z.infer<typeof CertificationSchema>;
+
 export const ResumeDataSchema = z.object({
   personalInfo: PersonalInfoSchema.default({}),
   experience: z.array(ExperienceSchema).default([]),
   education: z.array(EducationSchema).default([]),
   skills: z.array(SkillSchema).default([]),
+  projects: z.array(ProjectSchema).default([]),
+  certifications: z.array(CertificationSchema).default([]),
 });
 
 export type ResumeData = z.infer<typeof ResumeDataSchema>;
@@ -93,6 +113,8 @@ export const defaultResumeData: ResumeData = {
     { id: "6", name: 'Docker' },
     { id: "7", name: 'AWS' },
   ],
+  projects: [],
+  certifications: [],
 };
 
 export const DesignOptionsSchema = z.object({

@@ -2,8 +2,9 @@
 'use client';
 
 import type { ResumeData, DesignOptions } from '@/lib/definitions';
-import { Mail, Phone, Globe, MapPin } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ResumePreviewProps {
   resumeData: ResumeData;
@@ -18,7 +19,7 @@ const fontClasses: {[key: string]: string} = {
 };
 
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
-  const { personalInfo, experience, education, skills } = resumeData;
+  const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
   const { color, font } = designOptions;
 
   const fontClass = fontClasses[font] || 'font-body';
@@ -58,7 +59,7 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
           )}
 
           {/* Experience */}
-          {experience.length > 0 && (
+          {experience && experience.length > 0 && (
             <section>
               <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-2" style={{ borderColor: color }}>Experience</h2>
               <div className="space-y-4">
@@ -78,8 +79,32 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
             </section>
           )}
 
+          {/* Projects */}
+          {projects && projects.length > 0 && (
+            <section>
+                <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-2" style={{ borderColor: color }}>Projects</h2>
+                <div className="space-y-4">
+                    {projects.map(proj => (
+                        <div key={proj.id}>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
+                                {proj.link && (
+                                    <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                                        <LinkIcon size={12} />
+                                    </Link>
+                                )}
+                            </div>
+                            <ul className="list-disc list-outside pl-5 space-y-1 mt-1">
+                                {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+            </section>
+          )}
+
           {/* Education */}
-          {education.length > 0 && (
+          {education && education.length > 0 && (
             <section>
               <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-2" style={{ borderColor: color }}>Education</h2>
               <div className="space-y-2">
@@ -97,8 +122,26 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
             </section>
           )}
 
+          {/* Certifications */}
+          {certifications && certifications.length > 0 && (
+            <section>
+                <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-2" style={{ borderColor: color }}>Certifications</h2>
+                <div className="space-y-2">
+                    {certifications.map(cert => (
+                        <div key={cert.id}>
+                            <div className="flex justify-between items-baseline">
+                                <h3 className="font-semibold text-base">{cert.name || 'Certification'}</h3>
+                                <div className="text-xs text-muted-foreground">{cert.date}</div>
+                            </div>
+                             <div className="italic text-sm text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+          )}
+
           {/* Skills */}
-          {skills.length > 0 && (
+          {skills && skills.length > 0 && (
             <section>
               <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-2" style={{ borderColor: color }}>Skills</h2>
               <div className="flex flex-wrap gap-2">
