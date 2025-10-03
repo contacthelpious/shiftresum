@@ -99,30 +99,30 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
   return (
     <Sheet open={!!openSheet} onOpenChange={(isOpen) => !isOpen && setOpenSheet(null)}>
       <div className="fixed bottom-0 left-0 right-0 p-2 bg-background/80 backdrop-blur-sm border-t z-10">
-        <div className="container mx-auto max-w-md">
-          <div className="grid grid-cols-3 gap-2">
+        <div className="container mx-auto max-w-xs">
+          <div className="grid grid-cols-3 gap-1">
             <SheetTrigger asChild onClick={() => setOpenSheet('template')}>
-              <Button variant="outline" className="flex-col h-16">
-                <Pen className="mb-1"/>
+              <Button variant="outline" className="flex-col h-14 text-xs">
+                <Pen className="mb-1 h-4 w-4"/>
                 <span>Template</span>
               </Button>
             </SheetTrigger>
             <SheetTrigger asChild onClick={() => setOpenSheet('color')}>
-              <Button variant="outline" className="flex-col h-16">
-                <Palette className="mb-1" />
+              <Button variant="outline" className="flex-col h-14 text-xs">
+                <Palette className="mb-1 h-4 w-4" />
                 <span>Color</span>
               </Button>
             </SheetTrigger>
             <SheetTrigger asChild onClick={() => setOpenSheet('font')}>
-              <Button variant="outline" className="flex-col h-16">
-                <Type className="mb-1" />
+              <Button variant="outline" className="flex-col h-14 text-xs">
+                <Type className="mb-1 h-4 w-4" />
                 <span>Font</span>
               </Button>
             </SheetTrigger>
           </div>
         </div>
       </div>
-      <SheetContent side="bottom" className="mx-auto max-w-xl rounded-t-lg">
+      <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-lg h-auto max-h-[40vh]">
         {renderSheetContent()}
       </SheetContent>
     </Sheet>
