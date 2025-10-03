@@ -52,7 +52,7 @@ export function AiSkillGenerator() {
         toast({ title: 'Skill already exists', description: `"${skill}" is already in your skills list.`});
         return;
     }
-    append({ name: skill });
+    append({ id: crypto.randomUUID(), name: skill });
     toast({ title: 'Skill Added', description: `"${skill}" has been added to your skills.`});
   };
 
