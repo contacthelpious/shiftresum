@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { ResumeData, DesignOptions } from '@/lib/definitions';
+import type { ResumeData, DesignOptions, BulletPoint } from '@/lib/definitions';
 import { Mail, Phone, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -35,6 +35,17 @@ const Section: React.FC<{ title: string; color: string; children: React.ReactNod
 const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
   const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
   const { color } = designOptions;
+
+  const renderDescription = (description: string | BulletPoint[] | undefined) => {
+    if (Array.isArray(description)) {
+      return description.map((item) => item.value.trim() && <li key={item.id} className="text-sm">{item.value}</li>);
+    }
+    if (typeof description === 'string') {
+      return description.split('\n').map((item, index) => item.trim() && <li key={index} className="text-sm">{item.replace(/^- /, '')}</li>);
+    }
+    return null;
+  }
+
   return (
     <>
       {/* Header */}
@@ -66,7 +77,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
                 </div>
                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                 <ul className="list-disc list-outside pl-5 space-y-1">
-                  {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                  {renderDescription(exp.description)}
                 </ul>
               </div>
             ))}
@@ -141,6 +152,17 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
 const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
     const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
     const { color } = designOptions;
+
+    const renderDescription = (description: string | BulletPoint[] | undefined) => {
+      if (Array.isArray(description)) {
+        return description.map((item) => item.value.trim() && <li key={item.id} className="text-sm">{item.value}</li>);
+      }
+      if (typeof description === 'string') {
+        return description.split('\n').map((item, index) => item.trim() && <li key={index} className="text-sm">{item.replace(/^- /, '')}</li>);
+      }
+      return null;
+    }
+
     return (
         <div className="text-left">
             <header className="mb-6">
@@ -165,7 +187,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                     <div className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate}</div>
                                 </div>
                                 <ul className="list-disc list-outside pl-5 space-y-1 mt-1">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                                    {renderDescription(exp.description)}
                                 </ul>
                             </div>
                         ))}
@@ -225,6 +247,17 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
     const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
     const { color } = designOptions;
+
+    const renderDescription = (description: string | BulletPoint[] | undefined) => {
+      if (Array.isArray(description)) {
+        return description.map((item) => item.value.trim() && <li key={item.id}>{item.value}</li>);
+      }
+      if (typeof description === 'string') {
+        return description.split('\n').map((item, index) => item.trim() && <li key={index}>{item.replace(/^- /, '')}</li>);
+      }
+      return null;
+    }
+
     return (
         <div className="grid grid-cols-12 gap-x-8">
             {/* Left Column */}
@@ -292,7 +325,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                 </div>
                                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
+                                    {renderDescription(exp.description)}
                                 </ul>
                             </div>
                         ))}
@@ -323,6 +356,16 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
     const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
     const { color } = designOptions;
+
+    const renderDescription = (description: string | BulletPoint[] | undefined) => {
+      if (Array.isArray(description)) {
+        return description.map((item) => item.value.trim() && <li key={item.id}>{item.value}</li>);
+      }
+      if (typeof description === 'string') {
+        return description.split('\n').map((item, index) => item.trim() && <li key={index}>{item.replace(/^- /, '')}</li>);
+      }
+      return null;
+    }
 
     const Section: React.FC<{ title: string; show?: boolean, children: React.ReactNode }> = ({ title, show = true, children }) => {
         if (!show) return null;
@@ -368,7 +411,7 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
                             </div>
                             <div className="italic text-sm mb-1">{exp.company || 'Company'}</div>
                             <ul className="list-disc list-outside pl-5 space-y-1 text-sm">
-                                {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
+                                {renderDescription(exp.description)}
                             </ul>
                         </div>
                     ))}
@@ -427,6 +470,16 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
 const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
     const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
     const { color } = designOptions;
+
+    const renderDescription = (description: string | BulletPoint[] | undefined) => {
+      if (Array.isArray(description)) {
+        return description.map((item) => item.value.trim() && <li key={item.id}>{item.value}</li>);
+      }
+      if (typeof description === 'string') {
+        return description.split('\n').map((item, index) => item.trim() && <li key={index}>{item.replace(/^- /, '')}</li>);
+      }
+      return null;
+    }
 
     return (
         <div className="grid grid-cols-12 gap-x-8 h-full">
@@ -491,7 +544,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                                 </div>
                                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
+                                    {renderDescription(exp.description)}
                                 </ul>
                             </div>
                         ))}
