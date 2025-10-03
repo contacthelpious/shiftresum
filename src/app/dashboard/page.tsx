@@ -78,7 +78,7 @@ export default function DashboardPage() {
               <TabsContent value="download" className="mt-0 flex-1">
                  <ScrollArea className="h-full">
                    <div className="p-4 lg:p-6">
-                      <DownloadTab />
+                      <DownloadTab resumeData={resumeData} />
                    </div>
                 </ScrollArea>
               </TabsContent>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Print Container */}
-      <div className="print-container hidden print:block">
+      <div className="print-container hidden">
           <ResumePreview resumeData={resumeData} designOptions={designOptions} />
       </div>
     </FormProvider>

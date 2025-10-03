@@ -5,12 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Save } from 'lucide-react';
+import type { ResumeData } from '@/lib/definitions';
 
-export function DownloadTab() {
+interface DownloadTabProps {
+  resumeData: ResumeData;
+}
+
+export function DownloadTab({ resumeData }: DownloadTabProps) {
   const { toast } = useToast();
 
   const handleExport = () => {
+    const originalTitle = document.title;
+    const fullName = resumeData.personalInfo.name || 'Resume';
+    document.title = `${fullName} Resume`;
     window.print();
+    document.title = originalTitle;
   };
 
   const handleSave = () => {
