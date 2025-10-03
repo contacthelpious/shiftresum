@@ -36,17 +36,21 @@ export function SignupForm({ onSuccess }: { onSuccess?: () => void }) {
     },
   });
 
+  const handleSuccess = () => {
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push("/dashboard");
+    }
+  }
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
       toast({ title: "Successfully signed up with Google." });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/builder");
-      }
+      handleSuccess();
     } catch (error: any) {
       console.error(error);
       toast({
@@ -64,11 +68,7 @@ export function SignupForm({ onSuccess }: { onSuccess?: () => void }) {
     try {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: "Account created successfully!" });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/builder");
-      }
+      handleSuccess();
     } catch (error: any) {
       console.error(error);
       toast({

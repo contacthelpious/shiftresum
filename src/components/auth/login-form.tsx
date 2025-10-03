@@ -37,17 +37,21 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     },
   });
 
+  const handleSuccess = () => {
+    if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/dashboard");
+      }
+  }
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
       toast({ title: "Successfully signed in with Google." });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/builder");
-      }
+      handleSuccess();
     } catch (error: any) {
       console.error(error);
       toast({
@@ -66,11 +70,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: "Successfully logged in." });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/builder");
-      }
+      handleSuccess();
     } catch (error: any) {
       console.error(error);
       toast({

@@ -43,7 +43,7 @@ export function SharedHeader() {
              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           ) : user ? (
             <Button asChild>
-              <Link href="/builder">Go to Builder</Link>
+              <Link href="/dashboard">Go to Dashboard</Link>
             </Button>
           ) : (
             <div className="flex items-center space-x-2">

@@ -9,6 +9,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { UploadResumeButton } from './upload-resume-button';
 import { SharedHeader } from './shared/header';
 import { SharedFooter } from './shared/footer';
+import { useUser } from '@/firebase';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 
@@ -35,7 +36,10 @@ const features = [
   },
 ];
 
-export default function LandingPage() {
+export function LandingPageContent() {
+  const { user } = useUser();
+  const ctaLink = user ? "/dashboard" : "/builder";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SharedHeader />
@@ -51,7 +55,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/builder">Create My Resume</Link>
+                <Link href={ctaLink}>Create My Resume</Link>
               </Button>
               <UploadResumeButton />
             </div>
@@ -104,4 +108,8 @@ export default function LandingPage() {
       <SharedFooter />
     </div>
   );
+}
+
+export default function LandingPage() {
+  return <LandingPageContent/>;
 }

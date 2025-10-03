@@ -1,130 +1,130 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ResumeData, ResumeDataSchema, defaultResumeData, DesignOptions, defaultDesignOptions } from '@/lib/definitions';
-import { ResumeEditor } from '@/components/dashboard/resume-editor';
-import { TemplateCustomizer } from '@/components/dashboard/template-customizer';
-import { ResumePreview } from '@/components/dashboard/resume-preview';
-import { Download, LayoutTemplate, Feather } from 'lucide-react';
-import { DownloadTab } from '@/components/dashboard/download-tab';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CreditCard, Edit, PlusCircle, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import { ResumeCard } from "@/components/dashboard/resume-card";
+import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
+
+// Placeholder data for recent resumes
+const recentResumes = [
+  {
+    id: "1",
+    title: "Senior Developer Resume",
+    lastEdited: "2 hours ago",
+    previewUrl: "https://picsum.photos/seed/resume1/400/565",
+  },
+  {
+    id: "2",
+    title: "Product Manager Application",
+    lastEdited: "Yesterday",
+    previewUrl: "https://picsum.photos/seed/resume2/400/565",
+  },
+  {
+    id: "3",
+    title: "UX Designer Final",
+    lastEdited: "3 days ago",
+    previewUrl: "https://picsum.photos/seed/resume3/400/565",
+  },
+];
 
 
 export default function DashboardPage() {
-  const [designOptions, setDesignOptions] = useState<DesignOptions>(defaultDesignOptions);
-  const [activeTab, setActiveTab] = useState('content');
-  
-  const methods = useForm<ResumeData>({
-    resolver: zodResolver(ResumeDataSchema),
-    defaultValues: defaultResumeData,
-    mode: 'onBlur',
-  });
+    const { user, isUserLoading } = useUser();
+    const router = useRouter();
 
-  useEffect(() => {
-    try {
-      const parsedDataString = sessionStorage.getItem('parsedResumeData');
-      if (parsedDataString) {
-        const parsedData = JSON.parse(parsedDataString);
-        // Validate and merge with defaults before resetting the form
-        const result = ResumeDataSchema.safeParse(parsedData);
-        if (result.success) {
-          methods.reset(result.data);
-        } else {
-          console.error("Failed to parse resume data from sessionStorage:", result.error);
-        }
-        // Clean up sessionStorage
-        sessionStorage.removeItem('parsedResumeData');
-      }
-    } catch (error) {
-      console.error("Error processing sessionStorage data:", error);
+    if (isUserLoading) {
+        return <div className="p-8">Loading...</div>
     }
-  }, [methods]);
 
-  const resumeData = methods.watch();
+    if (!user) {
+        // This should be handled by middleware in a real app, but for now, a redirect will do.
+        router.push('/login');
+        return null;
+    }
+
+    const userName = user.displayName || user.email?.split('@')[0] || 'there';
 
   return (
-    <FormProvider {...methods}>
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="px-4 py-2 border-b no-print w-full flex justify-center">
-            <TabsList className="grid w-full max-w-lg grid-cols-3">
-              <TabsTrigger value="content">
-                <Feather className="mr-2 h-4 w-4" /> Content
-              </TabsTrigger>
-              <TabsTrigger value="design">
-                <LayoutTemplate className="mr-2 h-4 w-4" /> Design
-              </TabsTrigger>
-              <TabsTrigger value="download">
-                <Download className="mr-2 h-4 w-4" /> Download
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <div className={cn(
-            "grid flex-1 no-print",
-            activeTab === 'design' ? 'grid-cols-1' : 'md:grid-cols-2'
-          )}>
-            <div className="flex flex-col">
-              <TabsContent value="content" className="mt-0 flex-1">
-                <ScrollArea className="h-full">
-                  <div className="p-4 lg:p-6">
-                      <ResumeEditor />
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-
-              <TabsContent value="design" className="mt-0 flex-1">
-                  <div className="relative h-full overflow-y-auto bg-muted/40 p-4">
-                    <div className="flex justify-center items-start py-8">
-                       <div className="transform scale-[0.5] sm:scale-[0.6] lg:scale-[0.7] origin-top">
-                          <ResumePreview 
-                              resumeData={resumeData} 
-                              designOptions={designOptions} 
-                          />
-                        </div>
-                    </div>
-                    <TemplateCustomizer 
-                      resumeData={resumeData}
-                      designOptions={designOptions}
-                      setDesignOptions={setDesignOptions}
-                    />
-                  </div>
-              </TabsContent>
-              
-              <TabsContent value="download" className="mt-0 flex-1">
-                 <ScrollArea className="h-full">
-                   <div className="p-4 lg:p-6">
-                      <DownloadTab resumeData={resumeData} />
-                   </div>
-                </ScrollArea>
-              </TabsContent>
-            </div>
-
-            {/* Preview Panel for Content and Download tabs on desktop */}
-            <div className={cn(
-              'hidden bg-muted/40 p-8 overflow-auto',
-              activeTab !== 'design' && 'md:flex flex-col items-center justify-start'
-            )}>
-              <div className="transform scale-[0.5] sm:scale-[0.6] md:scale-[0.4] lg:scale-[0.6] xl:scale-[0.7] origin-top">
-                <ResumePreview 
-                  resumeData={resumeData}
-                  designOptions={designOptions}
-                />
-              </div>
-            </div>
-          </div>
-        </Tabs>
+    <div className="container py-8 px-4 sm:px-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome back, {userName}!</h1>
+        <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
       </div>
 
-      {/* Print Container */}
-      <div className="print-container hidden">
-          <ResumePreview resumeData={resumeData} designOptions={designOptions} />
+      <div className="grid gap-8 lg:grid-cols-12">
+        {/* Main Content */}
+        <div className="lg:col-span-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Recent Resumes</CardTitle>
+                    <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
+                </div>
+                <Button asChild>
+                    <Link href="/builder">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Resume
+                    </Link>
+                </Button>
+            </CardHeader>
+            <CardContent>
+              {recentResumes.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+                  {recentResumes.map((resume) => (
+                    <ResumeCard key={resume.id} resume={resume} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
+                    <Button asChild className="mt-4">
+                        <Link href="/builder">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Create Resume
+                        </Link>
+                    </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-4 space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+              <CardDescription>Manage your profile and subscription.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <Button variant="outline" className="w-full justify-start">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Manage Profile
+                </Button>
+                 <Button variant="outline" className="w-full justify-start">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Manage Subscription
+                </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-accent text-accent-foreground">
+             <CardHeader>
+                <CardTitle>Upgrade to Pro</CardTitle>
+                <CardDescription className="text-accent-foreground/80">Unlock unlimited resumes, AI suggestions, and PDF downloads.</CardDescription>
+             </CardHeader>
+             <CardContent>
+                <Button variant="secondary" asChild className="w-full">
+                    <Link href="/pricing">View Plans</Link>
+                </Button>
+             </CardContent>
+          </Card>
+        </div>
       </div>
-    </FormProvider>
+    </div>
   );
 }

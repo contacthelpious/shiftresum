@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/logo";
-import { LogOut, User as UserIcon, Loader2 } from "lucide-react";
+import { LogOut, User as UserIcon, Loader2, LayoutDashboard } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -41,7 +41,7 @@ export function BuilderHeader() {
     <header className="sticky top-0 z-40 w-full border-b bg-card no-print">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
         <div className="flex-1 flex justify-start">
-            <Link href={user ? "/builder" : "/"}>
+            <Link href={user ? "/dashboard" : "/"}>
                 <Logo />
             </Link>
         </div>
@@ -69,6 +69,12 @@ export function BuilderHeader() {
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                        <Link href="/dashboard">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            Dashboard
+                        </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>
                         <UserIcon className="mr-2 h-4 w-4" />
                         Profile
