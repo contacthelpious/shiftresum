@@ -10,6 +10,8 @@ import { defaultResumeFormData, ResumeFormSchema } from '@/lib/definitions';
 import { merge } from 'lodash';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse/lib/pdf-parse.js';
+import { generateSummaryFromPrompt } from '@/ai/flows/generate-summary-from-prompt';
+import { generateExperienceDescription } from '@/ai/flows/generate-experience-description';
 
 async function getFileContent(file: File): Promise<string> {
     const arrayBuffer = await file.arrayBuffer();
@@ -91,5 +93,25 @@ export async function summarizeResumeAction(resumeText: string) {
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to summarize resume.' };
+    }
+}
+
+export async function generateSummaryFromPromptAction(prompt: string) {
+    try {
+        const result = await generateSummaryFromPrompt({ prompt });
+        return { success: true, data: result.summary };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to generate summary.' };
+    }
+}
+
+export async function generateExperienceDescriptionAction(role: string, company: string) {
+    try {
+        const result = await generateExperienceDescription({ role, company });
+        return { success: true, data: result.description };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to generate description.' };
     }
 }

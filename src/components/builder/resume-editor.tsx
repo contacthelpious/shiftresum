@@ -1,16 +1,20 @@
+
 'use client';
 
-import { useFormContext, useFieldArray } from 'react-hook-form';
+import { useFormContext, useFieldArray, useWatch } from 'react-hook-form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Trash2 } from 'lucide-react';
-import type { ResumeData } from '@/lib/definitions';
+import type { ResumeFormData } from '@/lib/definitions';
+import { AiSummaryGenerator } from './ai-summary-generator';
+import { AiExperienceGenerator } from './ai-experience-generator';
+
 
 export function ResumeEditor() {
-  const { control } = useFormContext<ResumeData>();
+  const { control } = useFormContext<ResumeFormData>();
 
   const { fields: experienceFields, append: appendExperience, remove: removeExperience } = useFieldArray({
     control,
@@ -61,9 +65,12 @@ export function ResumeEditor() {
                 <FormField name="personalInfo.website" render={({ field }) => (
                   <FormItem className="sm:col-span-2"><FormLabel>Website / Portfolio</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField name="personalInfo.summary" render={({ field }) => (
-                  <FormItem className="sm:col-span-2"><FormLabel>Summary</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                <div className="sm:col-span-2 space-y-2">
+                  <FormField name="personalInfo.summary" render={({ field }) => (
+                    <FormItem><FormLabel>Summary</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <AiSummaryGenerator />
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -89,9 +96,12 @@ export function ResumeEditor() {
                         <FormItem><FormLabel>End Date</FormLabel><FormControl><Input placeholder="e.g. Present" {...field} /></FormControl></FormItem>
                       )} />
                     </div>
-                    <FormField name={`experience.${index}.description`} render={({ field }) => (
-                      <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={4} {...field} /></FormControl></FormItem>
-                    )} />
+                    <div className="space-y-2">
+                      <FormField name={`experience.${index}.description`} render={({ field }) => (
+                        <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={4} {...field} /></FormControl></FormItem>
+                      )} />
+                      <AiExperienceGenerator index={index} />
+                    </div>
                   </div>
                 ))}
                 <Button variant="outline" onClick={() => appendExperience({company: '', role: '', startDate: '', endDate: '', description: ''})}>Add Experience</Button>
