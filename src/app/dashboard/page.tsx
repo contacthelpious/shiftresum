@@ -30,7 +30,7 @@ export default function DashboardPage() {
     <FormProvider {...methods}>
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="px-4 py-2 border-b no-print">
+          <div className="px-4 py-2 border-b no-print flex justify-center">
             <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3">
               <TabsTrigger value="content">
                 <Feather className="mr-2 h-4 w-4" /> Content
@@ -98,4 +98,3 @@ export default function DashboardPage() {
     </FormProvider>
   );
 }
-
