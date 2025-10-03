@@ -48,35 +48,6 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
   const renderSheetContent = () => {
     let content;
     switch (openSheet) {
-      case 'template':
-        content = (
-          <>
-            <h3 className="font-semibold mb-4 text-center">Select a Template</h3>
-            <div className="flex gap-4 overflow-x-auto pb-4 px-2">
-                {templates.map(template => (
-                    <div 
-                        key={template.value}
-                        className={cn(
-                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[120px] shrink-0",
-                            designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
-                        )}
-                        onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
-                    >
-                        <div className="h-[170px] overflow-hidden bg-muted/30">
-                          <div className="transform scale-[0.16] origin-top-left pointer-events-none">
-                              <ResumePreview 
-                                  resumeData={resumeData}
-                                  designOptions={{...designOptions, template: template.value}}
-                              />
-                          </div>
-                        </div>
-                        <p className="text-xs text-center font-medium bg-muted/50 py-1">{template.name}</p>
-                    </div>
-                ))}
-            </div>
-          </>
-        );
-        break;
       case 'color':
         content = (
           <>
@@ -139,7 +110,41 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
     <div className="fixed bottom-0 left-0 right-0 p-2 z-10">
         <div className="container mx-auto max-w-sm">
             <AnimatePresence>
-                {openSheet && (
+              {openSheet === 'template' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mb-2"
+                >
+                  <div className="flex gap-4 overflow-x-auto pb-4 px-2">
+                    {templates.map(template => (
+                        <div 
+                            key={template.value}
+                            className={cn(
+                                "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[120px] shrink-0 bg-background shadow-lg",
+                                designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
+                            )}
+                            onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
+                        >
+                            <div className="h-[170px] overflow-hidden bg-muted/30">
+                              <div className="transform scale-[0.16] origin-top-left pointer-events-none">
+                                  <ResumePreview 
+                                      resumeData={resumeData}
+                                      designOptions={{...designOptions, template: template.value}}
+                                  />
+                              </div>
+                            </div>
+                            <p className="text-xs text-center font-medium bg-muted/50 py-1">{template.name}</p>
+                        </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+                {openSheet && openSheet !== 'template' && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
