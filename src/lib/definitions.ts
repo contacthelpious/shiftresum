@@ -12,13 +12,19 @@ export const PersonalInfoSchema = z.object({
 
 export type PersonalInfo = z.infer<typeof PersonalInfoSchema>;
 
+export const BulletPointSchema = z.object({
+  id: z.string().uuid(),
+  value: z.string(),
+});
+export type BulletPoint = z.infer<typeof BulletPointSchema>;
+
 export const ExperienceSchema = z.object({
   id: z.string().uuid().optional(),
   company: z.string().optional(),
   role: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  description: z.string().optional(),
+  description: z.array(BulletPointSchema),
 });
 
 export type Experience = z.infer<typeof ExperienceSchema>;
@@ -108,7 +114,11 @@ export const defaultResumeFormData: ResumeFormData = {
       role: 'Senior Software Engineer',
       startDate: 'Jan 2020',
       endDate: 'Present',
-      description: '- Led the development of a new client-facing dashboard using React and TypeScript.\n- Optimized backend services, resulting in a 30% reduction in API response times.\n- Mentored junior engineers and conducted code reviews.',
+      description: [
+        { id: crypto.randomUUID(), value: 'Led the development of a new client-facing dashboard using React and TypeScript.' },
+        { id: crypto.randomUUID(), value: 'Optimized backend services, resulting in a 30% reduction in API response times.' },
+        { id: crypto.randomUUID(), value: 'Mentored junior engineers and conducted code reviews.' },
+      ]
     },
   ],
   education: [

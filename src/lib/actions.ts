@@ -13,6 +13,7 @@ import pdf from 'pdf-parse/lib/pdf-parse.js';
 import { generateSummaryFromPrompt } from '@/ai/flows/generate-summary-from-prompt';
 import { generateExperienceDescription } from '@/ai/flows/generate-experience-description';
 import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume';
+import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
 
 async function getFileContent(file: File): Promise<string> {
     const arrayBuffer = await file.arrayBuffer();
@@ -45,7 +46,19 @@ export async function parseResumeAction(formData: FormData) {
         const fullData = merge({}, defaultResumeFormData, parsedData);
         
         // Add unique IDs to array items if they don't have one from the merge
-        fullData.experience?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.experience?.forEach(exp => {
+            if (!exp.id) exp.id = crypto.randomUUID();
+            // Handle description conversion from string (old format) to array of objects
+            if (typeof exp.description === 'string') {
+                exp.description = exp.description.split('\n').filter(line => line.trim().startsWith('-')).map(line => ({
+                    id: crypto.randomUUID(),
+                    value: line.trim().substring(1).trim()
+                }));
+            } else if (Array.isArray(exp.description)) {
+                 exp.description.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+            }
+        });
+
         fullData.education?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
         fullData.skills?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
         fullData.projects?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
@@ -55,7 +68,7 @@ export async function parseResumeAction(formData: FormData) {
         const finalValidation = ResumeFormSchema.safeParse(fullData);
         
         if (!finalValidation.success) {
-            console.error("Final validation failed after merging in action:", finalValidation.error);
+            console.error("Final validation failed after merging in action:", finalValidation.error.flatten());
             throw new Error("Parsed data structure is invalid after processing.");
         }
 
@@ -110,7 +123,7 @@ export async function generateSummaryFromPromptAction(prompt: string) {
 export async function generateExperienceDescriptionAction(role: string, company: string) {
     try {
         const result = await generateExperienceDescription({ role, company });
-        return { success: true, data: result.description };
+        return { success: true, data: result.bulletPoints };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to generate description.' };
@@ -124,5 +137,15 @@ export async function generateSkillsFromResumeAction(resumeContent: string) {
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to generate skills.' };
+    }
+}
+
+export async function regenerateBulletPointAction(role: string, company: string | undefined, originalBullet: string) {
+    try {
+        const result = await regenerateBulletPoint({ role, company, originalBullet });
+        return { success: true, data: result.newBulletPoint };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to regenerate bullet point.' };
     }
 }

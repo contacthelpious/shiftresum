@@ -2,28 +2,29 @@
 'use client';
 
 import { useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch, UseFieldArrayAppend } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { generateExperienceDescriptionAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Loader2, Check, RefreshCw } from 'lucide-react';
-import type { ResumeFormData } from '@/lib/definitions';
+import { Sparkles, Loader2, Plus, RefreshCw } from 'lucide-react';
+import type { ResumeFormData, BulletPoint } from '@/lib/definitions';
 
 interface AiExperienceGeneratorProps {
-  index: number;
+  experienceIndex: number;
+  appendDescription: UseFieldArrayAppend<ResumeFormData, `experience.${number}.description`>;
 }
 
-export function AiExperienceGenerator({ index }: AiExperienceGeneratorProps) {
-  const { control, setValue } = useFormContext<ResumeFormData>();
+export function AiExperienceGenerator({ experienceIndex, appendDescription }: AiExperienceGeneratorProps) {
+  const { control } = useFormContext<ResumeFormData>();
   const { toast } = useToast();
   
   const [role, company] = useWatch({
     control,
-    name: [`experience.${index}.role`, `experience.${index}.company`],
+    name: [`experience.${experienceIndex}.role`, `experience.${experienceIndex}.company`],
   });
 
-  const [generatedDescription, setGeneratedDescription] = useState('');
+  const [generatedBulletPoints, setGeneratedBulletPoints] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = async () => {
@@ -32,20 +33,20 @@ export function AiExperienceGenerator({ index }: AiExperienceGeneratorProps) {
       return;
     }
     setIsGenerating(true);
-    setGeneratedDescription('');
+    setGeneratedBulletPoints([]);
     const result = await generateExperienceDescriptionAction(role, company || '');
     if (result.success) {
-      setGeneratedDescription(result.data);
+      setGeneratedBulletPoints(result.data);
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
     setIsGenerating(false);
   };
   
-  const handleAccept = () => {
-    setValue(`experience.${index}.description`, generatedDescription, { shouldDirty: true });
-    toast({ title: 'Description Updated', description: 'The AI-generated description has been applied.' });
-    setGeneratedDescription('');
+  const handleAccept = (bulletPoint: string) => {
+    appendDescription({ id: crypto.randomUUID(), value: bulletPoint });
+    toast({ title: 'Bullet Point Added', description: 'The AI-generated bullet point has been added.' });
+    setGeneratedBulletPoints(prev => prev.filter(bp => bp !== bulletPoint));
   };
 
   return (
@@ -64,18 +65,25 @@ export function AiExperienceGenerator({ index }: AiExperienceGeneratorProps) {
             </Button>
         </div>
 
-        {generatedDescription && (
-          <div className="space-y-2 mt-3">
-            <div className="p-3 rounded-md bg-background border text-sm whitespace-pre-wrap">
-                {generatedDescription}
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={handleAccept}>
-                <Check className="mr-2" /> Accept
-              </Button>
-              <Button size="sm" variant="ghost" onClick={handleGenerate} disabled={isGenerating}>
-                <RefreshCw className="mr-2" /> Regenerate
-              </Button>
+        {generatedBulletPoints.length > 0 && (
+          <div className="space-y-3 mt-3">
+            {generatedBulletPoints.map((bullet, index) => (
+              <div key={index} className="p-3 rounded-md bg-background border text-sm flex justify-between items-start gap-2">
+                <p className="flex-1 whitespace-pre-wrap">{bullet}</p>
+                <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" onClick={() => handleAccept(bullet)}>
+                        <Plus />
+                    </Button>
+                     <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-600" onClick={() => {toast({title: "Coming soon!"})}}>
+                        <RefreshCw />
+                    </Button>
+                </div>
+              </div>
+            ))}
+            <div className="flex justify-end">
+                <Button size="sm" variant="ghost" onClick={handleGenerate} disabled={isGenerating}>
+                    <RefreshCw className="mr-2" /> Regenerate All
+                </Button>
             </div>
           </div>
         )}

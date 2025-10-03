@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useFormContext, useFieldArray, useWatch } from 'react-hook-form';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import type { ResumeFormData } from '@/lib/definitions';
 import { AiSummaryGenerator } from './ai-summary-generator';
 import { AiExperienceGenerator } from './ai-experience-generator';
@@ -80,32 +80,51 @@ export function ResumeEditor() {
             <AccordionTrigger className="text-lg font-medium">Work Experience</AccordionTrigger>
             <AccordionContent>
               <div className="space-y-6 pt-2">
-                {experienceFields.map((field, index) => (
-                  <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
-                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeExperience(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                    <FormField name={`experience.${index}.role`} render={({ field }) => (
-                      <FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField name={`experience.${index}.company`} render={({ field }) => (
-                      <FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                    )} />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField name={`experience.${index}.startDate`} render={({ field }) => (
-                        <FormItem><FormLabel>Start Date</FormLabel><FormControl><Input placeholder="e.g. Jan 2020" {...field} /></FormControl></FormItem>
+                {experienceFields.map((field, index) => {
+                  const { fields: descFields, append: appendDesc, remove: removeDesc, update: updateDesc } = useFieldArray({
+                    control,
+                    name: `experience.${index}.description`
+                  });
+
+                  return (
+                    <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
+                       <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeExperience(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <FormField name={`experience.${index}.role`} render={({ field }) => (
+                        <FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
                       )} />
-                      <FormField name={`experience.${index}.endDate`} render={({ field }) => (
-                        <FormItem><FormLabel>End Date</FormLabel><FormControl><Input placeholder="e.g. Present" {...field} /></FormControl></FormItem>
+                      <FormField name={`experience.${index}.company`} render={({ field }) => (
+                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
                       )} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField name={`experience.${index}.startDate`} render={({ field }) => (
+                          <FormItem><FormLabel>Start Date</FormLabel><FormControl><Input placeholder="e.g. Jan 2020" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField name={`experience.${index}.endDate`} render={({ field }) => (
+                          <FormItem><FormLabel>End Date</FormLabel><FormControl><Input placeholder="e.g. Present" {...field} /></FormControl></FormItem>
+                        )} />
+                      </div>
+                      <div className="space-y-2">
+                        <FormLabel>Description</FormLabel>
+                        <div className="space-y-2">
+                          {descFields.map((descField, descIndex) => (
+                             <div key={descField.id} className="flex items-start gap-2">
+                                <span className="text-muted-foreground mt-2">&bull;</span>
+                                <FormField name={`experience.${index}.description.${descIndex}.value`} render={({ field }) => (
+                                  <FormItem className="flex-1"><FormControl><Textarea rows={2} {...field} /></FormControl></FormItem>
+                                )} />
+                                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 mt-1" onClick={() => removeDesc(descIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </div>
+                          ))}
+                          <Button size="sm" variant="ghost" className="text-accent" onClick={() => appendDesc({ id: crypto.randomUUID(), value: '' })}>
+                            <Plus className="mr-2 h-4 w-4" /> Add bullet point
+                          </Button>
+                        </div>
+                        <AiExperienceGenerator experienceIndex={index} appendDescription={appendDesc} />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <FormField name={`experience.${index}.description`} render={({ field }) => (
-                        <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={4} {...field} /></FormControl></FormItem>
-                      )} />
-                      <AiExperienceGenerator index={index} />
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" onClick={() => appendExperience({company: '', role: '', startDate: '', endDate: '', description: ''})}>Add Experience</Button>
+                  )
+                })}
+                <Button variant="outline" onClick={() => appendExperience({company: '', role: '', startDate: '', endDate: '', description: []})}>Add Experience</Button>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -196,7 +215,7 @@ export function ResumeEditor() {
                       </div>
                     ))}
                  </div>
-                <Button variant="outline" onClick={() => appendSkill({ name: '' })}>Add Skill</Button>
+                <Button variant="outline" onClick={() => appendSkill({ id: crypto.randomUUID(), name: '' })}>Add Skill</Button>
                 <AiSkillGenerator append={appendSkill} />
               </div>
             </AccordionContent>

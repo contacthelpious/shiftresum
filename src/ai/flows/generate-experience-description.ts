@@ -26,9 +26,9 @@ export type GenerateExperienceDescriptionInput = z.infer<
 >;
 
 const GenerateExperienceDescriptionOutputSchema = z.object({
-  description: z
-    .string()
-    .describe('3-4 bullet points describing responsibilities and achievements for the role. Each bullet point should start with a hyphen.'),
+  bulletPoints: z
+    .array(z.string())
+    .describe('3-4 bullet points describing responsibilities and achievements for the role. Each bullet point should be a separate string in the array.'),
 });
 export type GenerateExperienceDescriptionOutput = z.infer<
   typeof GenerateExperienceDescriptionOutputSchema
@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
   name: 'generateExperienceDescriptionPrompt',
   input: {schema: GenerateExperienceDescriptionInputSchema},
   output: {schema: GenerateExperienceDescriptionOutputSchema},
-  prompt: `You are an expert resume writer. For the job role of "{{{role}}}"{{#if company}} at "{{{company}}}"{{/if}}, generate 3-4 impactful bullet points for a resume. Start each bullet point with a hyphen. Focus on achievements and quantifiable results.
+  prompt: `You are an expert resume writer. For the job role of "{{{role}}}"{{#if company}} at "{{{company}}}"{{/if}}, generate 3-4 impactful bullet points for a resume. Each bullet point should focus on achievements and quantifiable results.
 
 Role: {{{role}}}
 {{#if company}}Company: {{{company}}}{{/if}}
