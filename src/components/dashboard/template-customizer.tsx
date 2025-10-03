@@ -52,17 +52,17 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
         content = (
           <>
             <h3 className="font-semibold mb-4 text-center">Select a Template</h3>
-            <div className="grid grid-cols-2 gap-4 max-h-[40vh] overflow-y-auto px-2">
+            <div className="flex gap-4 overflow-x-auto pb-4 px-2">
                 {templates.map(template => (
                     <div 
                         key={template.value}
                         className={cn(
-                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all",
+                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[150px] shrink-0",
                             designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
                         )}
                         onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
                     >
-                        <div className="transform scale-[0.15] origin-top-left pointer-events-none">
+                        <div className="transform scale-[0.2] origin-top-left pointer-events-none -mb-16">
                             <ResumePreview 
                                 resumeData={resumeData}
                                 designOptions={{...designOptions, template: template.value}}
