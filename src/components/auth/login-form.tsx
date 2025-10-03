@@ -10,14 +10,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/firebase";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
-export function LoginForm() {
+export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
+  const { toast } = useToast();
+  const auth = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -27,10 +37,50 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Mock login success
-    router.push("/builder");
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      toast({ title: "Successfully signed in with Google." });
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/builder");
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Google Sign-In Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({ title: "Successfully logged in." });
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/builder");
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "The email or password you entered is incorrect.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -43,14 +93,10 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline">
-              Google
-            </Button>
-            <Button variant="outline">
-              LinkedIn
-            </Button>
-          </div>
+          <Button variant="outline" onClick={handleGoogleSignIn} disabled={isGoogleLoading || isLoading}>
+            {isGoogleLoading ? <Loader2 className="mr-2 animate-spin" /> : 'G'}
+            <span className="ml-2">Google</span>
+          </Button>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <Separator />
@@ -70,7 +116,7 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@example.com" {...field} />
+                      <Input placeholder="name@example.com" {...field} disabled={isLoading || isGoogleLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,13 +137,14 @@ export function LoginForm() {
                       </Link>
                     </div>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} disabled={isLoading || isGoogleLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
+                {isLoading && <Loader2 className="mr-2 animate-spin" />}
                 Log In
               </Button>
             </form>

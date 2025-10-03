@@ -7,6 +7,8 @@ import { Wand2, Palette, FileDown, History } from 'lucide-react';
 import { Logo } from './logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { UploadResumeButton } from './upload-resume-button';
+import { SharedHeader } from './shared/header';
+import { SharedFooter } from './shared/footer';
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
 
@@ -36,22 +38,7 @@ const features = [
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild>
-              <Link href="/pricing">Pricing</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link href="/login">Log In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <SharedHeader />
 
       <main className="flex-1">
         <section className="container py-20 text-center md:py-32">
@@ -87,7 +74,7 @@ export default function LandingPage() {
           </section>
         )}
 
-        <section className="container py-20 md:py-32">
+        <section id="features" className="container py-20 md:py-32">
           <div className="mx-auto max-w-5xl text-center">
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl font-headline">
               Everything You Need to Succeed
@@ -114,16 +101,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t">
-        <div className="container flex h-20 items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ResumeFlow. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link href="/about" className="hover:text-primary">About</Link>
-            <Link href="/contact" className="hover:text-primary">Contact</Link>
-            <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
-          </div>
-        </div>
-      </footer>
+      <SharedFooter />
     </div>
   );
 }
