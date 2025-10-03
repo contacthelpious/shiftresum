@@ -75,13 +75,17 @@ export function BuilderHeader() {
                             Dashboard
                         </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        Manage Profile
+                    <DropdownMenuItem asChild>
+                        <Link href="/dashboard/profile">
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            Manage Profile
+                        </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Manage Subscription
+                    <DropdownMenuItem asChild>
+                        <Link href="/dashboard/subscription">
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Manage Subscription
+                        </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
