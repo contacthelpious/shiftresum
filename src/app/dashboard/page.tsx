@@ -3,8 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, PlusCircle, User as UserIcon, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { PlusCircle, Loader2 } from "lucide-react";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
@@ -65,78 +64,41 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-12">
-        {/* Main Content */}
-        <div className="lg:col-span-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle>Recent Resumes</CardTitle>
-                    <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
-                </div>
-                <Button onClick={handleNewResume}>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle>Recent Resumes</CardTitle>
+                <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
+            </div>
+            <Button onClick={handleNewResume}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Resume
+            </Button>
+        </CardHeader>
+        <CardContent>
+          {isResumesLoading && !resumes ? (
+             <div className="text-center py-12">
+               <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+               <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
+             </div>
+          ) : resumes && resumes.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {resumes.map((resume) => (
+                <ResumeCard key={resume.id} resume={resume} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
+                <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
+                <Button onClick={handleNewResume} className="mt-4">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    New Resume
+                    Create Resume
                 </Button>
-            </CardHeader>
-            <CardContent>
-              {isResumesLoading && !resumes ? (
-                 <div className="text-center py-12">
-                   <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
-                   <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
-                 </div>
-              ) : resumes && resumes.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-                  {resumes.map((resume) => (
-                    <ResumeCard key={resume.id} resume={resume} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                    <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
-                    <Button onClick={handleNewResume} className="mt-4">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Create Resume
-                    </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-4 space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account</CardTitle>
-              <CardDescription>Manage your profile and subscription.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <Button variant="outline" className="w-full justify-start">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    Manage Profile
-                </Button>
-                 <Button variant="outline" className="w-full justify-start">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Manage Subscription
-                </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-accent text-accent-foreground">
-             <CardHeader>
-                <CardTitle>Upgrade to Pro</CardTitle>
-                <CardDescription className="text-accent-foreground/80">Unlock unlimited resumes, AI suggestions, and PDF downloads.</CardDescription>
-             </CardHeader>
-             <CardContent>
-                <Button variant="secondary" asChild className="w-full">
-                    <Link href="/pricing">View Plans</Link>
-                </Button>
-             </CardContent>
-          </Card>
-        </div>
-      </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

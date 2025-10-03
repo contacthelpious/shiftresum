@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/logo";
-import { LogOut, User as UserIcon, Loader2 } from "lucide-react";
+import { LogOut, User as UserIcon, Loader2, CreditCard } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -79,7 +79,11 @@ export function DashboardHeader() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                         <UserIcon className="mr-2 h-4 w-4" />
-                        Profile
+                        Manage Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Manage Subscription
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
