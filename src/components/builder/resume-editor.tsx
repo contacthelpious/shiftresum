@@ -197,7 +197,7 @@ export function ResumeEditor() {
                     ))}
                  </div>
                 <Button variant="outline" onClick={() => appendSkill({ name: '' })}>Add Skill</Button>
-                <AiSkillGenerator />
+                <AiSkillGenerator append={appendSkill} />
               </div>
             </AccordionContent>
           </AccordionItem>

@@ -2,17 +2,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useFormContext, useFieldArray, useWatch } from 'react-hook-form';
+import { useFormContext, useFieldArray, useWatch, UseFieldArrayAppend } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { generateSkillsFromResumeAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Loader2, RefreshCw, PlusCircle } from 'lucide-react';
-import type { ResumeFormData } from '@/lib/definitions';
+import type { ResumeFormData, Skill } from '@/lib/definitions';
 
-export function AiSkillGenerator() {
+interface AiSkillGeneratorProps {
+  append: UseFieldArrayAppend<ResumeFormData, "skills">;
+}
+
+export function AiSkillGenerator({ append }: AiSkillGeneratorProps) {
   const { control, getValues } = useFormContext<ResumeFormData>();
-  const { append } = useFieldArray({ control, name: 'skills' });
   const { toast } = useToast();
 
   const [generatedSkills, setGeneratedSkills] = useState<string[]>([]);
@@ -47,13 +50,13 @@ export function AiSkillGenerator() {
     setIsGenerating(false);
   };
 
-  const handleAddSkill = (skill: string) => {
-    if (currentSkillNames.has(skill.toLowerCase())) {
-        toast({ title: 'Skill already exists', description: `"${skill}" is already in your skills list.`});
+  const handleAddSkill = (skillName: string) => {
+    if (currentSkillNames.has(skillName.toLowerCase())) {
+        toast({ title: 'Skill already exists', description: `"${skillName}" is already in your skills list.`});
         return;
     }
-    append({ id: crypto.randomUUID(), name: skill });
-    toast({ title: 'Skill Added', description: `"${skill}" has been added to your skills.`});
+    append({ id: crypto.randomUUID(), name: skillName });
+    toast({ title: 'Skill Added', description: `"${skillName}" has been added to your skills.`});
   };
 
   return (
