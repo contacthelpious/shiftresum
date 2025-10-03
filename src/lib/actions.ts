@@ -6,7 +6,7 @@ import { generateInitialResumeDraft } from '@/ai/flows/generate-initial-resume-d
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
 import { parseResume } from '@/ai/flows/parse-resume';
-import { defaultResumeData, ResumeDataSchema } from '@/lib/definitions';
+import { defaultResumeFormData, ResumeFormSchema } from '@/lib/definitions';
 import { merge } from 'lodash';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse/lib/pdf-parse.js';
@@ -39,7 +39,7 @@ export async function parseResumeAction(formData: FormData) {
         const parsedData = await parseResume({ resumeContent });
         
         // Deep merge partial data from AI with default structure to ensure all keys are present
-        const fullData = merge({}, defaultResumeData, parsedData);
+        const fullData = merge({}, defaultResumeFormData, parsedData);
         
         // Add unique IDs to array items if they don't have one from the merge
         fullData.experience?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
@@ -49,7 +49,7 @@ export async function parseResumeAction(formData: FormData) {
         fullData.certifications?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
 
         // Final validation before sending to client
-        const finalValidation = ResumeDataSchema.safeParse(fullData);
+        const finalValidation = ResumeFormSchema.safeParse(fullData);
         
         if (!finalValidation.success) {
             console.error("Final validation failed after merging in action:", finalValidation.error);

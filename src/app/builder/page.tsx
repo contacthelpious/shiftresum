@@ -2,50 +2,83 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ResumeData, ResumeDataSchema, defaultResumeData, DesignOptions, defaultDesignOptions } from '@/lib/definitions';
+import { ResumeFormData, ResumeFormSchema, defaultResumeFormData, DesignOptions, defaultDesignOptions } from '@/lib/definitions';
 import { ResumeEditor } from '@/components/builder/resume-editor';
 import { TemplateCustomizer } from '@/components/builder/template-customizer';
 import { ResumePreview } from '@/components/builder/resume-preview';
-import { Download, LayoutTemplate, Feather } from 'lucide-react';
+import { Download, LayoutTemplate, Feather, Loader2 } from 'lucide-react';
 import { DownloadTab } from '@/components/builder/download-tab';
 import { cn } from '@/lib/utils';
-
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { ResumeData } from '@/lib/definitions';
 
 export default function BuilderPage() {
+  const searchParams = useSearchParams();
+  const resumeId = searchParams.get('resumeId');
+  
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
   const [designOptions, setDesignOptions] = useState<DesignOptions>(defaultDesignOptions);
   const [activeTab, setActiveTab] = useState('content');
   
-  const methods = useForm<ResumeData>({
-    resolver: zodResolver(ResumeDataSchema),
-    defaultValues: defaultResumeData,
+  const methods = useForm<ResumeFormData>({
+    resolver: zodResolver(ResumeFormSchema),
+    defaultValues: defaultResumeFormData,
     mode: 'onBlur',
   });
+  
+  const resumeRef = useMemoFirebase(() => {
+    if (!user || !resumeId || isUserLoading) return null;
+    return doc(firestore, `users/${user.uid}/resumes`, resumeId);
+  }, [firestore, user, resumeId, isUserLoading]);
+
+  const { data: resumeData, isLoading: isResumeLoading } = useDoc<ResumeData>(resumeRef);
 
   useEffect(() => {
-    try {
-      const parsedDataString = sessionStorage.getItem('parsedResumeData');
-      if (parsedDataString) {
-        const parsedData = JSON.parse(parsedDataString);
-        // Validate and merge with defaults before resetting the form
-        const result = ResumeDataSchema.safeParse(parsedData);
-        if (result.success) {
-          methods.reset(result.data);
+    if (resumeData) {
+      methods.reset(resumeData.data);
+      setDesignOptions(resumeData.design);
+    } else if (!resumeId) {
+      // If there's no resumeId, load default data or parsed data from session
+      try {
+        const parsedDataString = sessionStorage.getItem('parsedResumeData');
+        if (parsedDataString) {
+          const parsedData = JSON.parse(parsedDataString);
+          const result = ResumeFormSchema.safeParse(parsedData);
+          if (result.success) {
+            methods.reset(result.data);
+          } else {
+            console.error("Failed to parse resume data from sessionStorage:", result.error);
+          }
+          sessionStorage.removeItem('parsedResumeData');
         } else {
-          console.error("Failed to parse resume data from sessionStorage:", result.error);
+          methods.reset(defaultResumeFormData);
         }
-        // Clean up sessionStorage
-        sessionStorage.removeItem('parsedResumeData');
+      } catch (error) {
+        console.error("Error processing sessionStorage data:", error);
+        methods.reset(defaultResumeFormData);
       }
-    } catch (error) {
-      console.error("Error processing sessionStorage data:", error);
     }
-  }, [methods]);
+  }, [resumeData, resumeId, methods]);
 
-  const resumeData = methods.watch();
+  const watchedData = methods.watch();
+
+  const isLoading = isUserLoading || (resumeId && isResumeLoading);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <FormProvider {...methods}>
@@ -83,13 +116,13 @@ export default function BuilderPage() {
                     <div className="flex justify-center items-start py-8">
                        <div className="transform scale-[0.5] sm:scale-[0.6] lg:scale-[0.7] origin-top">
                           <ResumePreview 
-                              resumeData={resumeData} 
+                              resumeData={watchedData} 
                               designOptions={designOptions} 
                           />
                         </div>
                     </div>
                     <TemplateCustomizer 
-                      resumeData={resumeData}
+                      resumeData={watchedData}
                       designOptions={designOptions}
                       setDesignOptions={setDesignOptions}
                     />
@@ -99,20 +132,19 @@ export default function BuilderPage() {
               <TabsContent value="download" className="mt-0 flex-1">
                  <ScrollArea className="h-full">
                    <div className="p-4 lg:p-6">
-                      <DownloadTab resumeData={resumeData} />
+                      <DownloadTab resumeId={resumeId} designOptions={designOptions} />
                    </div>
                 </ScrollArea>
               </TabsContent>
             </div>
 
-            {/* Preview Panel for Content and Download tabs on desktop */}
             <div className={cn(
               'hidden bg-muted/40 p-8 overflow-auto',
               activeTab !== 'design' && 'md:flex flex-col items-center justify-start'
             )}>
               <div className="transform scale-[0.5] sm:scale-[0.6] md:scale-[0.4] lg:scale-[0.6] xl:scale-[0.7] origin-top">
                 <ResumePreview 
-                  resumeData={resumeData}
+                  resumeData={watchedData}
                   designOptions={designOptions}
                 />
               </div>
@@ -121,9 +153,8 @@ export default function BuilderPage() {
         </Tabs>
       </div>
 
-      {/* Print Container */}
       <div className="print-container hidden">
-          <ResumePreview resumeData={resumeData} designOptions={designOptions} />
+          <ResumePreview resumeData={watchedData} designOptions={designOptions} />
       </div>
     </FormProvider>
   );

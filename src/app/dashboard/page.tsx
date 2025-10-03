@@ -1,46 +1,57 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Edit, PlusCircle, User as UserIcon } from "lucide-react";
+import { CreditCard, PlusCircle, User as UserIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { ResumeCard } from "@/components/dashboard/resume-card";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
-
-// Placeholder data for recent resumes
-const recentResumes = [
-  {
-    id: "1",
-    title: "Senior Developer Resume",
-    lastEdited: "2 hours ago",
-    previewUrl: "https://picsum.photos/seed/resume1/400/565",
-  },
-  {
-    id: "2",
-    title: "Product Manager Application",
-    lastEdited: "Yesterday",
-    previewUrl: "https://picsum.photos/seed/resume2/400/565",
-  },
-  {
-    id: "3",
-    title: "UX Designer Final",
-    lastEdited: "3 days ago",
-    previewUrl: "https://picsum.photos/seed/resume3/400/565",
-  },
-];
-
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import type { ResumeData } from "@/lib/definitions";
+import { defaultResumeFormData, defaultDesignOptions } from "@/lib/definitions";
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
     const router = useRouter();
 
+    const resumesRef = useMemoFirebase(() => {
+        if (!user) return null;
+        return collection(firestore, 'users', user.uid, 'resumes');
+    }, [firestore, user]);
+
+    const { data: resumes, isLoading: isResumesLoading } = useCollection<ResumeData>(resumesRef);
+
+    const handleNewResume = async () => {
+        if (!user || !resumesRef) return;
+        try {
+            const newResumeData = {
+                title: "Untitled Resume",
+                data: defaultResumeFormData,
+                design: defaultDesignOptions,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            };
+            const docRef = await addDoc(resumesRef, newResumeData);
+            router.push(`/builder?resumeId=${docRef.id}`);
+        } catch (error) {
+            console.error("Error creating new resume:", error);
+            // Optionally, show a toast notification
+        }
+    };
+
+
     if (isUserLoading) {
-        return <div className="p-8">Loading...</div>
+        return (
+          <div className="flex h-screen items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+          </div>
+        );
     }
 
     if (!user) {
-        // This should be handled by middleware in a real app, but for now, a redirect will do.
         router.push('/login');
         return null;
     }
@@ -63,17 +74,20 @@ export default function DashboardPage() {
                     <CardTitle>Recent Resumes</CardTitle>
                     <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
                 </div>
-                <Button asChild>
-                    <Link href="/builder">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        New Resume
-                    </Link>
+                <Button onClick={handleNewResume}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Resume
                 </Button>
             </CardHeader>
             <CardContent>
-              {recentResumes.length > 0 ? (
+              {isResumesLoading ? (
+                 <div className="text-center py-12">
+                   <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+                   <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
+                 </div>
+              ) : resumes && resumes.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-                  {recentResumes.map((resume) => (
+                  {resumes.map((resume) => (
                     <ResumeCard key={resume.id} resume={resume} />
                   ))}
                 </div>
@@ -81,11 +95,9 @@ export default function DashboardPage() {
                 <div className="text-center py-12 border-2 border-dashed rounded-lg">
                     <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
                     <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
-                    <Button asChild className="mt-4">
-                        <Link href="/builder">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Create Resume
-                        </Link>
+                    <Button onClick={handleNewResume} className="mt-4">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Resume
                     </Button>
                 </div>
               )}

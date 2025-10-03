@@ -4,7 +4,7 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { DesignOptions, ResumeData } from '@/lib/definitions';
+import type { DesignOptions, ResumeFormData } from '@/lib/definitions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
 import { Palette, Pen, Type, X } from 'lucide-react';
@@ -12,7 +12,7 @@ import { ResumePreview } from './resume-preview';
 import { cn } from '@/lib/utils';
 
 interface TemplateCustomizerProps {
-  resumeData: ResumeData;
+  resumeData: ResumeFormData;
   designOptions: DesignOptions;
   setDesignOptions: Dispatch<SetStateAction<DesignOptions>>;
 }
