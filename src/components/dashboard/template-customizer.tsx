@@ -57,13 +57,13 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                     <div 
                         key={template.value}
                         className={cn(
-                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[150px] shrink-0",
+                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[120px] shrink-0",
                             designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
                         )}
                         onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
                     >
-                        <div className="h-[210px] overflow-hidden bg-muted/30">
-                          <div className="transform scale-[0.18] origin-top-left pointer-events-none">
+                        <div className="h-[170px] overflow-hidden bg-muted/30">
+                          <div className="transform scale-[0.16] origin-top-left pointer-events-none">
                               <ResumePreview 
                                   resumeData={resumeData}
                                   designOptions={{...designOptions, template: template.value}}
