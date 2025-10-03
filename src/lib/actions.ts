@@ -12,6 +12,7 @@ import mammoth from 'mammoth';
 import pdf from 'pdf-parse/lib/pdf-parse.js';
 import { generateSummaryFromPrompt } from '@/ai/flows/generate-summary-from-prompt';
 import { generateExperienceDescription } from '@/ai/flows/generate-experience-description';
+import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume';
 
 async function getFileContent(file: File): Promise<string> {
     const arrayBuffer = await file.arrayBuffer();
@@ -113,5 +114,15 @@ export async function generateExperienceDescriptionAction(role: string, company:
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to generate description.' };
+    }
+}
+
+export async function generateSkillsFromResumeAction(resumeContent: string) {
+    try {
+        const result = await generateSkillsFromResume({ resumeContent });
+        return { success: true, data: result.skills };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to generate skills.' };
     }
 }

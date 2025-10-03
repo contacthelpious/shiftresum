@@ -11,6 +11,7 @@ import { Trash2 } from 'lucide-react';
 import type { ResumeFormData } from '@/lib/definitions';
 import { AiSummaryGenerator } from './ai-summary-generator';
 import { AiExperienceGenerator } from './ai-experience-generator';
+import { AiSkillGenerator } from './ai-skill-generator';
 
 
 export function ResumeEditor() {
@@ -195,7 +196,9 @@ export function ResumeEditor() {
                       </div>
                     ))}
                  </div>
-                <Button variant="outline" onClick={() => appendSkill({ name: '' })}>Add Skill</Button>              </div>
+                <Button variant="outline" onClick={() => appendSkill({ name: '' })}>Add Skill</Button>
+                <AiSkillGenerator />
+              </div>
             </AccordionContent>
           </AccordionItem>
 
