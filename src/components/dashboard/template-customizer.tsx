@@ -43,13 +43,15 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
             <h3 className="font-semibold mb-4">Template</h3>
             <Select
               value={designOptions.template}
-              onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'modern' | 'classic' | 'compact'}))}
+              onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'modern' | 'classic' | 'compact' | 'professional' | 'creative'}))}
             >
               <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="modern">Modern</SelectItem>
                 <SelectItem value="classic">Classic</SelectItem>
                 <SelectItem value="compact">Compact</SelectItem>
+                <SelectItem value="professional">Professional</SelectItem>
+                <SelectItem value="creative">Creative</SelectItem>
               </SelectContent>
             </Select>
           </>
