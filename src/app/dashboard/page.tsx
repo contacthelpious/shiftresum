@@ -64,7 +64,7 @@ export default function DashboardPage() {
                       <ResumePreview 
                           resumeData={resumeData} 
                           designOptions={designOptions} 
-                          className="transform scale-[0.4] origin-top sm:scale-[0.5] md:scale-100 lg:scale-[0.8]"
+                          className="transform scale-[0.4] origin-top sm:scale-[0.5] lg:scale-[0.8]"
                       />
                     </div>
                     <TemplateCustomizer 
