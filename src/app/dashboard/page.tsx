@@ -45,8 +45,11 @@ export default function DashboardPage() {
             </TabsList>
           </div>
 
-          <div className="grid flex-1 md:grid-cols-2 no-print">
-            <div className="flex flex-col md:col-span-1">
+          <div className={cn(
+            "grid flex-1 no-print",
+            activeTab === 'design' ? 'grid-cols-1' : 'md:grid-cols-2'
+          )}>
+            <div className="flex flex-col">
               <TabsContent value="content" className="mt-0 flex-1">
                 <ScrollArea className="h-full">
                   <div className="p-4 lg:p-6">
@@ -61,7 +64,7 @@ export default function DashboardPage() {
                       <ResumePreview 
                           resumeData={resumeData} 
                           designOptions={designOptions} 
-                          className="transform scale-[0.4] origin-top sm:scale-[0.5] md:scale-[0.8]"
+                          className="transform scale-[0.4] origin-top sm:scale-[0.5] lg:scale-[0.8]"
                       />
                     </div>
                     <TemplateCustomizer 
@@ -82,8 +85,8 @@ export default function DashboardPage() {
 
             {/* Preview Panel for Content and Download tabs on desktop */}
             <div className={cn(
-              'hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto',
-              { 'md:hidden': activeTab === 'design' }
+              'hidden bg-muted/40 p-8 overflow-auto',
+              activeTab !== 'design' && 'md:flex flex-col items-center justify-start'
             )}>
               <ResumePreview 
                 resumeData={resumeData}
