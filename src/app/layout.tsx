@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'ResumeFlow - AI-Powered Resume Builder',
+  title: 'Shift Resume - AI-Powered Resume Builder',
   description: 'Create professional resumes in minutes with AI-powered suggestions and live previews.',
 };
 

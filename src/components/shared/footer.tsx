@@ -16,7 +16,7 @@ export function SharedFooter() {
                 <Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
                 <Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link>
             </div>
-            <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} ResumeFlow. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Shift Resume. All rights reserved.</p>
         </div>
       </div>
     </footer>

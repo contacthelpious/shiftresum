@@ -51,7 +51,7 @@ export function LandingPageContent() {
               Build Your Best Resume, Faster
             </h1>
             <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-              ResumeFlow combines a beautiful resume builder with AI to help you land your dream job. Create a professional resume in minutes.
+              Shift Resume combines a beautiful resume builder with AI to help you land your dream job. Create a professional resume in minutes.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" asChild>

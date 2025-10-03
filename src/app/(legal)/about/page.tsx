@@ -18,7 +18,7 @@ export default function AboutPage() {
         <section className="container py-20 text-center md:py-32">
           <div className="mx-auto max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tighter md:text-6xl font-headline">
-              About ResumeFlow
+              About Shift Resume
             </h1>
             <p className="mt-4 text-lg text-muted-foreground md:text-xl">
               We're on a mission to make resume building intuitive, fast, and effective for everyone.
@@ -46,7 +46,7 @@ export default function AboutPage() {
             <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter font-headline">Our Story</h2>
               <p className="text-muted-foreground">
-                ResumeFlow was born from a simple observation: creating a standout resume is hard. Too many talented individuals struggle with clunky software and outdated advice. We saw an opportunity to combine beautiful design with the power of AI to create a tool that not only simplifies the process but actively helps you write a better resume.
+                Shift Resume was born from a simple observation: creating a standout resume is hard. Too many talented individuals struggle with clunky software and outdated advice. We saw an opportunity to combine beautiful design with the power of AI to create a tool that not only simplifies the process but actively helps you write a better resume.
               </p>
               <p className="text-muted-foreground">
                 Founded in 2023, our team of developers, designers, and career experts has been dedicated to building a platform that empowers job seekers to put their best foot forward.
@@ -67,7 +67,7 @@ export default function AboutPage() {
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-3xl font-bold tracking-tighter font-headline">Meet the Team</h2>
                     <p className="mt-4 text-lg text-muted-foreground">
-                        The passionate individuals behind ResumeFlow.
+                        The passionate individuals behind Shift Resume.
                     </p>
                 </div>
                 <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
