@@ -36,11 +36,8 @@ export function SharedHeader() {
         </nav>
         <div className="flex-1 flex justify-end">
             <div className="flex items-center space-x-2">
-                <Button variant="ghost" asChild>
-                    <Link href="/login">Log In</Link>
-                </Button>
                 <Button asChild>
-                    <Link href="/signup">Get Started</Link>
+                    <Link href="/login">Log In</Link>
                 </Button>
             </div>
         </div>
