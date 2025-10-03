@@ -1,5 +1,6 @@
 'use server';
 
+import 'dotenv/config';
 import { generateInitialResumeDraft } from '@/ai/flows/generate-initial-resume-draft';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
