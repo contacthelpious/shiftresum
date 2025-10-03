@@ -19,8 +19,8 @@ const tiers = [
     href: '/signup'
   },
   {
-    name: 'Pro',
-    price: '$9',
+    name: 'Monthly',
+    price: '$10',
     priceAnnotation: '/ month',
     description: 'Unlock all features and build unlimited resumes.',
     features: [
@@ -35,17 +35,19 @@ const tiers = [
     popular: true,
   },
   {
-    name: 'Teams',
-    price: 'Contact Us',
-    description: 'For schools, bootcamps, and career centers.',
+    name: 'Weekly',
+    price: '$2',
+    priceAnnotation: '/ week',
+    description: 'Try out all the Pro features for a week.',
     features: [
-      'Everything in Pro',
-      'Centralized Billing',
-      'Team Management',
-      'Custom Templates',
+      'Unlimited Resumes',
+      'Unlimited AI Suggestions',
+      'All Templates & Colors',
+      'Remove "ResumeFlow" Branding',
+      'Priority Support',
     ],
-    cta: 'Contact Sales',
-    href: '/contact'
+    cta: 'Start Trial',
+    href: '/signup'
   },
 ];
 
