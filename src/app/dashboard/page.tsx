@@ -11,7 +11,8 @@ import { ResumeEditor } from '@/components/dashboard/resume-editor';
 import { TemplateCustomizer } from '@/components/dashboard/template-customizer';
 import { AiAssistant } from '@/components/dashboard/ai-assistant';
 import { ResumePreview } from '@/components/dashboard/resume-preview';
-import { Wand2, LayoutTemplate, Feather } from 'lucide-react';
+import { Download, LayoutTemplate, Feather } from 'lucide-react';
+import { DownloadTab } from '@/components/dashboard/download-tab';
 
 
 export default function DashboardPage() {
@@ -38,8 +39,8 @@ export default function DashboardPage() {
               <TabsTrigger value="design">
                 <LayoutTemplate className="mr-2 h-4 w-4" /> Design
               </TabsTrigger>
-              <TabsTrigger value="ai">
-                <Wand2 className="mr-2 h-4 w-4" /> AI Assistant
+              <TabsTrigger value="download">
+                <Download className="mr-2 h-4 w-4" /> Download
               </TabsTrigger>
             </TabsList>
           </div>
@@ -70,10 +71,10 @@ export default function DashboardPage() {
                   </div>
               </TabsContent>
               
-              <TabsContent value="ai" className="mt-0 flex-1">
+              <TabsContent value="download" className="mt-0 flex-1">
                  <ScrollArea className="h-full">
                    <div className="p-4 lg:p-6">
-                      <AiAssistant />
+                      <DownloadTab />
                    </div>
                 </ScrollArea>
               </TabsContent>

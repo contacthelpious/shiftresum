@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -16,22 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/logo";
-import { Download, Save, LogOut } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { LogOut } from "lucide-react";
 
 export function DashboardHeader() {
-  const { toast } = useToast();
-
-  const handleExport = () => {
-    window.print();
-  };
-
-  const handleSave = () => {
-    toast({
-      title: "Resume Saved!",
-      description: "Your changes have been saved successfully.",
-    });
-  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-card no-print">
@@ -43,14 +31,6 @@ export function DashboardHeader() {
         </div>
         <div className="flex-1 flex justify-end">
             <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={handleSave}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save
-                </Button>
-                <Button size="sm" onClick={handleExport}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Export PDF
-                </Button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
