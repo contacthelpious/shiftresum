@@ -11,7 +11,7 @@ import { ResumeEditor } from '@/components/dashboard/resume-editor';
 import { TemplateCustomizer } from '@/components/dashboard/template-customizer';
 import { AiAssistant } from '@/components/dashboard/ai-assistant';
 import { ResumePreview } from '@/components/dashboard/resume-preview';
-import { Wand2, LayoutTemplate, Feather, Eye } from 'lucide-react';
+import { Wand2, LayoutTemplate, Feather } from 'lucide-react';
 
 
 export default function DashboardPage() {
@@ -27,52 +27,47 @@ export default function DashboardPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="grid h-[calc(100vh-4rem)] md:grid-cols-2 no-print">
-        {/* Editor & Mobile Preview Panel */}
-        <div className="flex flex-col">
-          <Tabs defaultValue="content" className="flex-1 flex flex-col">
-            <div className="px-4 py-2 border-b">
-              <TabsList className="grid w-full grid-cols-4 md:grid-cols-3">
-                <TabsTrigger value="content">
-                  <Feather className="mr-2 h-4 w-4" /> Content
-                </TabsTrigger>
-                <TabsTrigger value="design">
-                  <LayoutTemplate className="mr-2 h-4 w-4" /> Design
-                </TabsTrigger>
-                <TabsTrigger value="ai">
-                  <Wand2 className="mr-2 h-4 w-4" /> AI Assistant
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="md:hidden">
-                  <Eye className="mr-2 h-4 w-4" /> Preview
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <ScrollArea className="flex-1">
-              <TabsContent value="content" className="mt-0 p-4 lg:p-6">
-                <ResumeEditor />
-              </TabsContent>
-              <TabsContent value="design" className="mt-0 p-4 lg:p-6">
-                <TemplateCustomizer 
-                  designOptions={designOptions}
-                  setDesignOptions={setDesignOptions}
-                />
-              </TabsContent>
-              <TabsContent value="ai" className="mt-0 p-4 lg:p-6">
-                <AiAssistant />
-              </TabsContent>
-              {/* Mobile-only Preview Content */}
-              <TabsContent value="preview" className="mt-0 md:hidden bg-muted/40 p-4 flex flex-col items-center">
-                 <ResumePreview 
-                    resumeData={resumeData} 
-                    designOptions={designOptions} 
-                    className="transform scale-50 sm:scale-[0.65] origin-top"
-                 />
-              </TabsContent>
-            </ScrollArea>
-          </Tabs>
-        </div>
+      <div className="grid h-[calc(100vh-4rem)] md:grid-cols-[1fr_1fr] no-print">
+        <Tabs defaultValue="content" className="flex flex-col md:col-span-1">
+          <div className="px-4 py-2 border-b">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="content">
+                <Feather className="mr-2 h-4 w-4" /> Content
+              </TabsTrigger>
+              <TabsTrigger value="design">
+                <LayoutTemplate className="mr-2 h-4 w-4" /> Design
+              </TabsTrigger>
+              <TabsTrigger value="ai">
+                <Wand2 className="mr-2 h-4 w-4" /> AI Assistant
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <ScrollArea className="flex-1">
+            <TabsContent value="content" className="mt-0 p-4 lg:p-6">
+              <ResumeEditor />
+            </TabsContent>
+            <TabsContent value="design" className="mt-0 p-0 md:hidden">
+                <div className="relative h-[calc(100vh-8rem)] overflow-y-auto bg-muted/40">
+                  <div className="flex justify-center items-start pt-8 pb-40">
+                    <ResumePreview 
+                        resumeData={resumeData} 
+                        designOptions={designOptions} 
+                        className="transform scale-[0.6] origin-top"
+                    />
+                  </div>
+                  <TemplateCustomizer 
+                    designOptions={designOptions}
+                    setDesignOptions={setDesignOptions}
+                  />
+                </div>
+            </TabsContent>
+            <TabsContent value="ai" className="mt-0 p-4 lg:p-6">
+              <AiAssistant />
+            </TabsContent>
+          </ScrollArea>
+        </Tabs>
 
-        {/* Preview Panel */}
+        {/* Preview Panel for Content and AI tabs on desktop */}
         <div className="hidden md:flex flex-col items-center justify-start bg-muted/40 p-8 overflow-auto">
           <ResumePreview 
             resumeData={resumeData}

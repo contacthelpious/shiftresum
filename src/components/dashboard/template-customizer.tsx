@@ -1,10 +1,13 @@
+
 'use client';
 
-import type { Dispatch, SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DesignOptions } from '@/lib/definitions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '../ui/button';
+import { Palette, Pen, Type } from 'lucide-react';
 
 interface TemplateCustomizerProps {
   designOptions: DesignOptions;
@@ -26,59 +29,102 @@ const fonts = [
   { name: 'Lato', value: 'Lato' },
 ];
 
+type OpenSheet = 'template' | 'color' | 'font' | null;
+
 export function TemplateCustomizer({ designOptions, setDesignOptions }: TemplateCustomizerProps) {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader><CardTitle>Template</CardTitle></CardHeader>
-        <CardContent>
-          <Select
-            value={designOptions.template}
-            onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'classic' | 'modern'}))}
-          >
-            <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="modern">Modern</SelectItem>
-              <SelectItem value="classic" disabled>Classic (Coming Soon)</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+  const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
-      <Card>
-        <CardHeader><CardTitle>Accent Color</CardTitle></CardHeader>
-        <CardContent>
-           <div className="flex flex-wrap gap-3">
-            {colors.map(color => (
-              <button
-                key={color.value}
-                title={color.name}
-                className={`h-8 w-8 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary scale-110' : 'border-transparent'}`}
-                style={{ backgroundColor: color.value }}
-                onClick={() => setDesignOptions(prev => ({...prev, color: color.value}))}
-              />
-            ))}
-           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Typography</CardTitle></CardHeader>
-        <CardContent>
-          <Label>Font Family</Label>
-          <Select
-             value={designOptions.font}
-             onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as 'Inter' | 'Roboto' | 'Lato'}))}
-          >
-            <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
-            <SelectContent>
-              {fonts.map(font => (
-                <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
+  const renderSheetContent = () => {
+    switch (openSheet) {
+      case 'template':
+        return (
+          <>
+            <SheetHeader><SheetTitle>Template</SheetTitle></SheetHeader>
+            <div className="p-4">
+              <Select
+                value={designOptions.template}
+                onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'classic' | 'modern'}))}
+              >
+                <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="modern">Modern</SelectItem>
+                  <SelectItem value="classic" disabled>Classic (Coming Soon)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      case 'color':
+        return (
+          <>
+            <SheetHeader><SheetTitle>Accent Color</SheetTitle></SheetHeader>
+            <div className="p-4 flex flex-wrap gap-3 justify-center">
+              {colors.map(color => (
+                <button
+                  key={color.value}
+                  title={color.name}
+                  className={`h-10 w-10 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-transparent'}`}
+                  style={{ backgroundColor: color.value }}
+                  onClick={() => setDesignOptions(prev => ({...prev, color: color.value}))}
+                />
               ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          </>
+        );
+      case 'font':
+        return (
+          <>
+            <SheetHeader><SheetTitle>Typography</SheetTitle></SheetHeader>
+            <div className="p-4 space-y-4">
+              <Label>Font Family</Label>
+              <Select
+                 value={designOptions.font}
+                 onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as 'Inter' | 'Roboto' | 'Lato'}))}
+              >
+                <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
+                <SelectContent>
+                  {fonts.map(font => (
+                    <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <Sheet open={!!openSheet} onOpenChange={(isOpen) => !isOpen && setOpenSheet(null)}>
+      <div className="fixed bottom-0 left-0 right-0 p-2 bg-background/80 backdrop-blur-sm border-t z-10">
+        <div className="container mx-auto max-w-md">
+          <div className="grid grid-cols-3 gap-2">
+            <SheetTrigger asChild onClick={() => setOpenSheet('template')}>
+              <Button variant="outline" className="flex-col h-16">
+                <Pen className="mb-1"/>
+                <span>Template</span>
+              </Button>
+            </SheetTrigger>
+            <SheetTrigger asChild onClick={() => setOpenSheet('color')}>
+              <Button variant="outline" className="flex-col h-16">
+                <Palette className="mb-1" />
+                <span>Color</span>
+              </Button>
+            </SheetTrigger>
+            <SheetTrigger asChild onClick={() => setOpenSheet('font')}>
+              <Button variant="outline" className="flex-col h-16">
+                <Type className="mb-1" />
+                <span>Font</span>
+              </Button>
+            </SheetTrigger>
+          </div>
+        </div>
+      </div>
+      <SheetContent side="bottom" className="mx-auto max-w-xl rounded-t-lg">
+        {renderSheetContent()}
+      </SheetContent>
+    </Sheet>
   );
 }
