@@ -8,8 +8,7 @@ export function Logo() {
         viewBox="0 0 24 24"
         fill="currentColor"
       >
-        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-        <path d="M5.12 14.12L6.54 15.54L9 13V18h2v-5l2.46 2.46l1.42-1.42L9.12 9.29z" />
+        <path d="M14 2H6C4.9 2 4 2.9 4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 10V8.5h2.5L11 4L6.5 8.5H9V12h4zm4 4H8v-2h9v2zm0-4H8v-2h9v2z" />
       </svg>
       <span className="text-xl font-bold text-primary font-headline">Shift Resume</span>
     </div>
