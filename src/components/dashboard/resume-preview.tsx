@@ -332,7 +332,7 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     <div 
       id="resume-preview-content"
       className={cn(
-        "bg-card text-card-foreground w-[210mm] min-h-[297mm] p-8 shadow-lg resume-preview-container",
+        "bg-card text-card-foreground w-[210mm] min-h-[297mm] md:w-[210mm] md:min-h-[297mm] p-8 shadow-lg resume-preview-container",
         "print:w-full print:h-full print:p-10 print:shadow-none print:scale-100 print:min-h-screen",
         fontClass,
         className
