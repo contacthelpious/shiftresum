@@ -29,7 +29,7 @@ export function UploadResumeButton() {
 
       if (result.success && result.data) {
         sessionStorage.setItem('parsedResumeData', JSON.stringify(result.data));
-        router.push('/dashboard');
+        router.push('/builder');
         
         toast({
           title: 'Resume Parsed!',

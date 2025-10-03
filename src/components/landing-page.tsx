@@ -60,7 +60,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/dashboard">Create My Resume</Link>
+                <Link href="/builder">Create My Resume</Link>
               </Button>
               <UploadResumeButton />
             </div>

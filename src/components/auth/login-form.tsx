@@ -30,7 +30,7 @@ export function LoginForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     // Mock login success
-    router.push("/dashboard");
+    router.push("/builder");
   }
 
   return (
