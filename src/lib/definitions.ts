@@ -118,7 +118,7 @@ export const defaultResumeData: ResumeData = {
 };
 
 export const DesignOptionsSchema = z.object({
-  template: z.enum(['classic', 'modern']).default('modern'),
+  template: z.enum(['modern', 'classic', 'compact']).default('modern'),
   color: z.string().default('#2c3e50'), // default to primary color
   font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
 });
