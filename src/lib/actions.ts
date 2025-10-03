@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'dotenv/config';
@@ -41,11 +42,11 @@ export async function parseResumeAction(formData: FormData) {
         const fullData = merge({}, defaultResumeData, parsedData);
         
         // Add unique IDs to array items if they don't have one from the merge
-        fullData.experience.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.education.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.skills.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.projects.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.certifications.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.experience?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.education?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.skills?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.projects?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        fullData.certifications?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
 
         // Final validation before sending to client
         const finalValidation = ResumeDataSchema.safeParse(fullData);

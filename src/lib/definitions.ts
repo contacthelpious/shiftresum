@@ -1,11 +1,12 @@
+
 import { z } from 'zod';
 
 export const PersonalInfoSchema = z.object({
   name: z.string().optional(),
-  email: z.string().email({ message: "Invalid email format." }).or(z.literal('')).optional(),
+  email: z.string().optional(),
   phone: z.string().optional(),
   location: z.string().optional(),
-  website: z.string().url({ message: "Invalid URL format." }).or(z.literal('')).optional(),
+  website: z.string().optional(),
   summary: z.string().optional(),
 });
 
@@ -43,7 +44,7 @@ export const ProjectSchema = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   description: z.string().optional(),
-  link: z.string().url({ message: "Invalid URL format." }).or(z.literal('')).optional(),
+  link: z.string().optional(),
 });
 
 export type Project = z.infer<typeof ProjectSchema>;
