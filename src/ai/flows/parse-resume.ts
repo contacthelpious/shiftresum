@@ -10,17 +10,25 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { ResumeDataSchema } from '@/lib/definitions';
+import { PersonalInfoSchema, ExperienceSchema, EducationSchema, SkillSchema, ProjectSchema, CertificationSchema } from '@/lib/definitions';
 
 const ParseResumeInputSchema = z.object({
   resumeContent: z.string().describe('The entire text content of a resume.'),
 });
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
-const ParseResumeOutputSchema = ResumeDataSchema.deepPartial().describe(
-  'The structured data extracted from the resume.'
-);
+// Define a clean, simple output schema for the AI model.
+// All fields are optional, and there are no complex transformations or defaults.
+const ParseResumeOutputSchema = z.object({
+  personalInfo: PersonalInfoSchema.optional(),
+  experience: z.array(ExperienceSchema).optional(),
+  education: z.array(EducationSchema).optional(),
+  skills: z.array(SkillSchema).optional(),
+  projects: z.array(ProjectSchema).optional(),
+  certifications: z.array(CertificationSchema).optional(),
+}).describe('The structured data extracted from the resume.');
 export type ParseResumeOutput = z.infer<typeof ParseResumeOutputSchema>;
+
 
 export async function parseResume(input: ParseResumeInput): Promise<ParseResumeOutput> {
   return parseResumeFlow(input);
