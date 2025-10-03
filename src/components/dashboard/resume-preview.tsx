@@ -66,7 +66,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
                 </div>
                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                 <ul className="list-disc list-outside pl-5 space-y-1">
-                  {exp.description?.split('\n').map((item, i) => item.trim() && <li key={i} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                  {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
                 </ul>
               </div>
             ))}
@@ -86,7 +86,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
                             )}
                         </div>
                         <ul className="list-disc list-outside pl-5 space-y-1 mt-1">
-                            {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                            {proj.description?.split('\n').map((item, i) => item.trim() && <li key={`${proj.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
                         </ul>
                     </div>
                 ))}
@@ -165,7 +165,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                     <div className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate}</div>
                                 </div>
                                 <ul className="list-disc list-outside pl-5 space-y-1 mt-1">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={i} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -194,7 +194,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                     {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
                                 </div>
                                 <ul className="list-disc list-outside pl-5 space-y-1 mt-1">
-                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i} className="text-sm">{item.replace(/^- /, '')}</li>)}
+                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={`${proj.id}-desc-${i}`} className="text-sm">{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -292,7 +292,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                 </div>
                                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -308,7 +308,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                                     {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
                                 </div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 mt-1 text-sm">
-                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={`${proj.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -368,7 +368,7 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
                             </div>
                             <div className="italic text-sm mb-1">{exp.company || 'Company'}</div>
                             <ul className="list-disc list-outside pl-5 space-y-1 text-sm">
-                                {exp.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                             </ul>
                         </div>
                     ))}
@@ -384,7 +384,7 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
                                 {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
                             </div>
                             <ul className="list-disc list-outside pl-5 space-y-1 mt-1 text-sm">
-                                {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                {proj.description?.split('\n').map((item, i) => item.trim() && <li key={`${proj.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                             </ul>
                         </div>
                     ))}
@@ -491,7 +491,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                                 </div>
                                 <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
-                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                    {exp.description?.split('\n').map((item, i) => item.trim() && <li key={`${exp.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -508,7 +508,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                                     {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
                                 </div>
                                 <ul className="list-disc list-outside pl-4 space-y-1 mt-1 text-sm">
-                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={i}>{item.replace(/^- /, '')}</li>)}
+                                    {proj.description?.split('\n').map((item, i) => item.trim() && <li key={`${proj.id}-desc-${i}`}>{item.replace(/^- /, '')}</li>)}
                                 </ul>
                             </div>
                         ))}
@@ -562,3 +562,5 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
+
+    
