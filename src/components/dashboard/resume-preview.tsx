@@ -550,7 +550,7 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
       id="resume-preview-content"
       className={cn(
         "bg-card text-card-foreground w-[210mm] min-h-[297mm] shadow-lg",
-        "print:w-full print:h-full print:p-10 print:shadow-none print:scale-100 print:min-h-screen",
+        "resume-preview-container",
         fontClass,
         creativeClasses,
         className
