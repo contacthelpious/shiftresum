@@ -59,7 +59,7 @@ export default function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="design" className="mt-0 flex-1">
-                  <div className="relative h-full overflow-y-auto bg-muted/40">
+                  <div className="relative h-full overflow-y-auto bg-muted/40 p-4">
                     <div className="flex justify-center items-start py-8">
                        <div className="transform scale-[0.5] sm:scale-[0.6] lg:scale-[0.7] origin-top">
                           <ResumePreview 
