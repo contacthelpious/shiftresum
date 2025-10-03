@@ -69,6 +69,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     <TemplateCustomizer 
+                      resumeData={resumeData}
                       designOptions={designOptions}
                       setDesignOptions={setDesignOptions}
                     />

@@ -4,12 +4,15 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { DesignOptions } from '@/lib/definitions';
+import type { DesignOptions, ResumeData } from '@/lib/definitions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
 import { Palette, Pen, Type, X } from 'lucide-react';
+import { ResumePreview } from './resume-preview';
+import { cn } from '@/lib/utils';
 
 interface TemplateCustomizerProps {
+  resumeData: ResumeData;
   designOptions: DesignOptions;
   setDesignOptions: Dispatch<SetStateAction<DesignOptions>>;
 }
@@ -29,9 +32,17 @@ const fonts = [
   { name: 'Lato', value: 'Lato' },
 ];
 
+const templates: { name: string, value: DesignOptions['template'] }[] = [
+    { name: 'Modern', value: 'modern' },
+    { name: 'Classic', value: 'classic' },
+    { name: 'Compact', value: 'compact' },
+    { name: 'Professional', value: 'professional' },
+    { name: 'Creative', value: 'creative' },
+];
+
 type OpenSheet = 'template' | 'color' | 'font' | null;
 
-export function TemplateCustomizer({ designOptions, setDesignOptions }: TemplateCustomizerProps) {
+export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions }: TemplateCustomizerProps) {
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
   const renderSheetContent = () => {
@@ -40,20 +51,27 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
       case 'template':
         content = (
           <>
-            <h3 className="font-semibold mb-4">Template</h3>
-            <Select
-              value={designOptions.template}
-              onValueChange={(value) => setDesignOptions(prev => ({...prev, template: value as 'modern' | 'classic' | 'compact' | 'professional' | 'creative'}))}
-            >
-              <SelectTrigger><SelectValue placeholder="Select a template" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="modern">Modern</SelectItem>
-                <SelectItem value="classic">Classic</SelectItem>
-                <SelectItem value="compact">Compact</SelectItem>
-                <SelectItem value="professional">Professional</SelectItem>
-                <SelectItem value="creative">Creative</SelectItem>
-              </SelectContent>
-            </Select>
+            <h3 className="font-semibold mb-4 text-center">Select a Template</h3>
+            <div className="grid grid-cols-2 gap-4 max-h-[40vh] overflow-y-auto px-2">
+                {templates.map(template => (
+                    <div 
+                        key={template.value}
+                        className={cn(
+                            "cursor-pointer border-2 rounded-lg overflow-hidden transition-all",
+                            designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
+                        )}
+                        onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
+                    >
+                        <div className="transform scale-[0.15] origin-top-left pointer-events-none">
+                            <ResumePreview 
+                                resumeData={resumeData}
+                                designOptions={{...designOptions, template: template.value}}
+                            />
+                        </div>
+                        <p className="text-xs text-center font-medium bg-muted/50 py-1">{template.name}</p>
+                    </div>
+                ))}
+            </div>
           </>
         );
         break;
@@ -117,7 +135,7 @@ export function TemplateCustomizer({ designOptions, setDesignOptions }: Template
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-2 z-10">
-        <div className="container mx-auto max-w-[280px]">
+        <div className="container mx-auto max-w-sm">
             <AnimatePresence>
                 {openSheet && (
                     <motion.div
