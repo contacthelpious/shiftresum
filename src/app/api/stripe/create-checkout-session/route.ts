@@ -8,10 +8,11 @@ import Stripe from 'stripe';
 export async function POST(req: NextRequest) {
   try {
     // **1. Validate Environment Variables**
-    // This is the most critical step. If these are missing, the API would crash.
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
-    const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
+    
+    // FIX: Hardcode Price IDs to bypass environment loading issues.
+    const weeklyPriceId = 'price_1PgQ5yCvbhnhRCiQ4j2i512A';
+    const monthlyPriceId = 'price_1PgQ5yCvbhnhRCiQO3Jg3IqH';
 
     if (!stripeSecretKey || !weeklyPriceId || !monthlyPriceId) {
       console.error("Stripe configuration error: Missing environment variables.");
