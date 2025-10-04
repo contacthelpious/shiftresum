@@ -1,7 +1,7 @@
 
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb, stripe, STRIPE_MONTHLY_PRICE_ID, STRIPE_WEEKLY_PRICE_ID } from '@/firebase/admin';
+import { stripe, adminDb, STRIPE_MONTHLY_PRICE_ID, STRIPE_WEEKLY_PRICE_ID } from '@/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
