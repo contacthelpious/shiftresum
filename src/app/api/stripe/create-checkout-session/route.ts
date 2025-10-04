@@ -2,20 +2,15 @@
 'use server';
 import 'dotenv/config'; // Force load environment variables for this serverless function
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, adminDb, STRIPE_WEEKLY_PRICE_ID, STRIPE_MONTHLY_PRICE_ID } from '@/firebase/admin';
+import { stripe } from '@/lib/stripe/server';
+import { adminDb } from '@/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
-    if (!STRIPE_WEEKLY_PRICE_ID || !STRIPE_MONTHLY_PRICE_ID) {
-      throw new Error("Stripe Price IDs are not set in server environment variables.");
-    }
-    
-    if (!process.env.STRIPE_SECRET_KEY) {
-        throw new Error("Stripe Secret Key is not configured.");
-    }
-
     const body = await req.json();
     const { priceId, userId, userEmail } = body;
+
+    const STRIPE_MONTHLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
 
     if (!userId || !priceId || !userEmail) {
       return NextResponse.json({ error: 'Missing required parameters: userId, priceId, or userEmail.' }, { status: 400 });
@@ -25,7 +20,6 @@ export async function POST(req: NextRequest) {
     const userDoc = await userRef.get();
     let stripeCustomerId = userDoc.data()?.stripeCustomerId;
 
-    // Create a new Stripe customer if one doesn't exist
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: userEmail,
@@ -39,7 +33,6 @@ export async function POST(req: NextRequest) {
     }
 
     const host = req.headers.get('origin')!;
-    const baseUrl = `${req.headers.get('x-forwarded-proto') || 'http'}://${host}`;
     
     const mode: 'subscription' | 'payment' = priceId === STRIPE_MONTHLY_PRICE_ID ? 'subscription' : 'payment';
 
@@ -48,8 +41,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: mode,
-      success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
-      cancel_url: `${baseUrl}/builder?resumeId=__new__&stripe=cancel`,
+      success_url: `${host}/builder?resumeId=__new__&stripe=success`,
+      cancel_url: `${host}/builder?resumeId=__new__&stripe=cancel`,
       metadata: {
           firebaseUID: userId,
       },
