@@ -11,9 +11,9 @@ export const STRIPE_PRODUCTS = [
   {
     name: 'Weekly',
     priceId: process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID || 'price_123_weekly', // This now represents the trial
-    price: '$2',
-    priceAnnotation: '/ week',
-    description: 'A 7-day trial that auto-renews to the monthly plan.',
+    price: '$3',
+    priceAnnotation: 'AUD / week',
+    description: 'A 7-day trial to try all Pro features.',
     features: [
       'Unlimited Resumes',
       'Unlimited AI Suggestions',
@@ -27,8 +27,8 @@ export const STRIPE_PRODUCTS = [
   {
     name: 'Monthly',
     priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_123_monthly', // Replace with your ID
-    price: '$10',
-    priceAnnotation: '/ month',
+    price: '$12',
+    priceAnnotation: 'AUD / month',
     description: 'Unlock all features and build unlimited resumes.',
     features: [
       'Unlimited Resumes',
