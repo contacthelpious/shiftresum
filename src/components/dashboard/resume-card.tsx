@@ -5,20 +5,50 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Download, Edit } from "lucide-react";
+import { Download, Edit, Trash2 } from "lucide-react";
 import type { WithId } from "@/firebase";
 import type { ResumeData } from "@/lib/definitions";
 import { formatDistanceToNow } from 'date-fns';
 import { ResumePreview } from "../builder/resume-preview";
+import { useUser, useFirestore } from "@/firebase";
+import { doc } from 'firebase/firestore';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast";
+
 
 interface ResumeCardProps {
   resume: WithId<ResumeData>;
 }
 
 export function ResumeCard({ resume }: ResumeCardProps) {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
   const lastEdited = resume.updatedAt?.toDate
     ? `${formatDistanceToNow(resume.updatedAt.toDate())} ago`
     : 'N/A';
+
+  const handleDelete = () => {
+    if (!user) return;
+    const resumeRef = doc(firestore, `users/${user.uid}/resumes`, resume.id);
+    deleteDocumentNonBlocking(resumeRef);
+    toast({
+      title: "Resume Deleted",
+      description: `"${resume.title}" has been moved to the trash.`,
+    });
+  };
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg group flex flex-col">
@@ -37,19 +67,40 @@ export function ResumeCard({ resume }: ResumeCardProps) {
         </Link>
       </CardContent>
       <CardFooter className="p-2 bg-muted/50 mt-auto">
-        <div className="grid grid-cols-2 gap-2 w-full">
-            <Button variant="ghost" size="sm" asChild>
-                <Link href={`/builder?resumeId=${resume.id}`}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                </Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-                 <Link href={`/builder?resumeId=${resume.id}&action=download`}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                 </Link>
-            </Button>
+        <div className="flex justify-between items-center w-full">
+            <div className="flex">
+                <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/builder?resumeId=${resume.id}`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                     <Link href={`/builder?resumeId=${resume.id}&action=download`}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                     </Link>
+                </Button>
+            </div>
+             <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action will permanently delete "{resume.title}". This cannot be undone.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
       </CardFooter>
     </Card>

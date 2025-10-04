@@ -19,6 +19,7 @@ import { SignupForm } from '@/components/auth/signup-form';
 import { useToast } from '@/hooks/use-toast';
 import { loadStripe } from '@stripe/stripe-js';
 import { STRIPE_PRODUCTS } from '@/lib/stripe';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -35,6 +36,10 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   const { toast } = useToast();
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [view, setView] = useState<View>('loading');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   
   useEffect(() => {
     if (!isOpen) {
@@ -43,6 +48,8 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
     if (isUserLoading || isSubDataLoading) {
       setView('loading');
     } else if (!user) {
+      // User is not logged in, show auth forms but also prepare to redirect.
+      // The actual redirect will happen when user tries to interact with a protected action.
       setView('auth');
     } else if (!isPro) {
       setView('pricing');
@@ -55,12 +62,18 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   const handleAuthSuccess = () => {
     // After login/signup, the useEffect hook above will automatically
     // re-evaluate the view based on the new user's subscription status.
-    // We don't need to manually set the view here.
+    // The redirect logic is handled on the login/signup pages themselves.
+  };
+
+  const redirectToLogin = () => {
+    const currentPath = `${pathname}?${searchParams.toString()}`;
+    router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
   };
   
   const handleSubscribe = async (priceId: string) => {
     if (!user) {
       toast({ variant: 'destructive', title: 'You must be logged in to subscribe.' });
+      redirectToLogin();
       return;
     }
 
