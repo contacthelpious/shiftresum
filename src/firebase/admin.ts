@@ -1,6 +1,6 @@
 
 'use server';
-import 'dotenv/config'; // Ensure all env variables are loaded
+import 'dotenv/config'; // Ensures all env variables are loaded at the start
 import admin from 'firebase-admin';
 import Stripe from 'stripe';
 

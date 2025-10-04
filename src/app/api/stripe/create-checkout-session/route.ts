@@ -9,19 +9,21 @@ export async function POST(req: NextRequest) {
     const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
 
     if (!weeklyPriceId || !monthlyPriceId) {
-        throw new Error("Server misconfiguration: Stripe Price IDs are not set in environment variables.");
+      console.error("Stripe Price IDs are not set in server environment variables.");
+      return NextResponse.json({ error: "Server misconfiguration: Stripe price IDs are missing." }, { status: 500 });
     }
 
     const { priceId, userId, userEmail } = await req.json();
 
     if (!userId || !priceId || !userEmail) {
-      return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required parameters: userId, priceId, or userEmail.' }, { status: 400 });
     }
 
     const userRef = adminDb.collection('users').doc(userId);
     const userDoc = await userRef.get();
     let stripeCustomerId = userDoc.data()?.stripeCustomerId;
 
+    // Create a new Stripe customer if one doesn't exist
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: userEmail,
@@ -34,16 +36,12 @@ export async function POST(req: NextRequest) {
       await userRef.set({ stripeCustomerId }, { merge: true });
     }
 
-    const host = req.headers.get('host');
+    const host = req.headers.get('host')!;
     const protocol = req.headers.get('x-forwarded-proto') || 'http';
     const baseUrl = `${protocol}://${host}`;
-
-    let mode: 'subscription' | 'payment' = 'subscription';
     
-    // The weekly plan is a one-time payment, not a subscription.
-    if (priceId === weeklyPriceId) {
-        mode = 'payment';
-    }
+    // Determine if the plan is a one-time payment or a subscription
+    const mode: 'subscription' | 'payment' = priceId === weeklyPriceId ? 'payment' : 'subscription';
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
@@ -51,9 +49,9 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: mode,
       success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
-      cancel_url: `${baseUrl}/pricing?stripe=cancel`,
+      cancel_url: `${baseUrl}/builder?resumeId=__new__&stripe=cancel`,
       metadata: {
-          firebaseUID: userId, // Pass UID for both modes
+          firebaseUID: userId,
       },
       ...(mode === 'subscription' ? {
           subscription_data: {

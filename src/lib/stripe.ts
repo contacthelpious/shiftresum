@@ -1,6 +1,6 @@
 
-// This file is safe to import on the client, as it only contains public data.
-// The server-side Stripe instance is now managed in `src/firebase/admin.ts`.
+// This file is safe to import on the client, as it contains only public data.
+// The server-side Stripe instance is managed in `src/firebase/admin.ts`.
 
 // IMPORTANT: The Price IDs are primarily managed via environment variables.
 // This array is for display purposes on public-facing pages.
