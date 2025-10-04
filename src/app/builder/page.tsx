@@ -63,6 +63,7 @@ export default function BuilderPage() {
       // Remove stripe params from URL
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.delete('stripe');
+      newParams.delete('session_id'); // Also remove session_id if present
       router.replace(`${window.location.pathname}?${newParams.toString()}`);
     }
   }, [stripeStatus, router, toast, searchParams]);
@@ -98,7 +99,7 @@ export default function BuilderPage() {
   }, [action, isSubDataLoading, router, searchParams]);
 
   const watchedData = methods.watch();
-  const isLoading = isUserLoading || (!!resumeId && isResumeLoading);
+  const isLoading = isUserLoading || (!!resumeId && resumeId !== '__new__' && isResumeLoading);
 
   if (isLoading) {
     return (

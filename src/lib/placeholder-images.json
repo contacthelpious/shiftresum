@@ -5,6 +5,12 @@
       "description": "A person working on a resume on their laptop in a modern workspace.",
       "imageUrl": "https://images.unsplash.com/photo-1594501252028-2bb7b21d01b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxyZXN1bWUlMjB3b3Jrc3BhY2V8ZW58MHx8fHwxNzU5NDYzMDk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "resume workspace"
+    },
+    {
+      "id": "cta",
+      "description": "A person smiling and looking confident during a job interview.",
+      "imageUrl": "https://images.unsplash.com/photo-1573496130488-f3bd897b275a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxqb2IlMjBpbnRlcnZpZXd8ZW58MHx8fHwxNzYwNDAwNzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "job interview"
     }
   ]
 }
