@@ -8,7 +8,7 @@ export const STRIPE_PRODUCTS = [
   {
     name: 'Weekly',
     // Use the public env variable for client-side access
-    priceId: process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID || '', 
+    priceId: process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID!, 
     price: '$3',
     priceAnnotation: 'AUD / week',
     description: 'A 7-day pass to try all Pro features.',
@@ -24,7 +24,7 @@ export const STRIPE_PRODUCTS = [
   {
     name: 'Monthly',
     // Use the public env variable for client-side access
-    priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || '',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
     price: '$12',
     priceAnnotation: 'AUD / month',
     description: 'Unlock all features and build unlimited resumes.',

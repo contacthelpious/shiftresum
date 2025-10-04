@@ -1,12 +1,9 @@
 
 'use server';
 import 'dotenv/config'; // Ensure env vars are loaded for webhooks too.
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/headers';
 import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe/server';
-import { adminDb } from '@/firebase/admin';
-import { auth as adminAuth } from 'firebase-admin/auth';
-import { firestore as adminFirestore } from 'firebase-admin';
+import { stripe, adminDb, adminAuth, adminFirestore } from '@/firebase/admin';
 import { headers } from 'next/headers'
 
 const relevantEvents = new Set([
@@ -36,7 +33,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
 
     // Set custom claim for pro status
     const isPro = subscription.status === 'active' || subscription.status === 'trialing';
-    await adminAuth().setCustomUserClaims(firebaseUID, { pro: isPro });
+    await adminAuth.setCustomUserClaims(firebaseUID, { pro: isPro });
 }
 
 export async function POST(req: NextRequest) {
@@ -63,7 +60,7 @@ export async function POST(req: NextRequest) {
       switch (event.type) {
         case 'checkout.session.completed': {
             const session = event.data.object as Stripe.Checkout.Session;
-            const STRIPE_WEEKLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID;
+            const STRIPE_WEEKLY_PRICE_ID = process.env.STRIPE_WEEKLY_PRICE_ID;
             // Handle one-time payments (like the weekly pass)
             if (session.mode === 'payment' && session.payment_intent) {
                  const firebaseUID = session.metadata?.firebaseUID;
@@ -77,7 +74,7 @@ export async function POST(req: NextRequest) {
                     stripeSubscriptionStatus: 'active', // Treat it as active for the duration
                     proUntil: adminFirestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
                  }, { merge: true });
-                 await adminAuth().setCustomUserClaims(firebaseUID, { pro: true });
+                 await adminAuth.setCustomUserClaims(firebaseUID, { pro: true });
 
             // Handle subscriptions
             } else if (session.mode === 'subscription' && session.subscription) {

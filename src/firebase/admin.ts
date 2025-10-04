@@ -1,9 +1,13 @@
 
 'use server';
-import 'dotenv/config'; // Ensures all env variables are loaded at the start
+import 'dotenv/config'; // Ensure all env variables are loaded at the start
 import admin from 'firebase-admin';
 import Stripe from 'stripe';
+import { auth as adminAuth } from 'firebase-admin/auth';
+import { firestore as adminFirestore } from 'firebase-admin';
 
+
+// --- FIREBASE ADMIN INITIALIZATION ---
 // Correctly format the private key
 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
@@ -18,7 +22,7 @@ if (!admin.apps.length) {
 }
 
 export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
+export { adminAuth, adminFirestore };
 
 
 // --- STRIPE ADMIN INITIALIZATION ---
@@ -39,6 +43,6 @@ export const STRIPE_WEEKLY_PRICE_ID = process.env.STRIPE_WEEKLY_PRICE_ID;
 export const STRIPE_MONTHLY_PRICE_ID = process.env.STRIPE_MONTHLY_PRICE_ID;
 
 if (!STRIPE_WEEKLY_PRICE_ID || !STRIPE_MONTHLY_PRICE_ID) {
-    console.error("Stripe Price IDs are not set in environment variables.");
+    console.error("Stripe Price IDs (STRIPE_WEEKLY_PRICE_ID, STRIPE_MONTHLY_PRICE_ID) are not set in environment variables.");
     throw new Error('Stripe configuration error: Price IDs are missing.');
 }
