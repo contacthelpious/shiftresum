@@ -1,18 +1,19 @@
+
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe';
-import { adminDb } from '@/firebase/admin';
+import { stripe, adminDb } from '@/firebase/admin';
 import { auth as adminAuth } from 'firebase-admin/auth';
 import { headers } from 'next/headers'
 
 const relevantEvents = new Set([
   'checkout.session.completed',
   'customer.subscription.updated',
-  'customer.subscription.deleted'
+  'customer.subscription.deleted',
+  'payment_intent.succeeded'
 ]);
 
-async function updateUserSubscription(subscription: Stripe.Subscription, priceId: string) {
+async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     const firebaseUID = subscription.metadata.firebaseUID;
     if (!firebaseUID) {
         console.error('No firebaseUID in subscription metadata');
@@ -24,7 +25,7 @@ async function updateUserSubscription(subscription: Stripe.Subscription, priceId
     const dataToSet = {
         stripeSubscriptionId: subscription.id,
         stripeCustomerId: subscription.customer,
-        stripePriceId: priceId,
+        stripePriceId: subscription.items.data[0].price.id,
         stripeSubscriptionStatus: subscription.status,
     };
 
@@ -35,13 +36,13 @@ async function updateUserSubscription(subscription: Stripe.Subscription, priceId
     await adminAuth().setCustomUserClaims(firebaseUID, { pro: isPro });
 }
 
-
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = headers().get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!sig || !webhookSecret) {
+      console.error('Webhook secret not configured.');
       return new NextResponse('Webhook secret not configured', { status: 400 });
   }
 
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err: any) {
-    console.error(`❌ Error message: ${err.message}`);
+    console.error(`❌ Webhook signature error: ${err.message}`);
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -59,27 +60,42 @@ export async function POST(req: NextRequest) {
       switch (event.type) {
         case 'checkout.session.completed': {
             const session = event.data.object as Stripe.Checkout.Session;
-            if (!session.subscription || !session.metadata?.firebaseUID) {
-                throw new Error('Missing subscription or firebaseUID on session');
+            // Handle one-time payments (like the weekly pass)
+            if (session.mode === 'payment' && session.payment_intent) {
+                 const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
+                 const firebaseUID = paymentIntent.metadata.firebaseUID;
+                 if (!firebaseUID) throw new Error('Missing firebaseUID on payment intent');
+
+                 const userRef = adminDb.collection('users').doc(firebaseUID);
+                 const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
+                 
+                 await userRef.set({
+                    stripeCustomerId: session.customer,
+                    stripePriceId: weeklyPriceId, // Assuming this session is for the weekly pass
+                    stripeSubscriptionStatus: 'active', // Treat it as active
+                    proUntil: admin.firestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+                 }, { merge: true });
+                 await adminAuth().setCustomUserClaims(firebaseUID, { pro: true });
+
+            // Handle subscriptions
+            } else if (session.mode === 'subscription' && session.subscription) {
+                const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+                await handleSubscriptionChange(subscription);
             }
-            const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-            const priceId = session.metadata.priceId;
-            await updateUserSubscription(subscription, priceId);
             break;
         }
         case 'customer.subscription.updated':
         case 'customer.subscription.deleted': {
             const subscription = event.data.object as Stripe.Subscription;
-            const priceId = subscription.items.data[0].price.id;
-            await updateUserSubscription(subscription, priceId);
+            await handleSubscriptionChange(subscription);
             break;
         }
         default:
-            throw new Error('Unhandled relevant event!');
+            // Do nothing for other events
       }
     } catch (error) {
-      console.error(error);
-      return new NextResponse('Webhook handler failed', { status: 400 });
+      console.error('Webhook handler failed:', error);
+      return new NextResponse('Webhook handler failed', { status: 500 });
     }
   }
 

@@ -1,12 +1,10 @@
 
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
-import { adminDb } from '@/firebase/admin';
+import { stripe, adminDb } from '@/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
-    // Check for required server-side environment variables at the start
     const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
     const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
 
@@ -17,7 +15,6 @@ export async function POST(req: NextRequest) {
     const { priceId, userId, userEmail } = await req.json();
 
     if (!userId || !priceId || !userEmail) {
-      console.error('Stripe Checkout Error: Missing userId, priceId, or userEmail', { userId, priceId, userEmail });
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
     }
 
@@ -55,8 +52,9 @@ export async function POST(req: NextRequest) {
       mode: mode,
       success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
       cancel_url: `${baseUrl}/pricing?stripe=cancel`,
-      // For subscriptions, metadata is on the subscription itself.
-      // For one-time payments, metadata goes on the payment intent.
+      metadata: {
+          firebaseUID: userId, // Pass UID for both modes
+      },
       ...(mode === 'subscription' ? {
           subscription_data: {
               metadata: {

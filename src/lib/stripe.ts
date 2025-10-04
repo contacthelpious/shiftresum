@@ -1,12 +1,8 @@
 
-import Stripe from 'stripe';
+// This file is safe to import on the client, as it only contains public data.
+// The server-side Stripe instance is now managed in `src/firebase/admin.ts`.
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-  typescript: true,
-});
-
-// IMPORTANT: The Price IDs are now primarily managed via environment variables.
+// IMPORTANT: The Price IDs are primarily managed via environment variables.
 // This array is for display purposes on public-facing pages.
 export const STRIPE_PRODUCTS = [
   {
