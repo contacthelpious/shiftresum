@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +22,6 @@ const formSchema = z.object({
 });
 
 export function SignupForm({ onSuccess }: { onSuccess?: () => void }) {
-  const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -37,53 +35,50 @@ export function SignupForm({ onSuccess }: { onSuccess?: () => void }) {
     },
   });
 
-  const handleSuccess = () => {
-    if (onSuccess) {
-      onSuccess();
-    } else {
-      router.push("/dashboard");
-    }
-  }
-
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      toast({ title: "Successfully signed up with Google." });
-      handleSuccess();
-    } catch (error: any) {
-      if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
-        // User cancelled the sign-up, so we do nothing.
-        return;
-      }
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Google Sign-Up Failed",
-        description: error.message,
+    // Don't await here, onAuthStateChanged will handle it
+    signInWithPopup(auth, provider)
+      .then(() => {
+        toast({ title: "Successfully signed up with Google." });
+        if (onSuccess) onSuccess();
+      })
+      .catch((error: any) => {
+        if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
+          return;
+        }
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Google Sign-Up Failed",
+          description: error.message,
+        });
+      })
+      .finally(() => {
+        setIsGoogleLoading(false);
       });
-    } finally {
-      setIsGoogleLoading(false);
-    }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
-      toast({ title: "Account created successfully!" });
-      handleSuccess();
-    } catch (error: any) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Sign-up Failed",
-        description: "An account with this email may already exist.",
+    // Don't await here, onAuthStateChanged will handle it
+    createUserWithEmailAndPassword(auth, values.email, values.password)
+      .then(() => {
+        toast({ title: "Account created successfully!" });
+        if (onSuccess) onSuccess();
+      })
+      .catch((error: any) => {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Sign-up Failed",
+          description: "An account with this email may already exist.",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-    } finally {
-      setIsLoading(false);
-    }
   }
 
   return (

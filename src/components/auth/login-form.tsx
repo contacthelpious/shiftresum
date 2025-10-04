@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +23,6 @@ const formSchema = z.object({
 });
 
 export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
-  const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,54 +36,62 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     },
   });
 
-  const handleSuccess = () => {
-    if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/dashboard");
-      }
-  }
-
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      toast({ title: "Successfully signed in with Google." });
-      handleSuccess();
+      // Don't await here, onAuthStateChanged will handle it
+      signInWithPopup(auth, provider)
+        .then(() => {
+          toast({ title: "Successfully signed in with Google." });
+          if(onSuccess) onSuccess();
+        })
+        .catch((error: any) => {
+          if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
+            return;
+          }
+          console.error(error);
+          toast({
+            variant: "destructive",
+            title: "Google Sign-In Failed",
+            description: error.message,
+          });
+        })
+        .finally(() => {
+            setIsGoogleLoading(false);
+        });
     } catch (error: any) {
-      if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
-        // User cancelled the sign-in, so we do nothing.
-        return;
-      }
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Google Sign-In Failed",
-        description: error.message,
-      });
-    } finally {
-      setIsGoogleLoading(false);
+        // This outer try-catch is for synchronous errors, though unlikely for signInWithPopup
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Google Sign-In Failed",
+            description: "An unexpected error occurred.",
+        });
+        setIsGoogleLoading(false);
     }
   };
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      toast({ title: "Successfully logged in." });
-      handleSuccess();
-    } catch (error: any) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: "The email or password you entered is incorrect.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Don't await here, onAuthStateChanged will handle it
+    signInWithEmailAndPassword(auth, values.email, values.password)
+        .then(() => {
+            toast({ title: "Successfully logged in." });
+            if (onSuccess) onSuccess();
+        })
+        .catch((error: any) => {
+            console.error(error);
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "The email or password you entered is incorrect.",
+            });
+        })
+        .finally(() => {
+            setIsLoading(false);
+        });
   }
 
   return (
