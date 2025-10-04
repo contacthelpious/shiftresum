@@ -49,31 +49,35 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
       setView('loading');
     } else if (!user) {
       // User is not logged in, show auth forms but also prepare to redirect.
-      // The actual redirect will happen when user tries to interact with a protected action.
+      const currentPath = `${pathname}?${searchParams.toString()}`;
+      sessionStorage.setItem('loginRedirect', currentPath);
       setView('auth');
     } else if (!isPro) {
       setView('pricing');
     } else {
       setView('confirm');
     }
-  }, [isOpen, isUserLoading, isSubDataLoading, user, isPro]);
+  }, [isOpen, isUserLoading, isSubDataLoading, user, isPro, pathname, searchParams]);
 
 
   const handleAuthSuccess = () => {
     // After login/signup, the useEffect hook above will automatically
     // re-evaluate the view based on the new user's subscription status.
-    // The redirect logic is handled on the login/signup pages themselves.
-  };
-
-  const redirectToLogin = () => {
-    const currentPath = `${pathname}?${searchParams.toString()}`;
-    router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    const redirectUrl = sessionStorage.getItem('loginRedirect');
+    if (redirectUrl) {
+        // We don't remove the item here, because the user might still need to complete an action
+        // on the page they are redirected back to (like subscribing).
+        router.push(redirectUrl);
+    } else {
+        router.push('/dashboard');
+    }
   };
   
   const handleSubscribe = async (priceId: string) => {
     if (!user) {
       toast({ variant: 'destructive', title: 'You must be logged in to subscribe.' });
-      redirectToLogin();
+       const currentPath = `${pathname}?${searchParams.toString()}`;
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
 
@@ -86,9 +90,14 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         body: JSON.stringify({ priceId: priceId, userId: user.uid, userEmail: user.email }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session.');
+      }
+
       const { sessionId } = await response.json();
       if (!sessionId) {
-        throw new Error('Failed to create checkout session.');
+        throw new Error('Failed to retrieve checkout session ID.');
       }
 
       const stripe = await stripePromise;
