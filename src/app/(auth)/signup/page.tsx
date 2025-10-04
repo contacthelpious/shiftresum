@@ -10,13 +10,15 @@ export default function SignupPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to dashboard if user is logged in and loading is complete
+    // Redirect to dashboard if user is already logged in and loading is complete
     if (!isUserLoading && user) {
       router.push('/dashboard');
     }
   }, [user, isUserLoading, router]);
 
-  return <SignupForm onSuccess={() => {
-    // The useEffect above will handle the redirection
-  }} />;
+  const handleSuccess = () => {
+    router.push('/dashboard');
+  };
+
+  return <SignupForm onSuccess={handleSuccess} />;
 }

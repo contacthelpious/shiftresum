@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useState } from 'react';
-import { useUser, useAuth } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { useUser } from '@/firebase';
 import {
   Dialog,
   DialogContent,
@@ -57,7 +58,7 @@ const tiers = [
   },
 ];
 
-type View = 'auth' | 'pricing' | 'confirm';
+type View = 'auth' | 'pricing' | 'confirm' | 'loading';
 
 export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   const { user, isUserLoading } = useUser();
@@ -65,17 +66,27 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   const [hasSubscription, setHasSubscription] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
   const { toast } = useToast();
+  const [view, setView] = useState<View>('loading');
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    if (isUserLoading) {
+      setView('loading');
+    } else if (!user) {
+      setView('auth');
+    } else if (!hasSubscription) {
+      setView('pricing');
+    } else {
+      setView('confirm');
+    }
+  }, [isOpen, isUserLoading, user, hasSubscription]);
+
 
   const handleAuthSuccess = () => {
-    // After login/signup, if they don't have a sub, show pricing.
-    // We use a timeout to allow the user state to propagate.
-    setTimeout(() => {
-      if (!hasSubscription) {
-        setView('pricing');
-      } else {
-        onSubscribed();
-      }
-    }, 500);
+    // After login/signup, the useEffect will re-evaluate the view
+    // based on the new user and subscription state. No need to set view manually.
   };
   
   const handleSubscribe = (planName: string) => {
@@ -83,40 +94,29 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
     // Mock subscription logic
     console.log(`Subscribing to ${planName}`);
     setTimeout(() => {
-      setHasSubscription(true);
+      setHasSubscription(true); // This will trigger the useEffect to change view
       toast({
         title: 'Subscription Successful!',
         description: `You are now subscribed to the ${planName} plan.`,
       });
       setIsSubscribing(false);
-      onSubscribed();
+      // The `onSubscribed` is called from the 'confirm' view now.
     }, 1500);
   };
 
-  const getInitialView = (): View => {
-    if (isUserLoading) return 'auth';
-    if (!user) return 'auth';
-    if (!hasSubscription) return 'pricing';
-    return 'confirm';
+  const handleConfirmedDownload = () => {
+    onSubscribed();
+    onClose();
   }
-  
-  const [view, setView] = useState<View>(getInitialView());
-
-  // Determine view when dialog opens or user state changes
-  useState(() => {
-      setView(getInitialView());
-  });
 
   const renderContent = () => {
-    if (isUserLoading) {
-      return (
-        <div className="flex items-center justify-center p-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
-
     switch (view) {
+      case 'loading':
+        return (
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        );
       case 'auth':
         return (
           <>
@@ -193,7 +193,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-center p-8">
-              <Button onClick={onSubscribed} size="lg">
+              <Button onClick={handleConfirmedDownload} size="lg">
                 <Download className="mr-2" />
                 Download PDF
               </Button>

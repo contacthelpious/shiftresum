@@ -40,34 +40,21 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      // Don't await here, onAuthStateChanged will handle it
-      signInWithPopup(auth, provider)
-        .then(() => {
-          toast({ title: "Successfully signed in with Google." });
-          if(onSuccess) onSuccess();
-        })
-        .catch((error: any) => {
-          if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
-            return;
-          }
-          console.error(error);
-          toast({
-            variant: "destructive",
-            title: "Google Sign-In Failed",
-            description: error.message,
-          });
-        })
-        .finally(() => {
-            setIsGoogleLoading(false);
-        });
+      await signInWithPopup(auth, provider);
+      toast({ title: "Successfully signed in with Google." });
+      if(onSuccess) onSuccess();
     } catch (error: any) {
-        // This outer try-catch is for synchronous errors, though unlikely for signInWithPopup
+      if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
+        // User closed popup, do nothing
+      } else {
         console.error(error);
         toast({
-            variant: "destructive",
-            title: "Google Sign-In Failed",
-            description: "An unexpected error occurred.",
+          variant: "destructive",
+          title: "Google Sign-In Failed",
+          description: error.message,
         });
+      }
+    } finally {
         setIsGoogleLoading(false);
     }
   };
@@ -75,23 +62,20 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Don't await here, onAuthStateChanged will handle it
-    signInWithEmailAndPassword(auth, values.email, values.password)
-        .then(() => {
-            toast({ title: "Successfully logged in." });
-            if (onSuccess) onSuccess();
-        })
-        .catch((error: any) => {
-            console.error(error);
-            toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: "The email or password you entered is incorrect.",
-            });
-        })
-        .finally(() => {
-            setIsLoading(false);
+    try {
+        await signInWithEmailAndPassword(auth, values.email, values.password)
+        toast({ title: "Successfully logged in." });
+        if (onSuccess) onSuccess();
+    } catch (error: any) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: "The email or password you entered is incorrect.",
         });
+    } finally {
+        setIsLoading(false);
+    }
   }
 
   return (

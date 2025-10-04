@@ -38,47 +38,42 @@ export function SignupForm({ onSuccess }: { onSuccess?: () => void }) {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    // Don't await here, onAuthStateChanged will handle it
-    signInWithPopup(auth, provider)
-      .then(() => {
+    try {
+        await signInWithPopup(auth, provider);
         toast({ title: "Successfully signed up with Google." });
         if (onSuccess) onSuccess();
-      })
-      .catch((error: any) => {
+    } catch (error: any) {
         if (error.code === 'auth/user-cancelled' || error.code === 'auth/popup-closed-by-user') {
-          return;
+            // User closed popup, do nothing
+        } else {
+            console.error(error);
+            toast({
+                variant: "destructive",
+                title: "Google Sign-Up Failed",
+                description: error.message,
+            });
         }
-        console.error(error);
-        toast({
-          variant: "destructive",
-          title: "Google Sign-Up Failed",
-          description: error.message,
-        });
-      })
-      .finally(() => {
+    } finally {
         setIsGoogleLoading(false);
-      });
+    }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Don't await here, onAuthStateChanged will handle it
-    createUserWithEmailAndPassword(auth, values.email, values.password)
-      .then(() => {
+    try {
+        await createUserWithEmailAndPassword(auth, values.email, values.password);
         toast({ title: "Account created successfully!" });
         if (onSuccess) onSuccess();
-      })
-      .catch((error: any) => {
+    } catch (error: any) {
         console.error(error);
         toast({
           variant: "destructive",
           title: "Sign-up Failed",
           description: "An account with this email may already exist.",
         });
-      })
-      .finally(() => {
+    } finally {
         setIsLoading(false);
-      });
+    }
   }
 
   return (
