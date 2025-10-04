@@ -44,16 +44,16 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   useEffect(() => {
     if (!isOpen) return;
 
-    // Show loading spinner while we check auth and subscription status
     if (isUserLoading || isSubDataLoading) {
       setView('loading');
       return;
     }
 
-    // If check is complete, determine the correct view
     if (!user) {
-      const currentPath = `${pathname}?${searchParams.toString()}`;
-      sessionStorage.setItem('loginRedirect', currentPath);
+      const currentUrl = `${pathname}?${searchParams.toString()}`;
+      if (!sessionStorage.getItem('loginRedirect')) {
+        sessionStorage.setItem('loginRedirect', currentUrl);
+      }
       setView('auth');
     } else if (isPro) {
       setView('confirm');
@@ -64,12 +64,12 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
 
 
   const handleAuthSuccess = () => {
-    // The useEffect will re-run after successful login and determine the next view
     const redirectUrl = sessionStorage.getItem('loginRedirect');
     if (redirectUrl) {
         router.push(redirectUrl);
         sessionStorage.removeItem('loginRedirect');
     }
+    // Let the useEffect hook handle the view change
   };
   
   const handleSubscribe = async (priceId: string) => {
@@ -89,12 +89,13 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         body: JSON.stringify({ priceId: priceId, userId: user.uid, userEmail: user.email }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session.');
-      }
+      const body = await response.json();
 
-      const { sessionId } = await response.json();
+      if (!response.ok) {
+        throw new Error(body.error || 'Failed to create checkout session.');
+      }
+      
+      const { sessionId } = body;
       if (!sessionId) {
         throw new Error('Failed to retrieve checkout session ID.');
       }
@@ -104,7 +105,6 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         throw new Error('Stripe.js failed to load.');
       }
 
-      // This will redirect the user to Stripe's checkout page
       await stripe.redirectToCheckout({ sessionId });
       
     } catch (error: any) {

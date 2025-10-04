@@ -20,16 +20,13 @@ interface DownloadTabProps {
 
 export function DownloadTab({ resumeId, designOptions }: DownloadTabProps) {
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, isPro } = useUser();
   const firestore = useFirestore();
   const { getValues } = useFormContext<ResumeFormData>();
   const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
-  // This is a placeholder. In a real app, you'd get this from your backend/Firestore.
-  const hasSubscription = false;
-
   const handleExportClick = () => {
-    if (user && hasSubscription) {
+    if (user && isPro) {
       handlePrint();
     } else {
       setIsAuthGateOpen(true);
@@ -56,11 +53,11 @@ export function DownloadTab({ resumeId, designOptions }: DownloadTabProps) {
         setIsAuthGateOpen(true);
         return;
     }
-    if (!resumeId) {
+    if (!resumeId || resumeId === '__new__') {
         toast({
             variant: "destructive",
             title: "Cannot Save",
-            description: "No active resume to save. Try creating a new one from the dashboard.",
+            description: "This is a new resume. Save it from the dashboard after creation.",
         });
         return;
     }
