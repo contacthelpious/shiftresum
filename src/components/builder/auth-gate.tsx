@@ -19,7 +19,7 @@ import { SignupForm } from '@/components/auth/signup-form';
 import { useToast } from '@/hooks/use-toast';
 import { loadStripe } from '@stripe/stripe-js';
 import { STRIPE_PRODUCTS } from '@/lib/stripe';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -34,13 +34,12 @@ interface AuthGateProps {
 export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
   const { user, isUserLoading, isPro, isSubDataLoading } = useUser();
   const { toast } = useToast();
-  const [isSubscribing, setIsSubscribing] = useState(false);
-  const [view, setView] = useState<View>('loading');
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  
+  const [view, setView] = useState<View>('loading');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -50,37 +49,28 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
     }
 
     if (!user) {
-      const currentUrl = `${pathname}?${searchParams.toString()}`;
-      if (!sessionStorage.getItem('loginRedirect')) {
-        sessionStorage.setItem('loginRedirect', currentUrl);
-      }
+      sessionStorage.setItem('loginRedirect', window.location.href);
       setView('auth');
     } else if (isPro) {
       setView('confirm');
     } else {
       setView('pricing');
     }
-  }, [isOpen, user, isPro, isUserLoading, isSubDataLoading, pathname, searchParams]);
-
+  }, [isOpen, user, isPro, isUserLoading, isSubDataLoading]);
 
   const handleAuthSuccess = () => {
-    const redirectUrl = sessionStorage.getItem('loginRedirect');
-    if (redirectUrl) {
-        router.push(redirectUrl);
-        sessionStorage.removeItem('loginRedirect');
-    }
-    // Let the useEffect hook handle the view change
+    // Let the useEffect hook handle the view change after re-evaluating the user state
   };
-  
+
   const handleSubscribe = async (priceId: string) => {
     if (!user) {
       toast({ variant: 'destructive', title: 'You must be logged in to subscribe.' });
-       const currentPath = `${pathname}?${searchParams.toString()}`;
-      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+      setView('auth');
       return;
     }
 
     setIsSubscribing(true);
+    setSelectedPriceId(priceId);
     
     try {
       const response = await fetch('/api/stripe/create-checkout-session', {
@@ -105,7 +95,10 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         throw new Error('Stripe.js failed to load.');
       }
 
-      await stripe.redirectToCheckout({ sessionId });
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) {
+        throw error;
+      }
       
     } catch (error: any) {
        toast({
@@ -114,6 +107,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         description: error.message || 'Could not initiate subscription. Please try again.',
       });
       setIsSubscribing(false);
+      setSelectedPriceId(null);
     }
   };
 
@@ -188,7 +182,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
                   </CardContent>
                   <CardFooter>
                     <Button onClick={() => handleSubscribe(tier.priceId)} className="w-full" variant={tier.popular ? 'default' : 'outline'} disabled={isSubscribing}>
-                      {isSubscribing ? <Loader2 className="animate-spin" /> : tier.cta}
+                      {isSubscribing && selectedPriceId === tier.priceId ? <Loader2 className="animate-spin" /> : tier.cta}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -215,7 +209,6 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         );
     }
   };
-
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>

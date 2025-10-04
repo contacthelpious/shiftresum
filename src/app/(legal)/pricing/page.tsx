@@ -1,44 +1,73 @@
 
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { loadStripe } from '@stripe/stripe-js';
+import { STRIPE_PRODUCTS } from '@/lib/stripe';
 
-const tiers = [
-  {
-    name: 'Weekly',
-    price: '$2',
-    priceAnnotation: '/ week',
-    description: 'Try out all the Pro features for a week.',
-    features: [
-      'Unlimited Resumes',
-      'Unlimited AI Suggestions',
-      'All Templates & Colors',
-      'Remove "ResumeFlow" Branding',
-      'Priority Support',
-    ],
-    cta: 'Start Trial',
-    href: '/signup'
-  },
-  {
-    name: 'Monthly',
-    price: '$10',
-    priceAnnotation: '/ month',
-    description: 'Unlock all features and build unlimited resumes.',
-    features: [
-      'Unlimited Resumes',
-      'Unlimited AI Suggestions',
-      'All Templates & Colors',
-      'Remove "ResumeFlow" Branding',
-      'Priority Support',
-    ],
-    cta: 'Go Pro',
-    href: '/signup',
-    popular: true,
-  },
-];
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function PricingPage() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+
+  const handleSubscribe = async (priceId: string) => {
+    if (!user) {
+      sessionStorage.setItem('loginRedirect', '/pricing');
+      router.push('/login');
+      return;
+    }
+
+    setIsSubscribing(true);
+    setSelectedPriceId(priceId);
+
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, userId: user.uid, userEmail: user.email }),
+      });
+
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.error || 'Failed to create checkout session.');
+      }
+      
+      const { sessionId } = body;
+      if (!sessionId) {
+        throw new Error('Failed to retrieve checkout session ID.');
+      }
+
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Stripe.js failed to load.');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+       if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Subscription Error',
+        description: error.message || 'Could not initiate subscription. Please try again.',
+      });
+      setIsSubscribing(false);
+      setSelectedPriceId(null);
+    }
+  };
+
   return (
     <div className="bg-background text-foreground">
       <main className="container py-20 md:py-32">
@@ -52,7 +81,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-2">
-          {tiers.map((tier) => (
+          {STRIPE_PRODUCTS.map((tier) => (
             <Card key={tier.name} className={`flex flex-col ${tier.popular ? 'border-primary ring-2 ring-primary' : ''}`}>
               {tier.popular && (
                   <div className="text-center py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-t-lg">Most Popular</div>
@@ -76,9 +105,14 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button asChild className="w-full" variant={tier.popular ? 'default' : 'outline'}>
-                  <Link href={tier.href}>{tier.cta}</Link>
-                </Button>
+                 <Button 
+                    onClick={() => handleSubscribe(tier.priceId)} 
+                    className="w-full" 
+                    variant={tier.popular ? 'default' : 'outline'}
+                    disabled={isUserLoading || isSubscribing}
+                  >
+                    {(isSubscribing && selectedPriceId === tier.priceId) || isUserLoading ? <Loader2 className="animate-spin" /> : tier.cta}
+                  </Button>
               </CardFooter>
             </Card>
           ))}

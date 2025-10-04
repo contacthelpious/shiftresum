@@ -1,5 +1,6 @@
 
 'use server';
+import 'dotenv/config'; // Force load environment variables for this serverless function
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, adminDb, STRIPE_WEEKLY_PRICE_ID, STRIPE_MONTHLY_PRICE_ID } from '@/firebase/admin';
 
@@ -8,8 +9,13 @@ export async function POST(req: NextRequest) {
     if (!STRIPE_WEEKLY_PRICE_ID || !STRIPE_MONTHLY_PRICE_ID) {
       throw new Error("Stripe Price IDs are not set in server environment variables.");
     }
+    
+    if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error("Stripe Secret Key is not configured.");
+    }
 
-    const { priceId, userId, userEmail } = await req.json();
+    const body = await req.json();
+    const { priceId, userId, userEmail } = body;
 
     if (!userId || !priceId || !userEmail) {
       return NextResponse.json({ error: 'Missing required parameters: userId, priceId, or userEmail.' }, { status: 400 });
@@ -35,7 +41,6 @@ export async function POST(req: NextRequest) {
     const host = req.headers.get('origin')!;
     const baseUrl = `${req.headers.get('x-forwarded-proto') || 'http'}://${host}`;
     
-    // The monthly plan is a subscription, the weekly is a one-time payment.
     const mode: 'subscription' | 'payment' = priceId === STRIPE_MONTHLY_PRICE_ID ? 'subscription' : 'payment';
 
     const session = await stripe.checkout.sessions.create({

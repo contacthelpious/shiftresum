@@ -58,6 +58,14 @@ export const FirebaseProvider: React.FC<{
     }
 
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+      // First, set user and loading state immediately
+      setUserAuthState(prev => ({
+        ...prev,
+        user: firebaseUser,
+        isUserLoading: false,
+        isSubDataLoading: !!firebaseUser, // Start loading sub data if user exists
+      }));
+
       if (firebaseUser) {
         // User is signed in. Now fetch claims and data.
         const tokenResult = await firebaseUser.getIdTokenResult(true); // Force refresh claims
@@ -65,8 +73,8 @@ export const FirebaseProvider: React.FC<{
         
         let subData = null;
         try {
-          const subRef = doc(firestore, 'users', firebaseUser.uid);
-          const docSnap = await getDoc(subRef);
+          const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+          const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             subData = docSnap.data();
           }
@@ -74,17 +82,19 @@ export const FirebaseProvider: React.FC<{
             console.error("Failed to fetch user subscription data:", error);
         }
         
-        setUserAuthState({
-          user: firebaseUser,
+        // Final state update with all data
+        setUserAuthState(prev => ({
+          ...prev,
+          user: firebaseUser, // ensure user is still set
           isUserLoading: false,
-          userError: null,
           isPro: isPro,
           subData: subData,
           isSubDataLoading: false,
-        });
+          userError: null,
+        }));
 
       } else {
-        // No user is signed in.
+        // No user is signed in, clear all data
         setUserAuthState({
           user: null,
           isUserLoading: false,
