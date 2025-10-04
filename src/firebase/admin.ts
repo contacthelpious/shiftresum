@@ -1,3 +1,5 @@
+'use server';
+import 'dotenv/config'; // Ensure all env variables are loaded
 import admin from 'firebase-admin';
 
 // Correctly format the private key

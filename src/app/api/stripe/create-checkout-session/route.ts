@@ -6,17 +6,19 @@ import { adminDb } from '@/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
+    // Check for required server-side environment variables at the start
+    const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
+    const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
+
+    if (!weeklyPriceId || !monthlyPriceId) {
+        throw new Error("Server misconfiguration: Stripe Price IDs are not set in environment variables.");
+    }
+
     const { priceId, userId, userEmail } = await req.json();
 
     if (!userId || !priceId || !userEmail) {
       console.error('Stripe Checkout Error: Missing userId, priceId, or userEmail', { userId, priceId, userEmail });
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
-    }
-    
-    // Check for required server-side environment variables
-    const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
-    if (!weeklyPriceId) {
-        throw new Error("Server misconfiguration: STRIPE_WEEKLY_PRICE_ID is not set.");
     }
 
     const userRef = adminDb.collection('users').doc(userId);
@@ -59,18 +61,20 @@ export async function POST(req: NextRequest) {
           subscription_data: {
               metadata: {
                   firebaseUID: userId,
-                  priceId: priceId,
               }
           }
       } : {
           payment_intent_data: {
               metadata: {
                   firebaseUID: userId,
-                  priceId: priceId,
               }
           }
       })
     });
+    
+    if (!session.id) {
+        throw new Error("Stripe session creation failed: No session ID returned.");
+    }
     
     return NextResponse.json({ sessionId: session.id });
 
