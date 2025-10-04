@@ -10,7 +10,13 @@ export async function POST(req: NextRequest) {
 
     if (!userId || !priceId || !userEmail) {
       console.error('Stripe Checkout Error: Missing userId, priceId, or userEmail', { userId, priceId, userEmail });
-      return NextResponse.json({ error: 'Missing required parameters: userId, priceId, or userEmail' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
+    }
+    
+    // Check for required server-side environment variables
+    const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
+    if (!weeklyPriceId) {
+        throw new Error("Server misconfiguration: STRIPE_WEEKLY_PRICE_ID is not set.");
     }
 
     const userRef = adminDb.collection('users').doc(userId);
@@ -33,10 +39,6 @@ export async function POST(req: NextRequest) {
     const protocol = req.headers.get('x-forwarded-proto') || 'http';
     const baseUrl = `${protocol}://${host}`;
 
-    const weeklyPriceId = process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID;
-    
-    let session;
-    const lineItems = [{ price: priceId, quantity: 1 }];
     let mode: 'subscription' | 'payment' = 'subscription';
     
     // The weekly plan is a one-time payment, not a subscription.
@@ -44,15 +46,15 @@ export async function POST(req: NextRequest) {
         mode = 'payment';
     }
 
-    session = await stripe.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       payment_method_types: ['card'],
-      line_items: lineItems,
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: mode,
       success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
       cancel_url: `${baseUrl}/pricing?stripe=cancel`,
-      // For subscriptions, we need to pass metadata to the subscription itself.
-      // For one-time payments, metadata goes on the session.
+      // For subscriptions, metadata is on the subscription itself.
+      // For one-time payments, metadata goes on the payment intent.
       ...(mode === 'subscription' ? {
           subscription_data: {
               metadata: {
