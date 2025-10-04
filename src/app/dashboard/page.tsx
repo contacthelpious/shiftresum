@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Loader2 } from "lucide-react";
@@ -23,6 +24,13 @@ export default function DashboardPage() {
 
     const { data: resumes, isLoading: isResumesLoading } = useCollection<ResumeData>(resumesRef);
 
+    useEffect(() => {
+        // Redirect to login if auth check is complete and there's no user.
+        if (!isUserLoading && !user) {
+            router.push('/login');
+        }
+    }, [user, isUserLoading, router]);
+
     const handleNewResume = async () => {
         if (!user || !resumesRef) return;
         try {
@@ -42,17 +50,12 @@ export default function DashboardPage() {
     };
 
 
-    if (isUserLoading) {
+    if (isUserLoading || !user) {
         return (
           <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
           </div>
         );
-    }
-
-    if (!user) {
-        router.push('/login');
-        return null;
     }
 
     const userName = user.displayName || user.email?.split('@')[0] || 'there';
