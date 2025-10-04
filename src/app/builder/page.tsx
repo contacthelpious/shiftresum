@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -17,12 +17,17 @@ import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { ResumeData } from '@/lib/definitions';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BuilderPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const resumeId = searchParams.get('resumeId');
+  const action = searchParams.get('action');
+  const stripeStatus = searchParams.get('stripe');
+  const { toast } = useToast();
   
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading, isPro, isSubDataLoading } = useUser();
   const firestore = useFirestore();
 
   const [designOptions, setDesignOptions] = useState<DesignOptions>(defaultDesignOptions);
@@ -35,28 +40,43 @@ export default function BuilderPage() {
   });
   
   const resumeRef = useMemoFirebase(() => {
-    if (!user || !resumeId || isUserLoading) return null;
+    if (!user || !resumeId || resumeId === '__new__' || isUserLoading) return null;
     return doc(firestore, `users/${user.uid}/resumes`, resumeId);
   }, [firestore, user, resumeId, isUserLoading]);
 
   const { data: resumeData, isLoading: isResumeLoading } = useDoc<ResumeData>(resumeRef);
 
   useEffect(() => {
+    if (stripeStatus) {
+      if (stripeStatus === 'success') {
+        toast({
+          title: 'Payment Successful!',
+          description: "Welcome to Pro! You can now download your resume.",
+        });
+      } else if (stripeStatus === 'cancel') {
+        toast({
+          variant: 'destructive',
+          title: 'Payment Canceled',
+          description: 'Your payment was not completed.',
+        });
+      }
+      // Remove stripe params from URL
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('stripe');
+      router.replace(`${window.location.pathname}?${newParams.toString()}`);
+    }
+  }, [stripeStatus, router, toast, searchParams]);
+
+  useEffect(() => {
     if (resumeData) {
       methods.reset(resumeData.data);
       setDesignOptions(resumeData.design);
-    } else if (!resumeId) {
-      // If there's no resumeId, load default data or parsed data from session
+    } else if (resumeId === null || resumeId === '__new__') {
       try {
         const parsedDataString = sessionStorage.getItem('parsedResumeData');
         if (parsedDataString) {
           const parsedData = JSON.parse(parsedDataString);
-          const result = ResumeFormSchema.safeParse(parsedData);
-          if (result.success) {
-            methods.reset(result.data);
-          } else {
-            console.error("Failed to parse resume data from sessionStorage:", result.error);
-          }
+          methods.reset(parsedData);
           sessionStorage.removeItem('parsedResumeData');
         } else {
           methods.reset(defaultResumeFormData);
@@ -68,9 +88,17 @@ export default function BuilderPage() {
     }
   }, [resumeData, resumeId, methods]);
 
-  const watchedData = methods.watch();
+  useEffect(() => {
+    if (action === 'download' && !isSubDataLoading) {
+      setActiveTab('download');
+       const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('action');
+      router.replace(`${window.location.pathname}?${newParams.toString()}`);
+    }
+  }, [action, isSubDataLoading, router, searchParams]);
 
-  const isLoading = isUserLoading || (resumeId && isResumeLoading);
+  const watchedData = methods.watch();
+  const isLoading = isUserLoading || (!!resumeId && isResumeLoading);
 
   if (isLoading) {
     return (

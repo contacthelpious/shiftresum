@@ -42,34 +42,33 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
 
   
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
+
+    // Show loading spinner while we check auth and subscription status
     if (isUserLoading || isSubDataLoading) {
       setView('loading');
-    } else if (!user) {
-      // User is not logged in, show auth forms but also prepare to redirect.
+      return;
+    }
+
+    // If check is complete, determine the correct view
+    if (!user) {
       const currentPath = `${pathname}?${searchParams.toString()}`;
       sessionStorage.setItem('loginRedirect', currentPath);
       setView('auth');
-    } else if (!isPro) {
-      setView('pricing');
-    } else {
+    } else if (isPro) {
       setView('confirm');
+    } else {
+      setView('pricing');
     }
-  }, [isOpen, isUserLoading, isSubDataLoading, user, isPro, pathname, searchParams]);
+  }, [isOpen, user, isPro, isUserLoading, isSubDataLoading, pathname, searchParams]);
 
 
   const handleAuthSuccess = () => {
-    // After login/signup, the useEffect hook above will automatically
-    // re-evaluate the view based on the new user's subscription status.
+    // The useEffect will re-run after successful login and determine the next view
     const redirectUrl = sessionStorage.getItem('loginRedirect');
     if (redirectUrl) {
-        // We don't remove the item here, because the user might still need to complete an action
-        // on the page they are redirected back to (like subscribing).
         router.push(redirectUrl);
-    } else {
-        router.push('/dashboard');
+        sessionStorage.removeItem('loginRedirect');
     }
   };
   
@@ -105,8 +104,8 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
         throw new Error('Stripe.js failed to load.');
       }
 
+      // This will redirect the user to Stripe's checkout page
       await stripe.redirectToCheckout({ sessionId });
-      // The user will be redirected to the success/cancel URL defined in the API route.
       
     } catch (error: any) {
        toast({
