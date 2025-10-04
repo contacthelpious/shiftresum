@@ -1,3 +1,4 @@
+
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -9,10 +10,10 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export const STRIPE_PRODUCTS = [
   {
     name: 'Weekly',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID || 'price_123_weekly', // Replace with your ID
+    priceId: process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID || 'price_123_weekly', // This now represents the trial
     price: '$2',
     priceAnnotation: '/ week',
-    description: 'Try out all the Pro features for a week.',
+    description: 'A 7-day trial that auto-renews to the monthly plan.',
     features: [
       'Unlimited Resumes',
       'Unlimited AI Suggestions',

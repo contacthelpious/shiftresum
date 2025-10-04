@@ -1,3 +1,4 @@
+
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
@@ -32,19 +33,47 @@ export async function POST(req: NextRequest) {
     
     const baseUrl = req.nextUrl.origin;
     
-    // Create a checkout session
-    const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
-      payment_method_types: ['card'],
-      line_items: [{ price: priceId, quantity: 1 }],
-      mode: 'subscription',
-      success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`, // Placeholder, will be adjusted
-      cancel_url: `${baseUrl}/builder?stripe=cancel`,
-      metadata: {
-        firebaseUID: userId,
-        priceId: priceId,
-      }
-    });
+    const weeklyPriceId = process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID;
+    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+
+    let session;
+
+    if (priceId === weeklyPriceId) {
+        // This is a trial. Subscribe them to the MONTHLY plan with a 7-day trial.
+        session = await stripe.checkout.sessions.create({
+            customer: stripeCustomerId,
+            payment_method_types: ['card'],
+            line_items: [{
+                price: monthlyPriceId,
+                quantity: 1,
+            }],
+            mode: 'subscription',
+            subscription_data: {
+                trial_period_days: 7,
+                metadata: {
+                    firebaseUID: userId,
+                    priceId: monthlyPriceId, // Store the actual plan price ID
+                }
+            },
+            success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
+            cancel_url: `${baseUrl}/builder?stripe=cancel`,
+        });
+    } else {
+        // This is a direct subscription to the monthly plan.
+        session = await stripe.checkout.sessions.create({
+            customer: stripeCustomerId,
+            payment_method_types: ['card'],
+            line_items: [{ price: priceId, quantity: 1 }],
+            mode: 'subscription',
+            success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
+            cancel_url: `${baseUrl}/builder?stripe=cancel`,
+            metadata: {
+                firebaseUID: userId,
+                priceId: priceId,
+            }
+        });
+    }
+
 
     return NextResponse.json({ sessionId: session.id });
 
