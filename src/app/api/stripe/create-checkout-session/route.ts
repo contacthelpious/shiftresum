@@ -39,14 +39,21 @@ export async function POST(req: NextRequest) {
     let session;
 
     if (priceId === weeklyPriceId) {
-        // This is a trial. Subscribe them to the MONTHLY plan with a 7-day trial.
+        // This is a trial. Subscribe them to the MONTHLY plan with a 7-day trial
+        // and add a one-time charge for the trial week.
         session = await stripe.checkout.sessions.create({
             customer: stripeCustomerId,
             payment_method_types: ['card'],
-            line_items: [{
-                price: monthlyPriceId,
-                quantity: 1,
-            }],
+            line_items: [
+                {
+                    price: weeklyPriceId, // The one-time price for the trial
+                    quantity: 1,
+                },
+                {
+                    price: monthlyPriceId, // The recurring monthly price
+                    quantity: 1,
+                }
+            ],
             mode: 'subscription',
             subscription_data: {
                 trial_period_days: 7,
@@ -65,12 +72,14 @@ export async function POST(req: NextRequest) {
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
             mode: 'subscription',
+            subscription_data: {
+                metadata: {
+                    firebaseUID: userId,
+                    priceId: priceId,
+                }
+            },
             success_url: `${baseUrl}/builder?resumeId=__new__&stripe=success`,
             cancel_url: `${baseUrl}/builder?stripe=cancel`,
-            metadata: {
-                firebaseUID: userId,
-                priceId: priceId,
-            }
         });
     }
 
