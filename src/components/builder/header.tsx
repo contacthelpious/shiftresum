@@ -41,9 +41,11 @@ export function BuilderHeader() {
     <header className="sticky top-0 z-40 w-full border-b bg-card no-print">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
         <div className="flex-1 flex justify-start">
-            <Link href={user ? "/dashboard" : "/"}>
-                <Logo />
-            </Link>
+            {!isUserLoading && (
+              <Link href={user ? "/dashboard" : "/"}>
+                  <Logo />
+              </Link>
+            )}
         </div>
         <div className="flex-1 flex justify-end">
             <div className="flex items-center space-x-4">
