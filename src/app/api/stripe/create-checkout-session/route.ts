@@ -1,16 +1,12 @@
 
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, adminDb } from '@/firebase/admin';
+import { stripe, adminDb, STRIPE_WEEKLY_PRICE_ID, STRIPE_MONTHLY_PRICE_ID } from '@/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
-    const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
-    const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
-
-    if (!weeklyPriceId || !monthlyPriceId) {
-      console.error("Stripe Price IDs are not set in server environment variables.");
-      return NextResponse.json({ error: "Server misconfiguration: Stripe price IDs are missing." }, { status: 500 });
+    if (!STRIPE_WEEKLY_PRICE_ID || !STRIPE_MONTHLY_PRICE_ID) {
+      throw new Error("Stripe Price IDs are not set in server environment variables.");
     }
 
     const { priceId, userId, userEmail } = await req.json();
@@ -36,12 +32,11 @@ export async function POST(req: NextRequest) {
       await userRef.set({ stripeCustomerId }, { merge: true });
     }
 
-    const host = req.headers.get('host')!;
-    const protocol = req.headers.get('x-forwarded-proto') || 'http';
-    const baseUrl = `${protocol}://${host}`;
+    const host = req.headers.get('origin')!;
+    const baseUrl = `${req.headers.get('x-forwarded-proto') || 'http'}://${host}`;
     
-    // Determine if the plan is a one-time payment or a subscription
-    const mode: 'subscription' | 'payment' = priceId === weeklyPriceId ? 'payment' : 'subscription';
+    // The monthly plan is a subscription, the weekly is a one-time payment.
+    const mode: 'subscription' | 'payment' = priceId === STRIPE_MONTHLY_PRICE_ID ? 'subscription' : 'payment';
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
@@ -74,7 +69,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ sessionId: session.id });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Stripe Checkout API Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown internal server error occurred.';
     return NextResponse.json({ error: errorMessage }, { status: 500 });

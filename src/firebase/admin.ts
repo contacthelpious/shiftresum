@@ -22,9 +22,14 @@ if (!stripeSecretKey) {
   throw new Error('STRIPE_SECRET_KEY is not set in the environment variables.');
 }
 
-export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
 export const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-06-20',
   typescript: true,
 });
+
+export const adminDb = admin.firestore();
+export const adminAuth = admin.auth();
+
+// Export price IDs from the server-side as well
+export const STRIPE_WEEKLY_PRICE_ID = process.env.STRIPE_WEEKLY_PRICE_ID;
+export const STRIPE_MONTHLY_PRICE_ID = process.env.STRIPE_MONTHLY_PRICE_ID;

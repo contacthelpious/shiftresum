@@ -1,9 +1,11 @@
 
 'use server';
+import 'dotenv/config'; // Ensure env vars are loaded for webhooks too.
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { stripe, adminDb } from '@/firebase/admin';
+import { stripe, adminDb, STRIPE_WEEKLY_PRICE_ID } from '@/firebase/admin';
 import { auth as adminAuth } from 'firebase-admin/auth';
+import { firestore as adminFirestore } from 'firebase-admin';
 import { headers } from 'next/headers'
 
 const relevantEvents = new Set([
@@ -62,18 +64,16 @@ export async function POST(req: NextRequest) {
             const session = event.data.object as Stripe.Checkout.Session;
             // Handle one-time payments (like the weekly pass)
             if (session.mode === 'payment' && session.payment_intent) {
-                 const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
-                 const firebaseUID = paymentIntent.metadata.firebaseUID;
-                 if (!firebaseUID) throw new Error('Missing firebaseUID on payment intent');
+                 const firebaseUID = session.metadata?.firebaseUID;
+                 if (!firebaseUID) throw new Error('Missing firebaseUID on payment session metadata');
 
                  const userRef = adminDb.collection('users').doc(firebaseUID);
-                 const weeklyPriceId = process.env.STRIPE_WEEKLY_PRICE_ID;
                  
                  await userRef.set({
                     stripeCustomerId: session.customer,
-                    stripePriceId: weeklyPriceId, // Assuming this session is for the weekly pass
-                    stripeSubscriptionStatus: 'active', // Treat it as active
-                    proUntil: admin.firestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+                    stripePriceId: STRIPE_WEEKLY_PRICE_ID, // Assuming this session is for the weekly pass
+                    stripeSubscriptionStatus: 'active', // Treat it as active for the duration
+                    proUntil: adminFirestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
                  }, { merge: true });
                  await adminAuth().setCustomUserClaims(firebaseUID, { pro: true });
 
