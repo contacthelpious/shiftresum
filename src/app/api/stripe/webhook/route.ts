@@ -3,14 +3,13 @@
 import 'dotenv/config'; // Ensure env vars are loaded for webhooks too.
 import { NextRequest, NextResponse } from 'next/headers';
 import Stripe from 'stripe';
-import { stripe, adminDb, adminAuth, adminFirestore } from '@/firebase/admin';
+import { stripe, adminDb, adminAuth } from '@/firebase/admin';
 import { headers } from 'next/headers'
 
 const relevantEvents = new Set([
   'checkout.session.completed',
   'customer.subscription.updated',
   'customer.subscription.deleted',
-  'payment_intent.succeeded'
 ]);
 
 async function handleSubscriptionChange(subscription: Stripe.Subscription) {
@@ -60,24 +59,26 @@ export async function POST(req: NextRequest) {
       switch (event.type) {
         case 'checkout.session.completed': {
             const session = event.data.object as Stripe.Checkout.Session;
-            const STRIPE_WEEKLY_PRICE_ID = process.env.STRIPE_WEEKLY_PRICE_ID;
-            // Handle one-time payments (like the weekly pass)
-            if (session.mode === 'payment' && session.payment_intent) {
-                 const firebaseUID = session.metadata?.firebaseUID;
-                 if (!firebaseUID) throw new Error('Missing firebaseUID on payment session metadata');
+            const firebaseUID = session.metadata?.firebaseUID;
+            if (!firebaseUID) throw new Error('Missing firebaseUID on session metadata');
 
+            // Handle one-time payments (like the weekly pass)
+            if (session.mode === 'payment') {
                  const userRef = adminDb.collection('users').doc(firebaseUID);
                  
+                 // For one-time payments, just grant the Pro claim.
+                 // The specific features can be determined client-side based on stripePriceId if needed.
                  await userRef.set({
                     stripeCustomerId: session.customer,
-                    stripePriceId: STRIPE_WEEKLY_PRICE_ID, // Assuming this session is for the weekly pass
-                    stripeSubscriptionStatus: 'active', // Treat it as active for the duration
-                    proUntil: adminFirestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+                    stripePriceId: session.metadata?.priceId, // Get priceId from metadata
+                    stripeSubscriptionStatus: 'active', // Treat it as active
                  }, { merge: true });
-                 await adminAuth.setCustomUserClaims(firebaseUID, { pro: true });
 
-            // Handle subscriptions
-            } else if (session.mode === 'subscription' && session.subscription) {
+                 await adminAuth.setCustomUserClaims(firebaseUID, { pro: true });
+            }
+
+            // Handle recurring subscriptions
+            if (session.mode === 'subscription' && session.subscription) {
                 const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
                 await handleSubscriptionChange(subscription);
             }

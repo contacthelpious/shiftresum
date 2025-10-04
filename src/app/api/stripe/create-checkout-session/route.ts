@@ -7,25 +7,26 @@ import Stripe from 'stripe';
 
 export async function POST(req: NextRequest) {
   try {
-    // **1. Validate Environment Variables**
+    // **1. Validate Environment Variables & Initialize Stripe**
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    
-    // FIX: Hardcode Price IDs to bypass environment loading issues.
-    const weeklyPriceId = 'price_1PgQ5yCvbhnhRCiQ4j2i512A';
-    const monthlyPriceId = 'price_1PgQ5yCvbhnhRCiQO3Jg3IqH';
-
-    if (!stripeSecretKey || !weeklyPriceId || !monthlyPriceId) {
-      console.error("Stripe configuration error: Missing environment variables.");
-      // Explicitly return a JSON error instead of crashing
+    if (!stripeSecretKey) {
+      console.error("Stripe configuration error: Missing STRIPE_SECRET_KEY.");
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
-
-    // **2. Initialize Stripe SDK Locally**
-    // Initialize Stripe inside the handler to ensure it only happens when this API is called.
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2024-06-20',
       typescript: true,
     });
+
+    // **2. Define Price IDs**
+    // Using NEXT_PUBLIC_ variables as they are accessible here.
+    const weeklyPriceId = process.env.NEXT_PUBLIC_STRIPE_WEEKLY_PRICE_ID!;
+    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!;
+
+    if (!weeklyPriceId || !monthlyPriceId) {
+        console.error("Stripe configuration error: Missing Price IDs.");
+        return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
+    }
 
     // **3. Parse Request Body**
     const body = await req.json();
@@ -36,13 +37,8 @@ export async function POST(req: NextRequest) {
     }
     
     // **4. Find or Create Stripe Customer**
-    // This logic remains crucial. We check if the user already has a Stripe Customer ID.
-    // Note: This requires Firebase Admin setup, but we'll assume the userRef logic is a placeholder
-    // for however the customer ID is stored. For now, we'll create a new customer every time
-    // to ensure this part of the logic doesn't fail. A real implementation would fetch this from a database.
-    
-    // Simplified for robustness: create customer every time for this test.
-    // A proper implementation would fetch from `adminDb.collection('users').doc(userId).get()`
+    // Simplified for robustness: create customer every time.
+    // A proper implementation would fetch from Firestore.
     const customer = await stripe.customers.create({
         email: userEmail,
         metadata: {
@@ -51,10 +47,18 @@ export async function POST(req: NextRequest) {
     });
     const stripeCustomerId = customer.id;
 
-
     // **5. Determine Session Mode and Create Checkout Session**
     const host = req.headers.get('origin')!;
-    const mode = priceId === monthlyPriceId ? 'subscription' : 'payment';
+    
+    // **THE FIX**: Explicitly check which price ID is being used to set the mode.
+    let mode: 'payment' | 'subscription';
+    if (priceId === monthlyPriceId) {
+        mode = 'subscription';
+    } else if (priceId === weeklyPriceId) {
+        mode = 'payment'; // Weekly is a one-time payment
+    } else {
+        return NextResponse.json({ error: `Invalid priceId: ${priceId}` }, { status: 400 });
+    }
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
@@ -65,6 +69,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${host}/builder?resumeId=__new__&stripe=cancel`,
       metadata: {
         firebaseUID: userId,
+        priceId: priceId, // Pass priceId for the webhook
       },
     });
     
@@ -77,8 +82,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     // **7. Catch-All Error Handling**
-    // This block ensures that no matter what goes wrong inside the `try` block,
-    // we ALWAYS return a clean JSON error response, which will prevent the DOCTYPE error.
     console.error('Stripe Checkout API Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown internal server error occurred.';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
