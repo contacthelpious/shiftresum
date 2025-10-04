@@ -17,6 +17,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
 import { SignupForm } from '@/components/auth/signup-form';
 import { useToast } from '@/hooks/use-toast';
+import { loadStripe } from '@stripe/stripe-js';
+import { STRIPE_PRODUCTS } from '@/lib/stripe';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+type View = 'auth' | 'pricing' | 'confirm' | 'loading';
 
 interface AuthGateProps {
   isOpen: boolean;
@@ -24,84 +30,70 @@ interface AuthGateProps {
   onSubscribed: () => void;
 }
 
-const tiers = [
-  {
-    name: 'Weekly',
-    price: '$2',
-    priceAnnotation: '/ week',
-    description: 'Try out all the Pro features for a week.',
-    features: [
-      'Unlimited Resumes',
-      'Unlimited AI Suggestions',
-      'All Templates & Colors',
-      'PDF Downloads',
-      'Remove "Shift Resume" Branding',
-      'Priority Support',
-    ],
-    cta: 'Start Trial',
-  },
-  {
-    name: 'Monthly',
-    price: '$10',
-    priceAnnotation: '/ month',
-    description: 'Unlock all features and build unlimited resumes.',
-    features: [
-      'Unlimited Resumes',
-      'Unlimited AI Suggestions',
-      'All Templates & Colors',
-      'PDF Downloads',
-      'Remove "Shift Resume" Branding',
-      'Priority Support',
-    ],
-    cta: 'Go Pro',
-    popular: true,
-  },
-];
-
-type View = 'auth' | 'pricing' | 'confirm' | 'loading';
-
 export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
-  const { user, isUserLoading } = useUser();
-  // This is a placeholder. In a real app, you'd get this from your backend/Firestore.
-  const [hasSubscription, setHasSubscription] = useState(false);
-  const [isSubscribing, setIsSubscribing] = useState(false);
+  const { user, isUserLoading, isPro, isSubDataLoading } = useUser();
   const { toast } = useToast();
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const [view, setView] = useState<View>('loading');
-
+  
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    if (isUserLoading) {
+    if (isUserLoading || isSubDataLoading) {
       setView('loading');
     } else if (!user) {
       setView('auth');
-    } else if (!hasSubscription) {
+    } else if (!isPro) {
       setView('pricing');
     } else {
       setView('confirm');
     }
-  }, [isOpen, isUserLoading, user, hasSubscription]);
+  }, [isOpen, isUserLoading, isSubDataLoading, user, isPro]);
 
 
   const handleAuthSuccess = () => {
-    // After login/signup, the useEffect will re-evaluate the view
-    // based on the new user and subscription state. No need to set view manually.
+    // After login/signup, the useEffect hook above will automatically
+    // re-evaluate the view based on the new user's subscription status.
+    // We don't need to manually set the view here.
   };
   
-  const handleSubscribe = (planName: string) => {
+  const handleSubscribe = async (priceId: string) => {
+    if (!user) {
+      toast({ variant: 'destructive', title: 'You must be logged in to subscribe.' });
+      return;
+    }
+
     setIsSubscribing(true);
-    // Mock subscription logic
-    console.log(`Subscribing to ${planName}`);
-    setTimeout(() => {
-      setHasSubscription(true); // This will trigger the useEffect to change view
-      toast({
-        title: 'Subscription Successful!',
-        description: `You are now subscribed to the ${planName} plan.`,
+    
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId: priceId, userId: user.uid, userEmail: user.email }),
+      });
+
+      const { sessionId } = await response.json();
+      if (!sessionId) {
+        throw new Error('Failed to create checkout session.');
+      }
+
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Stripe.js failed to load.');
+      }
+
+      await stripe.redirectToCheckout({ sessionId });
+      // The user will be redirected to the success/cancel URL defined in the API route.
+      
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Subscription Error',
+        description: error.message || 'Could not initiate subscription. Please try again.',
       });
       setIsSubscribing(false);
-      // The `onSubscribed` is called from the 'confirm' view now.
-    }, 1500);
+    }
   };
 
   const handleConfirmedDownload = () => {
@@ -150,7 +142,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 mt-4 sm:grid-cols-2">
-              {tiers.map((tier) => (
+              {STRIPE_PRODUCTS.map((tier) => (
                 <Card key={tier.name} className={`flex flex-col ${tier.popular ? 'border-primary ring-2 ring-primary' : ''}`}>
                    {tier.popular && (
                       <div className="text-center py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-t-lg">Most Popular</div>
@@ -165,8 +157,8 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
                   <CardContent className="flex-1 text-sm">
                      <p className="text-muted-foreground mb-4">{tier.description}</p>
                     <ul className="space-y-2">
-                      {tier.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2">
+                      {tier.features.map((feature, i) => (
+                        <li key={`${tier.name}-feature-${i}`} className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
                           <span className="text-muted-foreground">{feature}</span>
                         </li>
@@ -174,7 +166,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button onClick={() => handleSubscribe(tier.name)} className="w-full" variant={tier.popular ? 'default' : 'outline'} disabled={isSubscribing}>
+                    <Button onClick={() => handleSubscribe(tier.priceId)} className="w-full" variant={tier.popular ? 'default' : 'outline'} disabled={isSubscribing}>
                       {isSubscribing ? <Loader2 className="animate-spin" /> : tier.cta}
                     </Button>
                   </CardFooter>
