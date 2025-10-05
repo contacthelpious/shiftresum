@@ -53,6 +53,7 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
 };
 
 const getContrastColor = (hexColor: string): string => {
+  if (!hexColor) return '#FFFFFF';
   const rgb = hexToRgb(hexColor);
   if (!rgb) return '#FFFFFF'; // Default to white for invalid colors
   const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
@@ -623,7 +624,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                 </header>
                 <div className="space-y-6">
                     <section>
-                        <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80'}}>Contact</h2>
+                        <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80', color: headerTextColor}}>Contact</h2>
                         <div className="space-y-2 text-xs">
                           <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                           <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
@@ -730,6 +731,180 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
     );
 };
 
+const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+    
+    const sidebarKeys: (keyof typeof Sections)[] = ['skills', 'certifications', 'references'];
+    const mainKeys: (keyof typeof Sections)[] = ['summary', 'experience', 'projects', 'education', 'additionalInformation'];
+
+    const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-[11pt] font-semibold uppercase tracking-wider mb-2 border-b pb-1" style={{borderColor: color}}>{title}</h2>{children}</section>
+    );
+
+    const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3 border-b-2 pb-1" style={{borderColor: color}}>{title}</h2>{children}</section>
+    );
+
+    return (
+        <div className={cn("grid grid-cols-12 gap-x-8 p-8 h-full", `text-${alignment}`)}>
+            <div className="col-span-3 space-y-6">
+                <header>
+                    <h1 className="text-[24pt] font-bold leading-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
+                </header>
+                <SidebarSection title="Contact">
+                    <div className="space-y-1 text-sm">
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                        <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    </div>
+                </SidebarSection>
+                {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return <SidebarSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></SidebarSection>
+                })}
+            </div>
+            <div className="col-span-9 pl-8 border-l space-y-6">
+                 {(sectionOrder || defaultSectionOrder).filter(k => mainKeys.includes(k)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return <MainSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></MainSection>
+                })}
+            </div>
+        </div>
+    );
+};
+
+const StartupTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+
+    const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section className="py-4 border-b border-border/50"><h2 className="text-[12pt] font-semibold uppercase tracking-widest mb-3" style={{color}}>{title}</h2>{children}</section>
+    );
+
+    return (
+        <div className={cn("p-8", `text-${alignment}`)}>
+            <header className="py-6 text-center border-b-2" style={{borderColor: color}}>
+                <h1 className="text-[26pt] font-bold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
+                {personalInfo.summary && <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">{personalInfo.summary}</p>}
+                <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-4">
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                </div>
+            </header>
+            <div className="space-y-4 mt-6">
+                 {(sectionOrder || defaultSectionOrder).filter(k => k !== 'summary').map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return <Section key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></Section>
+                })}
+            </div>
+        </div>
+    );
+};
+
+
+const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+
+    return (
+        <div className={cn("p-12", `text-${alignment}`)}>
+            <header className="mb-10 text-center">
+                <h1 className="text-[22pt] font-semibold tracking-wider uppercase">{personalInfo?.name || 'Your Name'}</h1>
+                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-3 tracking-widest">
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                </div>
+            </header>
+            <div className="space-y-8">
+                {(sectionOrder || defaultSectionOrder).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <section key={key}>
+                            <h2 className="text-[13pt] font-semibold tracking-[.2em] uppercase mb-4 text-center" style={{color}}>{sectionTitles[key]}</h2>
+                            <Component resumeData={resumeData} designOptions={designOptions} />
+                        </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+
+    return (
+        <div className="flex h-full">
+            <div className="w-1.5 h-full" style={{backgroundColor: color}}></div>
+            <div className={cn("p-8 flex-1", `text-${alignment}`)}>
+                <header className="mb-8">
+                    <h1 className="text-[28pt] font-bold tracking-tight">{personalInfo?.name || 'Your Name'}</h1>
+                    <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                        <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    </div>
+                </header>
+                <div className="space-y-6">
+                    {(sectionOrder || defaultSectionOrder).map(key => {
+                        if (!sectionHasContent(key, resumeData)) return null;
+                        const Component = Sections[key];
+                        return (
+                            <section key={key}>
+                                <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
+                                <Component resumeData={resumeData} designOptions={designOptions} />
+                            </section>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+
+    return (
+        <div className={cn("p-10", `text-${alignment}`)}>
+            <header className="mb-8 pb-4 text-center">
+                <h1 className="text-[32pt] leading-none" style={{ fontFamily: 'Garamond, serif', color }}>{personalInfo?.name || 'Your Name'}</h1>
+                <div className="w-24 h-px mx-auto my-3" style={{backgroundColor: color}}></div>
+                <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                </div>
+            </header>
+            <div className="space-y-6">
+                {(sectionOrder || defaultSectionOrder).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <section key={key}>
+                            <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
+                            <Component resumeData={resumeData} designOptions={designOptions} />
+                        </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
   const { font, template, fontSize, lineHeight } = designOptions;
@@ -747,6 +922,11 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     .with('compact', () => CompactTemplate)
     .with('creative', () => CreativeTemplate)
     .with('timeline', () => TimelineTemplate)
+    .with('professional', () => ProfessionalTemplate)
+    .with('startup', () => StartupTemplate)
+    .with('nordic', () => NordicTemplate)
+    .with('focus', () => FocusTemplate)
+    .with('signature', () => SignatureTemplate)
     .otherwise(() => ModernTemplate);
 
   return (

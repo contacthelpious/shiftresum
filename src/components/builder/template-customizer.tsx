@@ -48,6 +48,11 @@ const templates: { name: string, value: TemplateName }[] = [
     { name: 'Compact', value: 'compact' },
     { name: 'Creative', value: 'creative' },
     { name: 'Timeline', value: 'timeline' },
+    { name: 'Professional', value: 'professional' },
+    { name: 'Startup', value: 'startup' },
+    { name: 'Nordic', value: 'nordic' },
+    { name: 'Focus', value: 'focus' },
+    { name: 'Signature', value: 'signature' },
 ];
 
 type OpenSheet = 'template' | 'color' | 'font' | 'layout' | null;

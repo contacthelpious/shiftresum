@@ -102,6 +102,11 @@ export const TemplateNameSchema = z.enum([
   'compact',
   'creative',
   'timeline',
+  'professional',
+  'startup',
+  'nordic',
+  'focus',
+  'signature',
 ]);
 export type TemplateName = z.infer<typeof TemplateNameSchema>;
 
@@ -119,8 +124,8 @@ export const ResumeDataSchema = z.object({
     projects: z.array(ProjectSchema),
     certifications: z.array(CertificationSchema),
     references: z.array(ReferenceSchema),
-    additionalInformation: AdditionalInformationSchema,
-    sectionOrder: z.array(SectionKeySchema),
+    additionalInformation: AdditionalInformationSchema.optional(),
+    sectionOrder: z.array(SectionKeySchema).optional(),
   }),
   design: z.object({
     template: TemplateNameSchema.default('modern'),
@@ -145,8 +150,8 @@ export const ResumeFormSchema = z.object({
     projects: z.array(ProjectSchema),
     certifications: z.array(CertificationSchema),
     references: z.array(ReferenceSchema),
-    additionalInformation: AdditionalInformationSchema,
-    sectionOrder: z.array(SectionKeySchema),
+    additionalInformation: AdditionalInformationSchema.optional(),
+    sectionOrder: z.array(SectionKeySchema).optional(),
 });
 export type ResumeFormData = z.infer<typeof ResumeFormSchema>;
 
