@@ -21,9 +21,9 @@ const fontClasses: {[key: string]: string} = {
 };
 
 const fontSizeClasses: {[key: string]: string} = {
-    small: 'text-[9.5pt]',
-    medium: 'text-[10pt]',
-    large: 'text-[10.5pt]',
+    small: 'text-[10pt]',
+    medium: 'text-[11pt]',
+    large: 'text-[12pt]',
 };
 
 const lineHeightClasses: {[key: string]: string} = {
@@ -193,14 +193,14 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
 
   const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
-      <h2 className="text-xl font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
+      <h2 className="text-[16pt] font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
       <div className="space-y-4">{children}</div>
     </section>
   );
 
   const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
-      <h2 className="text-base font-bold uppercase tracking-wider mb-2" style={{color}}>{title}</h2>
+      <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{title}</h2>
       <div>{children}</div>
     </section>
   );
@@ -224,10 +224,10 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
     <div className={cn("p-0 flex", `text-${alignment}`)}>
       <div className="w-1/3 bg-muted/40 p-6 space-y-6">
           <header className="mb-4">
-            <h1 className="text-3xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
+            <h1 className="text-[22pt] font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
           </header>
           <SidebarSection title="Contact">
-             <div className="space-y-2 text-sm">
+             <div className="space-y-2">
                 <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                 <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
                 <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={`https://${personalInfo?.website}`} />
@@ -250,7 +250,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <section>
-            <h2 className="text-sm font-bold uppercase tracking-[.2em] mb-2" style={{ color }}>{title}</h2>
+            <h2 className="text-[15pt] font-bold uppercase tracking-[.2em] mb-2" style={{ color }}>{title}</h2>
             <hr className="mb-3" style={{borderColor: color}}/>
             <div className="space-y-4">{children}</div>
         </section>
@@ -259,7 +259,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-6 text-center">
-                <h1 className="text-4xl font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
+                <h1 className="text-[22pt] font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
                 <div className="text-sm text-muted-foreground mt-2">
                     <span>{personalInfo?.location}</span>
                     {personalInfo?.location && (personalInfo.email || personalInfo.phone) && <span className="mx-2">|</span>}
@@ -287,17 +287,17 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 
 const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
     const { personalInfo, sectionOrder } = resumeData;
-    const { color } = designOptions;
+    const { color, alignment } = designOptions;
 
     const mainSections: React.ReactNode[] = [];
     const sidebarSections: React.ReactNode[] = [];
 
     const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-base font-semibold uppercase tracking-wider mb-2 text-muted-foreground">{title}</h2><div className="space-y-4">{children}</div></section>
+        <section><h2 className="text-[14pt] font-semibold uppercase tracking-wider mb-2 text-muted-foreground">{title}</h2><div className="space-y-4">{children}</div></section>
     );
 
     const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-sm font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
+        <section><h2 className="text-[12pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
     );
 
     sectionOrder.forEach(key => {
@@ -306,7 +306,6 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
       const Component = Sections[key];
       const sectionContent = <Component resumeData={resumeData} />;
 
-      // Define which sections go where
       const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
 
       if (isSidebarSection) {
@@ -317,9 +316,9 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     });
 
     return (
-        <div className="p-8">
+        <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-6 pb-4 border-b-2" style={{ borderColor: color }}>
-                <h1 className="text-5xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
+                <h1 className="text-[24pt] font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex items-center gap-x-4 text-xs mt-3 text-muted-foreground">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                     <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
@@ -346,7 +345,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <div className="grid grid-cols-12 gap-x-6">
-            <h2 className="col-span-3 text-xs font-bold uppercase tracking-widest pt-1" style={{color}}>{title}</h2>
+            <h2 className="col-span-3 text-[14pt] font-bold uppercase tracking-widest pt-1" style={{color}}>{title}</h2>
             <div className="col-span-9">{children}</div>
         </div>
     );
@@ -354,7 +353,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     return (
         <div className={cn("p-10 space-y-6", `text-${alignment}`)}>
             <header className="mb-4 text-center">
-                <h1 className="text-3xl font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
+                <h1 className="text-[20pt] font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
                 <p className="mt-1">{personalInfo.summary}</p>
                 <div className="text-xs text-muted-foreground mt-3">
                     <span>{personalInfo?.email}</span>
@@ -388,13 +387,13 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
     const { color, alignment } = designOptions;
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-2xl font-bold tracking-tighter mb-3">{title}</h2><div className="space-y-5">{children}</div></section>
+        <section><h2 className="text-[16pt] font-bold tracking-tighter mb-3">{title}</h2><div className="space-y-5">{children}</div></section>
     );
 
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-8 text-white p-6 rounded-lg" style={{backgroundColor: color}}>
-                <h1 className="text-4xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
+                <h1 className="text-[22pt] font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className={cn(
                     "flex items-center gap-x-4 text-xs mt-3 opacity-90",
                     alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
@@ -425,7 +424,7 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
   const { font, template, fontSize, lineHeight } = designOptions;
   const fontClass = fontClasses[font] || 'font-body';
-  const fontSizeClass = fontSizeClasses[fontSize] || 'text-[10pt]';
+  const fontSizeClass = fontSizeClasses[fontSize] || 'text-[11pt]';
   const lineHeightClass = lineHeightClasses[lineHeight] || 'leading-normal';
 
   const TemplateComponent = match(template)
