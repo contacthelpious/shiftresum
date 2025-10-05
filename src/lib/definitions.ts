@@ -91,6 +91,20 @@ export const SectionKeySchema = z.enum([
 
 export type SectionKey = z.infer<typeof SectionKeySchema>;
 
+export const TemplateNameSchema = z.enum([
+  'modern', 
+  'classic', 
+  'executive', 
+  'minimal', 
+  'bold',
+  'metro',
+  'elegant',
+  'compact',
+  'creative',
+  'timeline',
+]);
+export type TemplateName = z.infer<typeof TemplateNameSchema>;
+
 // This is the shape of the data stored in Firestore
 export const ResumeDataSchema = z.object({
   title: z.string().optional(),
@@ -106,7 +120,7 @@ export const ResumeDataSchema = z.object({
     sectionOrder: z.array(SectionKeySchema),
   }),
   design: z.object({
-    template: z.enum(['modern', 'classic', 'executive', 'minimal', 'bold']).default('modern'),
+    template: TemplateNameSchema.default('modern'),
     color: z.string().default('#2c3e50'), // default to primary color
     font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
     fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
@@ -161,7 +175,7 @@ export const defaultResumeFormData: ResumeFormData = {
 
 
 export const DesignOptionsSchema = z.object({
-  template: z.enum(['modern', 'classic', 'executive', 'minimal', 'bold']).default('modern'),
+  template: TemplateNameSchema.default('modern'),
   color: z.string().default('#2c3e50'), // default to primary color
   font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
   fontSize: z.enum(['small', 'medium', 'large']).default('medium'),

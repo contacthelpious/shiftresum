@@ -2,7 +2,7 @@
 'use client';
 
 import type { ResumeFormData, DesignOptions, BulletPoint } from '@/lib/definitions';
-import { Mail, Phone, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Link as LinkIcon, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React from 'react';
@@ -65,7 +65,9 @@ const ContactLine: React.FC<{ icon: React.ReactNode; text?: string; link?: strin
   if (!text) return null;
   const content = <span className={cn("flex items-center gap-1.5", className)}>{icon}{text}</span>;
   if (link) {
-    return <a href={link} target="_blank" rel="noopener noreferrer" className="hover:underline">{content}</a>
+    const isEmail = link.startsWith('mailto:');
+    const finalLink = isEmail ? link : (link.startsWith('http') ? link : `https://${link}`);
+    return <a href={finalLink} target="_blank" rel="noopener noreferrer" className="hover:underline">{content}</a>
   }
   return content;
 };
@@ -84,7 +86,7 @@ const Sections = {
       {resumeData.experience.map(exp => (
         <div key={exp.id}>
           <div className="flex justify-between items-baseline">
-            <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
+            <h3 className="font-semibold text-[1.1em]">{exp.role || 'Role'}</h3>
             <div className="text-xs text-muted-foreground whitespace-nowrap">{exp.startDate}{exp.endDate && ` - ${exp.endDate}`}</div>
           </div>
           <div className="italic text-muted-foreground mb-1">{exp.company || 'Company'}</div>
@@ -98,7 +100,7 @@ const Sections = {
       {resumeData.projects.map(proj => (
         <div key={proj.id}>
             <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
+                <h3 className="font-semibold text-[1.1em]">{proj.name || 'Project Name'}</h3>
                 {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
             </div>
             {renderDescription(proj.description)}
@@ -111,7 +113,7 @@ const Sections = {
       {resumeData.education.map(edu => (
         <div key={edu.id}>
           <div className="flex justify-between items-baseline">
-            <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
+            <h3 className="font-semibold text-[1.1em]">{edu.institution || 'Institution'}</h3>
             <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
           </div>
           <div className="italic text-muted-foreground">{edu.degree || 'Degree'}</div>
@@ -122,7 +124,7 @@ const Sections = {
   ),
   skills: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="flex flex-wrap gap-2">
-      {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded">{skill.name}</span>)}
+      {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-[0.9em]">{skill.name}</span>)}
     </div>
   ),
   certifications: ({ resumeData }: { resumeData: ResumeFormData }) => (
@@ -130,7 +132,7 @@ const Sections = {
         {resumeData.certifications.map(cert => (
             <div key={cert.id}>
                 <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-base">{cert.name || 'Certification'}</h3>
+                    <h3 className="font-semibold text-[1.1em]">{cert.name || 'Certification'}</h3>
                     <div className="text-xs text-muted-foreground">{cert.date}</div>
                 </div>
                 <div className="italic text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</div>
@@ -193,14 +195,14 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
 
   const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
-      <h2 className="text-[16pt] font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
+      <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
       <div className="space-y-4">{children}</div>
     </section>
   );
 
   const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
-      <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{title}</h2>
+      <h2 className="text-[12pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{title}</h2>
       <div>{children}</div>
     </section>
   );
@@ -227,10 +229,10 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
             <h1 className="text-[22pt] font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
           </header>
           <SidebarSection title="Contact">
-             <div className="space-y-2">
+             <div className="space-y-2 text-sm">
                 <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                 <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={`https://${personalInfo?.website}`} />
+                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
                 <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
             </div>
           </SidebarSection>
@@ -259,14 +261,12 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-6 text-center">
-                <h1 className="text-[22pt] font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
-                <div className="text-sm text-muted-foreground mt-2">
-                    <span>{personalInfo?.location}</span>
-                    {personalInfo?.location && (personalInfo.email || personalInfo.phone) && <span className="mx-2">|</span>}
-                    <span>{personalInfo?.email}</span>
-                    {personalInfo?.email && personalInfo.phone && <span className="mx-2">|</span>}
-                    <span>{personalInfo?.phone}</span>
-                    {personalInfo.website && <><span className="mx-2">|</span><span>{personalInfo.website}</span></>}
+                <h1 className="text-[24pt] font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
+                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
                 </div>
             </header>
             <div className="space-y-6">
@@ -305,7 +305,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
       
       const Component = Sections[key];
       const sectionContent = <Component resumeData={resumeData} />;
-
+      
       const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
 
       if (isSidebarSection) {
@@ -321,9 +321,9 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
                 <h1 className="text-[24pt] font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex items-center gap-x-4 text-xs mt-3 text-muted-foreground">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`}/>
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`}/>
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website}/>
                 </div>
             </header>
             <div className="grid grid-cols-12 gap-x-8">
@@ -345,7 +345,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <div className="grid grid-cols-12 gap-x-6">
-            <h2 className="col-span-3 text-[14pt] font-bold uppercase tracking-widest pt-1" style={{color}}>{title}</h2>
+            <h2 className="col-span-3 text-[12pt] font-bold uppercase tracking-widest pt-1" style={{color}}>{title}</h2>
             <div className="col-span-9">{children}</div>
         </div>
     );
@@ -355,12 +355,10 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
             <header className="mb-4 text-center">
                 <h1 className="text-[20pt] font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
                 <p className="mt-1">{personalInfo.summary}</p>
-                <div className="text-xs text-muted-foreground mt-3">
-                    <span>{personalInfo?.email}</span>
-                    {personalInfo?.email && personalInfo.website && <span className="mx-2">//</span>}
-                    <span>{personalInfo?.website}</span>
-                     {personalInfo?.website && personalInfo.location && <span className="mx-2">//</span>}
-                    <span>{personalInfo?.location}</span>
+                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-3">
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                 </div>
             </header>
             
@@ -395,13 +393,13 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
             <header className="mb-8 text-white p-6 rounded-lg" style={{backgroundColor: color}}>
                 <h1 className="text-[22pt] font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className={cn(
-                    "flex items-center gap-x-4 text-xs mt-3 opacity-90",
+                    "flex items-center flex-wrap gap-x-4 gap-y-1 text-xs mt-3 opacity-90",
                     alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
                  )}>
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
                 </div>
             </header>
             
@@ -420,6 +418,249 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
     );
 };
 
+const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+
+    return (
+      <div className={cn("p-0 flex h-full", `text-${alignment}`)}>
+        <div className="w-1/3 p-6 space-y-6 text-white" style={{ backgroundColor: color }}>
+          <header className="mb-4">
+            <h1 className="text-[24pt] font-bold tracking-tight">{personalInfo?.name || 'Your Name'}</h1>
+          </header>
+          <div className="space-y-6">
+            <section>
+              <h2 className="text-[12pt] font-bold uppercase tracking-wider mb-2 border-b border-white/50 pb-1">Contact</h2>
+              <div className="space-y-2 text-sm">
+                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+              </div>
+            </section>
+            {sectionHasContent('education', resumeData) && (
+              <section>
+                <h2 className="text-[12pt] font-bold uppercase tracking-wider mb-2 border-b border-white/50 pb-1">Education</h2>
+                <Sections.education resumeData={resumeData} />
+              </section>
+            )}
+            {sectionHasContent('skills', resumeData) && (
+              <section>
+                <h2 className="text-[12pt] font-bold uppercase tracking-wider mb-2 border-b border-white/50 pb-1">Skills</h2>
+                <div className="flex flex-wrap gap-1">
+                  {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-white/20 px-2 py-1 rounded text-[0.9em]">{skill.name}</span>)}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+        <div className="w-2/3 p-8 space-y-6">
+          {sectionOrder.map(key => {
+            if (!sectionHasContent(key, resumeData) || ['education', 'skills'].includes(key)) return null;
+            const Component = Sections[key];
+            return (
+              <section key={key}>
+                <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
+                <Component resumeData={resumeData} />
+              </section>
+            );
+          })}
+        </div>
+      </div>
+    );
+};
+
+const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+  const { personalInfo, sectionOrder } = resumeData;
+  const { color, alignment } = designOptions;
+
+  const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+      <section>
+          <h2 className="text-center text-[14pt] font-semibold uppercase tracking-[.3em] mb-4" style={{ color }}>{title}</h2>
+          <div className="space-y-4">{children}</div>
+      </section>
+  );
+  
+  return (
+      <div className={cn("p-10 [font-family:serif]", `text-${alignment}`)}>
+        <header className="mb-8 text-center">
+          <h1 className="text-[28pt] font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
+          <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+            <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+          </div>
+        </header>
+        <div className="space-y-6">
+            {sectionOrder.map(key => {
+                if (!sectionHasContent(key, resumeData)) return null;
+                const Component = Sections[key];
+                return (
+                    <Section key={key} title={sectionTitles[key]}>
+                        <Component resumeData={resumeData} />
+                    </Section>
+                )
+            })}
+        </div>
+      </div>
+  );
+};
+
+
+const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+    
+    const sidebarKeys: (keyof typeof Sections)[] = ['summary', 'skills', 'education', 'certifications', 'references'];
+
+    return (
+        <div className={cn("grid grid-cols-12 gap-x-6 p-8 h-full", `text-${alignment}`)}>
+            <div className="col-span-4 border-r pr-6 space-y-6">
+                <header>
+                    <h1 className="text-[20pt] font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
+                </header>
+                <section>
+                    <h2 className="text-[11pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>Contact</h2>
+                    <div className="space-y-1 text-xs">
+                        <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    </div>
+                </section>
+                {sectionOrder.filter(k => sidebarKeys.includes(k)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <section key={key}>
+                            <h2 className="text-[11pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
+                            <Component resumeData={resumeData} />
+                        </section>
+                    );
+                })}
+            </div>
+            <div className="col-span-8 space-y-6">
+                {sectionOrder.filter(k => !sidebarKeys.includes(k)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <section key={key}>
+                            <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
+                            <Component resumeData={resumeData} />
+                        </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
+const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
+    const sidebarKeys: (keyof typeof Sections)[] = ['skills', 'education', 'certifications', 'references'];
+
+    return (
+        <div className={cn("p-0 flex h-full", `text-${alignment}`)}>
+            <div className="w-1/3 p-6 text-white" style={{backgroundColor: color}}>
+                <header className="text-center mb-8">
+                    <div className="w-24 h-24 rounded-full bg-white/20 mx-auto mb-4" />
+                    <h1 className="text-[20pt] font-bold">{personalInfo?.name || 'Your Name'}</h1>
+                </header>
+                <div className="space-y-6">
+                    <section>
+                        <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b border-white/50 pb-1 mb-2">Contact</h2>
+                        <div className="space-y-2 text-xs">
+                          <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                          <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                          <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                          <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                        </div>
+                    </section>
+                     {sectionOrder.filter(k => sidebarKeys.includes(k)).map(key => {
+                        if (!sectionHasContent(key, resumeData)) return null;
+                        const Component = Sections[key];
+                        return (
+                            <section key={key}>
+                                <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b border-white/50 pb-1 mb-2">{sectionTitles[key]}</h2>
+                                <Component resumeData={resumeData} />
+                            </section>
+                        );
+                    })}
+                </div>
+            </div>
+            <div className="w-2/3 p-8 space-y-6">
+                 {sectionOrder.filter(k => !sidebarKeys.includes(k)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <section key={key}>
+                            <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3 text-muted-foreground">{sectionTitles[key]}</h2>
+                            <Component resumeData={resumeData} />
+                        </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
+const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder, experience } = resumeData;
+    const { color, alignment } = designOptions;
+
+    return (
+        <div className={cn("p-8", `text-${alignment}`)}>
+            <header className="mb-8 text-center">
+                <h1 className="text-[24pt] font-bold">{personalInfo?.name || 'Your Name'}</h1>
+                <p className="mt-2 text-muted-foreground">{personalInfo?.summary}</p>
+                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-3">
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                </div>
+            </header>
+
+            <div className="space-y-6">
+                {sectionHasContent('experience', resumeData) && (
+                    <section>
+                        <h2 className="text-[14pt] font-bold uppercase tracking-wider text-center mb-6" style={{color}}>{sectionTitles['experience']}</h2>
+                        <div className="relative pl-8">
+                            <div className="absolute left-[3px] top-2 bottom-2 w-0.5" style={{backgroundColor: color}}></div>
+                            {experience.map(exp => (
+                                <div key={exp.id} className="relative mb-6">
+                                    <div className="absolute -left-[32px] top-[5px] h-4 w-4 rounded-full border-4 border-background" style={{backgroundColor: color}}></div>
+                                    <p className="text-xs text-muted-foreground mb-1">{exp.startDate}{exp.endDate && ` - ${exp.endDate}`}</p>
+                                    <h3 className="font-semibold text-[1.1em]">{exp.role}</h3>
+                                    <p className="italic text-muted-foreground mb-1">{exp.company}</p>
+                                    {renderDescription(exp.description)}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                <div className="grid grid-cols-2 gap-8 pt-4">
+                    {sectionOrder.filter(k => k !== 'experience' && k !== 'summary').map(key => {
+                        if (!sectionHasContent(key, resumeData)) return null;
+                        const Component = Sections[key];
+                        return (
+                            <section key={key}>
+                                <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
+                                <Component resumeData={resumeData} />
+                            </section>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
   const { font, template, fontSize, lineHeight } = designOptions;
@@ -432,6 +673,11 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     .with('executive', () => ExecutiveTemplate)
     .with('minimal', () => MinimalTemplate)
     .with('bold', () => BoldTemplate)
+    .with('metro', () => MetroTemplate)
+    .with('elegant', () => ElegantTemplate)
+    .with('compact', () => CompactTemplate)
+    .with('creative', () => CreativeTemplate)
+    .with('timeline', () => TimelineTemplate)
     .otherwise(() => ModernTemplate);
 
   return (
@@ -450,5 +696,3 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
-
-    

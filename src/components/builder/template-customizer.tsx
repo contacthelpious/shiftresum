@@ -4,10 +4,10 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { DesignOptions, ResumeFormData } from '@/lib/definitions';
+import type { DesignOptions, ResumeFormData, TemplateName } from '@/lib/definitions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Palette, Pen, Type, X, AlignLeft, AlignCenter, AlignRight, TextQuote, Pilcrow } from 'lucide-react';
+import { Palette, Pen, Type, X, AlignLeft, AlignCenter, AlignRight, Pilcrow } from 'lucide-react';
 import { ResumePreview } from './resume-preview';
 import { cn } from '@/lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
@@ -34,15 +34,20 @@ const fonts = [
   { name: 'Lato', value: 'Lato' },
 ];
 
-const templates: { name: string, value: DesignOptions['template'] }[] = [
+const templates: { name: string, value: TemplateName }[] = [
     { name: 'Modern', value: 'modern' },
     { name: 'Classic', value: 'classic' },
     { name: 'Executive', value: 'executive' },
     { name: 'Minimal', value: 'minimal' },
     { name: 'Bold', value: 'bold' },
+    { name: 'Metro', value: 'metro' },
+    { name: 'Elegant', value: 'elegant' },
+    { name: 'Compact', value: 'compact' },
+    { name: 'Creative', value: 'creative' },
+    { name: 'Timeline', value: 'timeline' },
 ];
 
-type OpenSheet = 'template' | 'color' | 'font' | 'alignment' | null;
+type OpenSheet = 'template' | 'color' | 'font' | 'layout' | null;
 
 export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions }: TemplateCustomizerProps) {
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
@@ -95,7 +100,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         onValueChange={(value) => {
                             if (value) setDesignOptions(prev => ({...prev, fontSize: value as 'small' | 'medium' | 'large'}))
                         }}
-                        className="w-full justify-center"
+                        className="w-full grid grid-cols-3"
                     >
                         <ToggleGroupItem value="small" aria-label="Small font">Small</ToggleGroupItem>
                         <ToggleGroupItem value="medium" aria-label="Medium font">Medium</ToggleGroupItem>
@@ -106,7 +111,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
           </>
         );
         break;
-      case 'alignment':
+      case 'layout':
         content = (
           <>
              <h3 className="font-semibold mb-4 text-center">Layout</h3>
@@ -119,7 +124,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         onValueChange={(value) => {
                             if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
                         }}
-                        className="w-full justify-center"
+                        className="w-full grid grid-cols-3"
                     >
                         <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
                         <ToggleGroupItem value="center" aria-label="Align center"><AlignCenter /></ToggleGroupItem>
@@ -134,7 +139,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         onValueChange={(value) => {
                             if (value) setDesignOptions(prev => ({...prev, lineHeight: value as 'compact' | 'standard' | 'relaxed'}))
                         }}
-                        className="w-full justify-center"
+                        className="w-full grid grid-cols-3"
                     >
                         <ToggleGroupItem value="compact" aria-label="Compact spacing">Compact</ToggleGroupItem>
                         <ToggleGroupItem value="standard" aria-label="Standard spacing">Standard</ToggleGroupItem>
@@ -176,12 +181,12 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                   transition={{ duration: 0.2 }}
                   className="mb-2"
                 >
-                  <div className="flex gap-4 overflow-x-auto pb-4 px-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {templates.map(template => (
                         <div 
                             key={template.value}
                             className={cn(
-                                "cursor-pointer border-2 rounded-lg overflow-hidden transition-all w-[100px] shrink-0 bg-background shadow-lg",
+                                "cursor-pointer border-2 rounded-lg overflow-hidden transition-all bg-background shadow-lg",
                                 designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
                             )}
                             onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
@@ -228,7 +233,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         <Type className="mb-1 h-3 w-3" />
                         <span>Font</span>
                     </Button>
-                     <Button variant={openSheet === 'alignment' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('alignment')}>
+                     <Button variant={openSheet === 'layout' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('layout')}>
                         <Pilcrow className="mb-1 h-3 w-3" />
                         <span>Layout</span>
                     </Button>
