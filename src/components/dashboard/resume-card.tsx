@@ -55,7 +55,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
         <Link href={`/builder?resumeId=${resume.id}`} className="block">
           <div className="relative aspect-[3/4] overflow-hidden bg-muted/30 flex items-center justify-center">
             <div className="transform scale-[0.2] origin-center pointer-events-none">
-               <ResumePreview resumeData={resume.data} designOptions={resume.design} />
+               <ResumePreview resumeData={resume.data} designOptions={resume.design} isInteractive={false} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-3 text-white">

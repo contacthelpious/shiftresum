@@ -12,6 +12,7 @@ interface ResumePreviewProps {
   resumeData: ResumeFormData;
   designOptions: DesignOptions;
   className?: string;
+  isInteractive?: boolean; // New prop
 }
 
 const fontClasses: {[key: string]: string} = {
@@ -85,10 +86,11 @@ const renderFreeform = (details: string | undefined) => {
   )
 };
 
-const ContactLine: React.FC<{ icon: React.ReactNode; text?: string; link?: string; className?: string }> = ({ icon, text, link, className }) => {
+const ContactLine: React.FC<{ icon: React.ReactNode; text?: string; link?: string; className?: string; isInteractive?: boolean }> = ({ icon, text, link, className, isInteractive = true }) => {
   if (!text) return null;
   const content = <span className={cn("flex items-center gap-1.5", className)}>{icon}{text}</span>;
-  if (link) {
+  
+  if (link && isInteractive) {
     const isEmail = link.startsWith('mailto:');
     const finalLink = isEmail ? link : (link.startsWith('http') ? link : `https://${link}`);
     return <a href={finalLink} target="_blank" rel="noopener noreferrer" className="hover:underline">{content}</a>
@@ -119,13 +121,13 @@ const Sections = {
       ))}
     </div>
   ),
-  projects: ({ resumeData }: { resumeData: ResumeFormData }) => (
+  projects: ({ resumeData, designOptions, isInteractive }: { resumeData: ResumeFormData; designOptions: DesignOptions; isInteractive?: boolean; }) => (
      <div className="space-y-4">
       {resumeData.projects.map(proj => (
         <div key={proj.id}>
             <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-[1.1em]">{proj.name || 'Project Name'}</h3>
-                {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
+                {proj.link && isInteractive && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
             </div>
             {renderDescription(proj.description)}
         </div>
@@ -221,7 +223,7 @@ const sectionTitles: { [key in keyof typeof Sections]: string } = {
 // TEMPLATES
 // =================================================================
 
-const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
   const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
   const { color, alignment } = designOptions;
   
@@ -247,7 +249,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
     if (!sectionHasContent(key, resumeData)) return;
 
     const Component = Sections[key];
-    const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} />;
+    const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
     
     // Heuristic for sidebar vs main. Small, list-like items go to sidebar.
     const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
@@ -267,9 +269,9 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
           </header>
           <SidebarSection title="Contact">
              <div className="space-y-2 text-sm">
-                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
             </div>
           </SidebarSection>
@@ -283,7 +285,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
 };
 
 
-const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
@@ -301,9 +303,9 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 <h1 className="text-[24pt] font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 </div>
             </header>
             <div className="space-y-6">
@@ -312,7 +314,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                     const Component = Sections[key];
                     return (
                         <Section key={key} title={sectionTitles[key]}>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </Section>
                     )
                 })}
@@ -322,7 +324,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 };
 
 
-const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -342,7 +344,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
       if (!sectionHasContent(key, resumeData)) return;
       
       const Component = Sections[key];
-      const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} />;
+      const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
       
       const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
 
@@ -359,9 +361,9 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
                 <h1 className="text-[24pt] font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex items-center gap-x-4 text-xs mt-3 text-muted-foreground">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`}/>
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`}/>
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website}/>
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive}/>
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive}/>
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive}/>
                 </div>
             </header>
             <div className="grid grid-cols-12 gap-x-8">
@@ -377,7 +379,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
 };
 
 
-const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
@@ -396,8 +398,8 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                   <p className="mt-1">{personalInfo.summary}</p>
                 )}
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-3">
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                 </div>
             </header>
@@ -409,7 +411,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                      return (
                         <Section key={key} title={sectionTitles[key]}>
                            <div className="space-y-4">
-                                <Component resumeData={resumeData} designOptions={designOptions} />
+                                <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                            </div>
                         </Section>
                      )
@@ -420,7 +422,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 };
 
 
-const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const headerTextColor = getContrastColor(color);
@@ -437,10 +439,10 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
                     "flex items-center flex-wrap gap-x-4 gap-y-1 text-xs mt-3 opacity-90",
                     alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
                  )}>
-                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} isInteractive={isInteractive} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 </div>
             </header>
             
@@ -450,7 +452,7 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
                     const Component = Sections[key];
                     return (
                         <Section key={key} title={sectionTitles[key]}>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </Section>
                     )
                 })}
@@ -459,7 +461,7 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
     );
 };
 
-const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const headerTextColor = getContrastColor(color);
@@ -474,9 +476,9 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
             <section>
               <h2 className="text-[12pt] font-bold uppercase tracking-wider mb-2 border-b pb-1" style={{ borderColor: headerTextColor + '80' }}>Contact</h2>
               <div className="space-y-2 text-sm">
-                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
               </div>
             </section>
@@ -507,7 +509,7 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
             return (
               <section key={key}>
                 <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
-                <Component resumeData={resumeData} designOptions={designOptions} />
+                <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
               </section>
             );
           })}
@@ -516,7 +518,7 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
     );
 };
 
-const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
   const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
   const { color, alignment, font } = designOptions;
 
@@ -539,9 +541,9 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
             )}>{personalInfo?.name || 'Your Name'}</h1>
           <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
             <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
           </div>
         </header>
         <div className="space-y-6">
@@ -550,7 +552,7 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 const Component = Sections[key];
                 return (
                     <Section key={key} title={sectionTitles[key]}>
-                        <Component resumeData={resumeData} designOptions={designOptions} />
+                        <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                     </Section>
                 )
             })}
@@ -560,7 +562,7 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 };
 
 
-const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
@@ -576,9 +578,9 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                     <h2 className="text-[11pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>Contact</h2>
                     <div className="space-y-1 text-xs">
                         <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                     </div>
                 </section>
                 {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
@@ -587,7 +589,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                     return (
                         <section key={key}>
                             <h2 className="text-[11pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </section>
                     );
                 })}
@@ -599,7 +601,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                     return (
                         <section key={key}>
                             <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </section>
                     );
                 })}
@@ -609,7 +611,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 };
 
 
-const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const sidebarKeys: (keyof typeof Sections)[] = ['skills', 'education', 'certifications', 'references'];
@@ -626,9 +628,9 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                     <section>
                         <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80', color: headerTextColor}}>Contact</h2>
                         <div className="space-y-2 text-xs">
-                          <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                          <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                          <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                          <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                          <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                          <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                           <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                         </div>
                     </section>
@@ -655,7 +657,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                         return (
                             <section key={key}>
                                 <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80', color: headerTextColor}}>{sectionTitles[key]}</h2>
-                                <Component resumeData={resumeData} designOptions={designOptions} />
+                                <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                             </section>
                         );
                     })}
@@ -668,7 +670,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                     return (
                         <section key={key}>
                             <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3 text-muted-foreground">{sectionTitles[key]}</h2>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </section>
                     );
                 })}
@@ -678,7 +680,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
 };
 
 
-const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder, experience } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -688,9 +690,9 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                 <h1 className="text-[24pt] font-bold">{personalInfo?.name || 'Your Name'}</h1>
                 {sectionHasContent('summary', resumeData) && <p className="mt-2 text-muted-foreground">{personalInfo?.summary}</p>}
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-3">
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                 </div>
             </header>
@@ -721,7 +723,7 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                         return (
                             <section key={key}>
                                 <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
-                                <Component resumeData={resumeData} designOptions={designOptions} />
+                                <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                             </section>
                         );
                     })}
@@ -731,7 +733,7 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
     );
 };
 
-const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
@@ -754,30 +756,30 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
                 </header>
                 <SidebarSection title="Contact">
                     <div className="space-y-1 text-sm">
-                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                         <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                     </div>
                 </SidebarSection>
                 {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
-                    return <SidebarSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></SidebarSection>
+                    return <SidebarSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} /></SidebarSection>
                 })}
             </div>
             <div className="col-span-9 pl-8 border-l space-y-6">
                  {(sectionOrder || defaultSectionOrder).filter(k => mainKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
-                    return <MainSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></MainSection>
+                    return <MainSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} /></MainSection>
                 })}
             </div>
         </div>
     );
 };
 
-const StartupTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const StartupTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -792,16 +794,16 @@ const StartupTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 {personalInfo.summary && <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">{personalInfo.summary}</p>}
                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-4">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 </div>
             </header>
             <div className="space-y-4 mt-6">
                  {(sectionOrder || defaultSectionOrder).filter(k => k !== 'summary').map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
-                    return <Section key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} /></Section>
+                    return <Section key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} /></Section>
                 })}
             </div>
         </div>
@@ -809,7 +811,7 @@ const StartupTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 };
 
 
-const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -819,8 +821,8 @@ const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
                 <h1 className="text-[22pt] font-semibold tracking-wider uppercase">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-3 tracking-widest">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
                 </div>
             </header>
             <div className="space-y-8">
@@ -830,7 +832,7 @@ const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
                     return (
                         <section key={key}>
                             <h2 className="text-[13pt] font-semibold tracking-[.2em] uppercase mb-4 text-center" style={{color}}>{sectionTitles[key]}</h2>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </section>
                     );
                 })}
@@ -839,7 +841,7 @@ const NordicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
     );
 };
 
-const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -851,9 +853,9 @@ const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
                     <h1 className="text-[28pt] font-bold tracking-tight">{personalInfo?.name || 'Your Name'}</h1>
                     <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                         <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                        <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                        <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                     </div>
                 </header>
                 <div className="space-y-6">
@@ -863,7 +865,7 @@ const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
                         return (
                             <section key={key}>
                                 <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-2" style={{color}}>{sectionTitles[key]}</h2>
-                                <Component resumeData={resumeData} designOptions={designOptions} />
+                                <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                             </section>
                         );
                     })}
@@ -873,7 +875,7 @@ const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
     );
 };
 
-const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions, isInteractive }) => {
     const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
@@ -884,9 +886,9 @@ const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
                 <div className="w-24 h-px mx-auto my-3" style={{backgroundColor: color}}></div>
                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
-                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
-                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} isInteractive={isInteractive} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} isInteractive={isInteractive} />
                 </div>
             </header>
             <div className="space-y-6">
@@ -896,7 +898,7 @@ const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
                     return (
                         <section key={key}>
                             <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3" style={{color}}>{sectionTitles[key]}</h2>
-                            <Component resumeData={resumeData} designOptions={designOptions} />
+                            <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
                         </section>
                     );
                 })}
@@ -906,7 +908,7 @@ const SignatureTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
 };
 
 
-export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
+export function ResumePreview({ resumeData, designOptions, className, isInteractive = true }: ResumePreviewProps) {
   const { font, template, fontSize, lineHeight } = designOptions;
   const fontClass = fontClasses[font] || 'font-inter';
   const fontSizeClass = fontSizeClasses[fontSize] || 'text-[11pt]';
@@ -940,7 +942,7 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
       )}
     >
       <div className={cn("h-full", fontSizeClass, lineHeightClass)}>
-        <TemplateComponent resumeData={resumeData} designOptions={designOptions} />
+        <TemplateComponent resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />
       </div>
     </div>
   );
