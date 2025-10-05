@@ -11,7 +11,7 @@ import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume
 import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
 import { extractResumeData } from '@/ai/flows/extract-resume-data';
 import mammoth from 'mammoth';
-import pdf from 'pdf-parse';
+import { unpdf } from 'unpdf';
 
 export async function getInitialResumeDraftAction(prompt: string) {
     try {
@@ -94,7 +94,7 @@ export async function uploadResumeAndExtractDataAction(formData: FormData) {
         let rawText = '';
 
         if (file.type === 'application/pdf') {
-            const data = await pdf(buffer);
+            const data = await unpdf(buffer);
             rawText = data.text;
         } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             const result = await mammoth.extractRawText({ buffer });
