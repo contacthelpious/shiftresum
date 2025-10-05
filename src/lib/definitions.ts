@@ -92,7 +92,28 @@ export const ResumeDataSchema = z.object({
     additionalInformation: AdditionalInformationSchema.optional(),
   }),
   design: z.object({
-    template: z.enum(['modern', 'classic', 'compact', 'professional', 'creative']).default('modern'),
+    template: z.enum([
+        'modern',
+        'classic',
+        'executive',
+        'minimal',
+        'bold',
+        'metro',
+        'elegant',
+        'compact',
+        'creative',
+        'timeline',
+        'professional',
+        'startup',
+        'nordic',
+        'focus',
+        'signature',
+        'neo',
+        'slate',
+        'infograph',
+        'urban',
+        'global'
+    ]).default('modern'),
     color: z.string().default('#2c3e50'), // default to primary color
     font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
   }),
@@ -138,7 +159,28 @@ export const defaultResumeFormData: ResumeFormData = {
 
 
 export const DesignOptionsSchema = z.object({
-  template: z.enum(['modern', 'classic', 'compact', 'professional', 'creative']).default('modern'),
+  template: z.enum([
+    'modern',
+    'classic',
+    'executive',
+    'minimal',
+    'bold',
+    'metro',
+    'elegant',
+    'compact',
+    'creative',
+    'timeline',
+    'professional',
+    'startup',
+    'nordic',
+    'focus',
+    'signature',
+    'neo',
+    'slate',
+    'infograph',
+    'urban',
+    'global'
+  ]).default('modern'),
   color: z.string().default('#2c3e50'), // default to primary color
   font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
 });

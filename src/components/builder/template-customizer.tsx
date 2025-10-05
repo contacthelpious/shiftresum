@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
@@ -35,9 +34,9 @@ const fonts = [
 const templates: { name: string, value: DesignOptions['template'] }[] = [
     { name: 'Modern', value: 'modern' },
     { name: 'Classic', value: 'classic' },
-    { name: 'Compact', value: 'compact' },
-    { name: 'Professional', value: 'professional' },
-    { name: 'Creative', value: 'creative' },
+    { name: 'Executive', value: 'executive' },
+    { name: 'Minimal', value: 'minimal' },
+    { name: 'Bold', value: 'bold' },
 ];
 
 type OpenSheet = 'template' | 'color' | 'font' | null;
