@@ -1,7 +1,6 @@
 
 'use client';
 
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -54,12 +53,12 @@ export function ResumeCard({ resume }: ResumeCardProps) {
     <Card className="overflow-hidden transition-all hover:shadow-lg group flex flex-col">
       <CardContent className="p-0">
         <Link href={`/builder?resumeId=${resume.id}`} className="block">
-          <div className="relative aspect-[3/4] overflow-hidden bg-muted/30">
-            <div className="transform scale-[0.25] origin-top-left pointer-events-none absolute -top-12 -left-12">
+          <div className="relative aspect-[3/4] overflow-hidden bg-muted/30 flex items-center justify-center">
+            <div className="transform scale-[0.2] origin-center pointer-events-none absolute">
                <ResumePreview resumeData={resume.data} designOptions={resume.design} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-0 p-3 text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
                 <h3 className="font-semibold truncate">{resume.title}</h3>
                 <p className="text-xs text-white/80">Last edited: {lastEdited}</p>
             </div>
