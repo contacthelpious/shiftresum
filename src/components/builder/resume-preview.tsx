@@ -33,7 +33,7 @@ const Section: React.FC<{ title: string; color: string; children: React.ReactNod
 
 // Modern Template
 const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-  const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
+  const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
   const { color } = designOptions;
 
   const renderDescription = (description: string | BulletPoint[] | undefined) => {
@@ -45,6 +45,15 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
     }
     return null;
   }
+
+  const renderFreeform = (details: string | undefined) => {
+    if (!details) return null;
+    return details.split('\n').map((item, index) => item.trim() && (
+      item.startsWith('- ') ? <li key={index} className="text-sm">{item.replace(/^- /, '')}</li> : <p key={index} className="text-sm">{item}</p>
+    ));
+  }
+  
+  const hasBulletPoints = (details: string | undefined) => details?.includes('- ');
 
   return (
     <>
@@ -143,6 +152,30 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
             ))}
           </div>
         </Section>
+
+        <Section title="Additional Information" color={color} show={!!additionalInformation?.details}>
+            {hasBulletPoints(additionalInformation?.details) ? (
+                <ul className="list-disc list-outside pl-5 space-y-1">
+                    {renderFreeform(additionalInformation?.details)}
+                </ul>
+            ) : (
+                renderFreeform(additionalInformation?.details)
+            )}
+        </Section>
+
+        <Section title="References" color={color} show={references && references.length > 0}>
+            <div className="grid grid-cols-2 gap-4">
+                {references?.map(ref => (
+                    <div key={ref.id}>
+                        <h3 className="font-semibold text-base">{ref.name}</h3>
+                        <p className="text-sm text-muted-foreground">{ref.company}</p>
+                        <p className="text-sm">{ref.email}</p>
+                        <p className="text-sm">{ref.phone}</p>
+                    </div>
+                ))}
+            </div>
+        </Section>
+
       </div>
     </>
   );
@@ -150,7 +183,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
 
 // Classic Template
 const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
+    const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
     const { color } = designOptions;
 
     const renderDescription = (description: string | BulletPoint[] | undefined) => {
@@ -162,6 +195,15 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
       }
       return null;
     }
+
+    const renderFreeform = (details: string | undefined) => {
+        if (!details) return null;
+        return details.split('\n').map((item, index) => item.trim() && (
+        item.startsWith('- ') ? <li key={index} className="text-sm">{item.replace(/^- /, '')}</li> : <p key={index} className="text-sm">{item}</p>
+        ));
+    }
+    
+    const hasBulletPoints = (details: string | undefined) => details?.includes('- ');
 
     return (
         <div className="text-left">
@@ -238,6 +280,27 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                 <Section title="Skills" color={color} show={skills && skills.length > 0}>
                     <p className="text-sm">{skills?.map(s => s.name).join(' | ')}</p>
                 </Section>
+                <Section title="Additional Information" color={color} show={!!additionalInformation?.details}>
+                    {hasBulletPoints(additionalInformation?.details) ? (
+                        <ul className="list-disc list-outside pl-5 space-y-1">
+                            {renderFreeform(additionalInformation?.details)}
+                        </ul>
+                    ) : (
+                        renderFreeform(additionalInformation?.details)
+                    )}
+                </Section>
+                <Section title="References" color={color} show={references && references.length > 0}>
+                    <div className="grid grid-cols-2 gap-4">
+                        {references?.map(ref => (
+                            <div key={ref.id}>
+                                <h3 className="font-semibold text-base">{ref.name}</h3>
+                                <p className="text-sm text-muted-foreground">{ref.company}</p>
+                                <p className="text-sm">{ref.email}</p>
+                                <p className="text-sm">{ref.phone}</p>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
             </div>
         </div>
     );
@@ -245,7 +308,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
 
 // Compact Template (Two-Column)
 const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
+    const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
     const { color } = designOptions;
 
     const renderDescription = (description: string | BulletPoint[] | undefined) => {
@@ -257,6 +320,15 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
       }
       return null;
     }
+
+    const renderFreeform = (details: string | undefined) => {
+        if (!details) return null;
+        return details.split('\n').map((item, index) => item.trim() && (
+        item.startsWith('- ') ? <li key={index} className="text-xs">{item.replace(/^- /, '')}</li> : <p key={index} className="text-xs">{item}</p>
+        ));
+    }
+    
+    const hasBulletPoints = (details: string | undefined) => details?.includes('- ');
 
     return (
         <div className="grid grid-cols-12 gap-x-8">
@@ -307,6 +379,18 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                         ))}
                     </div>
                 </Section>
+                 <Section title="References" color={color} show={references && references.length > 0}>
+                    <div className="space-y-3">
+                        {references?.map(ref => (
+                            <div key={ref.id} className="text-xs">
+                                <h3 className="font-semibold text-sm">{ref.name}</h3>
+                                <p className="text-muted-foreground">{ref.company}</p>
+                                <p>{ref.email}</p>
+                                <p>{ref.phone}</p>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
             </div>
             
             {/* Right Column */}
@@ -347,6 +431,16 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                         ))}
                     </div>
                 </Section>
+
+                <Section title="Additional Information" color={color} show={!!additionalInformation?.details}>
+                    {hasBulletPoints(additionalInformation?.details) ? (
+                        <ul className="list-disc list-outside pl-4 space-y-1">
+                            {renderFreeform(additionalInformation?.details)}
+                        </ul>
+                    ) : (
+                        renderFreeform(additionalInformation?.details)
+                    )}
+                </Section>
             </div>
         </div>
     );
@@ -354,7 +448,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
 
 // Professional Template
 const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
+    const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
     const { color } = designOptions;
 
     const renderDescription = (description: string | BulletPoint[] | undefined) => {
@@ -366,6 +460,15 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resu
       }
       return null;
     }
+
+    const renderFreeform = (details: string | undefined) => {
+        if (!details) return null;
+        return details.split('\n').map((item, index) => item.trim() && (
+        item.startsWith('- ') ? <li key={index} className="text-sm">{item.replace(/^- /, '')}</li> : <p key={index} className="text-sm">{item}</p>
+        ));
+    }
+    
+    const hasBulletPoints = (details: string | undefined) => details?.includes('- ');
 
     const Section: React.FC<{ title: string; show?: boolean, children: React.ReactNode }> = ({ title, show = true, children }) => {
         if (!show) return null;
@@ -461,6 +564,29 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resu
                     ))}
                 </div>
             </Section>
+            
+            <Section title="Additional Information" show={!!additionalInformation?.details}>
+                {hasBulletPoints(additionalInformation?.details) ? (
+                    <ul className="list-disc list-outside pl-5 space-y-1">
+                        {renderFreeform(additionalInformation?.details)}
+                    </ul>
+                ) : (
+                    renderFreeform(additionalInformation?.details)
+                )}
+            </Section>
+
+            <Section title="References" show={references && references.length > 0}>
+                <div className="grid grid-cols-2 gap-4">
+                    {references?.map(ref => (
+                        <div key={ref.id} className="text-sm">
+                            <h3 className="font-semibold">{ref.name}</h3>
+                            <p className="text-muted-foreground">{ref.company}</p>
+                            <p>{ref.email}</p>
+                            <p>{ref.phone}</p>
+                        </div>
+                    ))}
+                </div>
+            </Section>
 
         </div>
     );
@@ -468,7 +594,7 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resu
 
 // Creative Template
 const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects, certifications } = resumeData;
+    const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
     const { color } = designOptions;
 
     const renderDescription = (description: string | BulletPoint[] | undefined) => {
@@ -480,6 +606,15 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
       }
       return null;
     }
+    
+    const renderFreeform = (details: string | undefined) => {
+        if (!details) return null;
+        return details.split('\n').map((item, index) => item.trim() && (
+        item.startsWith('- ') ? <li key={index} className="text-xs">{item.replace(/^- /, '')}</li> : <p key={index} className="text-xs">{item}</p>
+        ));
+    }
+    
+    const hasBulletPoints = (details: string | undefined) => details?.includes('- ');
 
     return (
         <div className="grid grid-cols-12 gap-x-8 h-full">
@@ -518,6 +653,22 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                                         <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
                                         <p className="opacity-80">{edu.degree || 'Degree'}</p>
                                         <p className="opacity-80">{edu.graduationDate}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {references && references.length > 0 && (
+                        <div>
+                             <h2 className="text-sm font-bold uppercase tracking-widest mb-2 border-b-2 border-white/50 pb-1">References</h2>
+                             <div className="space-y-3 text-xs">
+                                {references?.map(ref => (
+                                    <div key={ref.id}>
+                                        <h3 className="font-semibold">{ref.name}</h3>
+                                        <p className="opacity-80">{ref.company}</p>
+                                        <p className="opacity-80">{ref.email}</p>
+                                        <p className="opacity-80">{ref.phone}</p>
                                     </div>
                                 ))}
                             </div>
@@ -579,6 +730,17 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                             </div>
                         ))}
                     </div>
+                </section>
+
+                <section>
+                    <h2 className="text-lg font-bold uppercase tracking-wider mb-2" style={{ color }}>Additional Information</h2>
+                    {hasBulletPoints(additionalInformation?.details) ? (
+                        <ul className="list-disc list-outside pl-4 space-y-1">
+                            {renderFreeform(additionalInformation?.details)}
+                        </ul>
+                    ) : (
+                        renderFreeform(additionalInformation?.details)
+                    )}
                 </section>
             </div>
         </div>

@@ -42,6 +42,11 @@ export function ResumeEditor() {
     name: "certifications",
   });
 
+  const { fields: referenceFields, append: appendReference, remove: removeReference } = useFieldArray({
+    control,
+    name: "references",
+  });
+
 
   return (
     <Form {...useFormContext()}>
@@ -218,6 +223,43 @@ export function ResumeEditor() {
                     ))}
                     <Button variant="outline" onClick={() => appendCertification({id: crypto.randomUUID(), name: '', issuingOrganization: '', date: ''})}>Add Certification</Button>
                 </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="additional-info">
+            <AccordionTrigger className="text-lg font-medium">Additional Information</AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-2">
+                <FormField name="additionalInformation.details" render={({ field }) => (
+                  <FormItem><FormLabel>Details</FormLabel><FormControl><Textarea rows={5} placeholder="Add any other relevant information, like publications, awards, or volunteer experience. Use '-' for bullet points." {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="references">
+            <AccordionTrigger className="text-lg font-medium">References</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-6 pt-2">
+                {referenceFields.map((field, index) => (
+                   <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
+                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeReference(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <FormField name={`references.${index}.name`} render={({ field }) => (
+                      <FormItem><FormLabel>Reference's Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`references.${index}.company`} render={({ field }) => (
+                      <FormItem><FormLabel>Company / Relationship</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`references.${index}.email`} render={({ field }) => (
+                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`references.${index}.phone`} render={({ field }) => (
+                        <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                ))}
+                <Button variant="outline" onClick={() => appendReference({id: crypto.randomUUID(), name: '', company: '', email: '', phone: ''})}>Add Reference</Button>
+              </div>
             </AccordionContent>
           </AccordionItem>
 

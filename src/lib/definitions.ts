@@ -63,6 +63,21 @@ export const CertificationSchema = z.object({
 
 export type Certification = z.infer<typeof CertificationSchema>;
 
+export const ReferenceSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().optional(),
+  company: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+});
+export type Reference = z.infer<typeof ReferenceSchema>;
+
+export const AdditionalInformationSchema = z.object({
+  details: z.string().optional(),
+});
+export type AdditionalInformation = z.infer<typeof AdditionalInformationSchema>;
+
+
 // This is the shape of the data stored in Firestore
 export const ResumeDataSchema = z.object({
   title: z.string().optional(),
@@ -73,6 +88,8 @@ export const ResumeDataSchema = z.object({
     skills: z.array(SkillSchema).optional(),
     projects: z.array(ProjectSchema).optional(),
     certifications: z.array(CertificationSchema).optional(),
+    references: z.array(ReferenceSchema).optional(),
+    additionalInformation: AdditionalInformationSchema.optional(),
   }),
   design: z.object({
     template: z.enum(['modern', 'classic', 'compact', 'professional', 'creative']).default('modern'),
@@ -93,6 +110,8 @@ export const ResumeFormSchema = z.object({
     skills: z.array(SkillSchema),
     projects: z.array(ProjectSchema),
     certifications: z.array(CertificationSchema),
+    references: z.array(ReferenceSchema),
+    additionalInformation: AdditionalInformationSchema,
 });
 export type ResumeFormData = z.infer<typeof ResumeFormSchema>;
 
@@ -111,6 +130,10 @@ export const defaultResumeFormData: ResumeFormData = {
   skills: [],
   projects: [],
   certifications: [],
+  references: [],
+  additionalInformation: {
+    details: '',
+  },
 };
 
 
