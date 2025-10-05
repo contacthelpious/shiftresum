@@ -86,7 +86,7 @@ export function ResumeEditor() {
             <AccordionContent>
               <div className="space-y-6 pt-2">
                 {experienceFields.map((field, index) => {
-                  const { fields: descFields, append: appendDesc, remove: removeDesc, update: updateDesc } = useFieldArray({
+                  const { fields: descFields, append: appendDesc, remove: removeDesc } = useFieldArray({
                     control,
                     name: `experience.${index}.description`
                   });
@@ -134,6 +134,29 @@ export function ResumeEditor() {
             </AccordionContent>
           </AccordionItem>
 
+          <AccordionItem value="projects">
+            <AccordionTrigger className="text-lg font-medium">Projects</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-6 pt-2">
+                {projectFields.map((field, index) => (
+                  <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
+                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeProject(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <FormField name={`projects.${index}.name`} render={({ field }) => (
+                      <FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`projects.${index}.link`} render={({ field }) => (
+                      <FormItem><FormLabel>Project Link</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField name={`projects.${index}.description`} render={({ field }) => (
+                      <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                ))}
+                <Button variant="outline" onClick={() => appendProject({id: crypto.randomUUID(), name: '', description: '', link: ''})}>Add Project</Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
           <AccordionItem value="education">
             <AccordionTrigger className="text-lg font-medium">Education</AccordionTrigger>
             <AccordionContent>
@@ -176,29 +199,6 @@ export function ResumeEditor() {
                  </div>
                 <Button variant="outline" onClick={() => appendSkill({ id: crypto.randomUUID(), name: '' })}>Add Skill</Button>
                 <AiSkillGenerator append={appendSkill} />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          
-          <AccordionItem value="projects">
-            <AccordionTrigger className="text-lg font-medium">Projects</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-6 pt-2">
-                {projectFields.map((field, index) => (
-                  <div key={field.id} className="rounded-md border p-4 space-y-4 relative bg-card">
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeProject(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                    <FormField name={`projects.${index}.name`} render={({ field }) => (
-                      <FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField name={`projects.${index}.link`} render={({ field }) => (
-                      <FormItem><FormLabel>Project Link</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField name={`projects.${index}.description`} render={({ field }) => (
-                      <FormItem><FormLabel>Description (use '-' for bullet points)</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl></FormItem>
-                    )} />
-                  </div>
-                ))}
-                <Button variant="outline" onClick={() => appendProject({id: crypto.randomUUID(), name: '', description: '', link: ''})}>Add Project</Button>
               </div>
             </AccordionContent>
           </AccordionItem>

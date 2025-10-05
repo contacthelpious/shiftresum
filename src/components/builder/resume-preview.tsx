@@ -128,6 +128,17 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
           </div>
         </Section>
 
+        <Section title="Skills" color={color} show={skills && skills.length > 0}>
+          <div className="flex flex-wrap gap-2">
+            {skills?.map(skill => (
+              skill.name &&
+              <span key={skill.id} className="bg-muted px-2 py-1 rounded text-sm">
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </Section>
+
         <Section title="Certifications" color={color} show={certifications && certifications.length > 0}>
             <div className="space-y-2">
                 {certifications?.map(cert => (
@@ -140,17 +151,6 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
                     </div>
                 ))}
             </div>
-        </Section>
-
-        <Section title="Skills" color={color} show={skills && skills.length > 0}>
-          <div className="flex flex-wrap gap-2">
-            {skills?.map(skill => (
-              skill.name &&
-              <span key={skill.id} className="bg-muted px-2 py-1 rounded text-sm">
-                {skill.name}
-              </span>
-            ))}
-          </div>
         </Section>
 
         <Section title="Additional Information" color={color} show={!!additionalInformation?.details}>
@@ -235,20 +235,6 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                         ))}
                     </div>
                 </Section>
-                <Section title="Education" color={color} show={education && education.length > 0}>
-                    <div className="space-y-2">
-                        {education?.map(edu => (
-                            <div key={edu.id} className="flex justify-between items-baseline">
-                                <div>
-                                    <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
-                                    <div className="italic text-sm text-muted-foreground">{edu.degree || 'Degree'}</div>
-                                    {edu.details && <div className="text-sm text-muted-foreground">{edu.details}</div>}
-                                </div>
-                                <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
-                            </div>
-                        ))}
-                    </div>
-                </Section>
                  <Section title="Projects" color={color} show={projects && projects.length > 0}>
                     <div className="space-y-4">
                         {projects?.map(proj => (
@@ -264,6 +250,23 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                         ))}
                     </div>
                 </Section>
+                <Section title="Education" color={color} show={education && education.length > 0}>
+                    <div className="space-y-2">
+                        {education?.map(edu => (
+                            <div key={edu.id} className="flex justify-between items-baseline">
+                                <div>
+                                    <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
+                                    <div className="italic text-sm text-muted-foreground">{edu.degree || 'Degree'}</div>
+                                    {edu.details && <div className="text-sm text-muted-foreground">{edu.details}</div>}
+                                </div>
+                                <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
+                <Section title="Skills" color={color} show={skills && skills.length > 0}>
+                    <p className="text-sm">{skills?.map(s => s.name).join(' | ')}</p>
+                </Section>
                 <Section title="Certifications" color={color} show={certifications && certifications.length > 0}>
                     <div className="space-y-2">
                        {certifications?.map(cert => (
@@ -276,9 +279,6 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                             </div>
                         ))}
                     </div>
-                </Section>
-                <Section title="Skills" color={color} show={skills && skills.length > 0}>
-                    <p className="text-sm">{skills?.map(s => s.name).join(' | ')}</p>
                 </Section>
                 <Section title="Additional Information" color={color} show={!!additionalInformation?.details}>
                     {hasBulletPoints(additionalInformation?.details) ? (
@@ -348,14 +348,6 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                     </div>
                 </div>
 
-                <Section title="Skills" color={color} show={skills && skills.length > 0} className="space-y-1">
-                  <div className="flex flex-wrap gap-1">
-                      {skills?.map(skill => (
-                          skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-xs">{skill.name}</span>
-                      ))}
-                  </div>
-                </Section>
-
                 <Section title="Education" color={color} show={education && education.length > 0}>
                     <div className="space-y-3">
                         {education?.map(edu => (
@@ -368,6 +360,15 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                         ))}
                     </div>
                 </Section>
+                
+                <Section title="Skills" color={color} show={skills && skills.length > 0} className="space-y-1">
+                  <div className="flex flex-wrap gap-1">
+                      {skills?.map(skill => (
+                          skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-xs">{skill.name}</span>
+                      ))}
+                  </div>
+                </Section>
+
                 <Section title="Certifications" color={color} show={certifications && certifications.length > 0}>
                     <div className="space-y-3">
                         {certifications?.map(cert => (
@@ -500,10 +501,6 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resu
                 <p className="text-sm">{personalInfo?.summary}</p>
             </Section>
 
-            <Section title="Skills" show={skills && skills.length > 0}>
-                <p className="text-sm">{skills?.map(s => s.name).filter(Boolean).join(' | ')}</p>
-            </Section>
-
             <Section title="Experience" show={experience && experience.length > 0}>
                 <div className="space-y-4">
                     {experience?.map(exp => (
@@ -549,6 +546,10 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resu
                         </div>
                     ))}
                 </div>
+            </Section>
+
+            <Section title="Skills" show={skills && skills.length > 0}>
+                <p className="text-sm">{skills?.map(s => s.name).filter(Boolean).join(' | ')}</p>
             </Section>
             
             <Section title="Certifications" show={certifications && certifications.length > 0}>
@@ -634,15 +635,6 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                             {personalInfo?.website && <p key="website" className="flex items-start gap-2"><Globe size={12} className="shrink-0 mt-0.5"/><span>{personalInfo.website}</span></p>}
                         </div>
                     </div>
-                    
-                    {skills && skills.length > 0 && (
-                        <div>
-                            <h2 className="text-sm font-bold uppercase tracking-widest mb-2 border-b-2 border-white/50 pb-1">Skills</h2>
-                            <ul className="text-xs space-y-1">
-                                {skills?.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
-                            </ul>
-                        </div>
-                    )}
 
                     {education && education.length > 0 && (
                         <div>
@@ -653,6 +645,30 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                                         <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
                                         <p className="opacity-80">{edu.degree || 'Degree'}</p>
                                         <p className="opacity-80">{edu.graduationDate}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {skills && skills.length > 0 && (
+                        <div>
+                            <h2 className="text-sm font-bold uppercase tracking-widest mb-2 border-b-2 border-white/50 pb-1">Skills</h2>
+                            <ul className="text-xs space-y-1">
+                                {skills?.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
+                            </ul>
+                        </div>
+                    )}
+
+                    {certifications && certifications.length > 0 && (
+                        <div>
+                             <h2 className="text-sm font-bold uppercase tracking-widest mb-2 border-b-2 border-white/50 pb-1">Certifications</h2>
+                             <div className="space-y-3 text-xs">
+                                {certifications?.map(cert => (
+                                    <div key={cert.id}>
+                                        <h3 className="font-semibold">{cert.name}</h3>
+                                        <p className="opacity-80">{cert.issuingOrganization}</p>
+                                        <p className="opacity-80">{cert.date}</p>
                                     </div>
                                 ))}
                             </div>
@@ -718,20 +734,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDa
                         ))}
                     </div>
                 </section>
-
-                <section>
-                    <h2 className="text-lg font-bold uppercase tracking-wider mb-2" style={{ color }}>Certifications</h2>
-                    <div className="space-y-3">
-                        {certifications?.map(cert => (
-                            <div key={cert.id}>
-                                <h3 className="font-semibold">{cert.name || 'Certification'}</h3>
-                                <p className="italic text-sm text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</p>
-                                <p className="text-xs text-muted-foreground">{cert.date}</p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
+                
                 <section>
                     <h2 className="text-lg font-bold uppercase tracking-wider mb-2" style={{ color }}>Additional Information</h2>
                     {hasBulletPoints(additionalInformation?.details) ? (
