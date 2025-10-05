@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { DesignOptions, ResumeFormData } from '@/lib/definitions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Palette, Pen, Type, X, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Palette, Pen, Type, X, AlignLeft, AlignCenter, AlignRight, TextQuote, Pilcrow } from 'lucide-react';
 import { ResumePreview } from './resume-preview';
 import { cn } from '@/lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import { Separator } from '../ui/separator';
 
 interface TemplateCustomizerProps {
   resumeData: ResumeFormData;
@@ -52,7 +53,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
       case 'color':
         content = (
           <>
-            <h3 className="font-semibold mb-4">Accent Color</h3>
+            <h3 className="font-semibold mb-4 text-center">Accent Color</h3>
             <div className="flex flex-wrap gap-3 justify-center">
               {colors.map(color => (
                 <button
@@ -70,20 +71,37 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
       case 'font':
         content = (
           <>
-            <h3 className="font-semibold mb-4">Typography</h3>
-            <div className="space-y-2">
-              <Label>Font Family</Label>
-              <Select
-                 value={designOptions.font}
-                 onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as 'Inter' | 'Roboto' | 'Lato'}))}
-              >
-                <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
-                <SelectContent>
-                  {fonts.map(font => (
-                    <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <h3 className="font-semibold mb-4 text-center">Typography</h3>
+            <div className="space-y-4">
+                <div className='space-y-2'>
+                    <Label>Font Family</Label>
+                    <Select
+                        value={designOptions.font}
+                        onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as 'Inter' | 'Roboto' | 'Lato'}))}
+                    >
+                        <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
+                        <SelectContent>
+                        {fonts.map(font => (
+                            <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className='space-y-2'>
+                    <Label>Font Size</Label>
+                    <ToggleGroup 
+                        type="single" 
+                        value={designOptions.fontSize} 
+                        onValueChange={(value) => {
+                            if (value) setDesignOptions(prev => ({...prev, fontSize: value as 'small' | 'medium' | 'large'}))
+                        }}
+                        className="w-full justify-center"
+                    >
+                        <ToggleGroupItem value="small" aria-label="Small font">Small</ToggleGroupItem>
+                        <ToggleGroupItem value="medium" aria-label="Medium font">Medium</ToggleGroupItem>
+                        <ToggleGroupItem value="large" aria-label="Large font">Large</ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
             </div>
           </>
         );
@@ -91,25 +109,39 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
       case 'alignment':
         content = (
           <>
-             <h3 className="font-semibold mb-4">Text Alignment</h3>
-             <ToggleGroup 
-                type="single" 
-                value={designOptions.alignment} 
-                onValueChange={(value) => {
-                    if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
-                }}
-                className="w-full justify-center"
-            >
-                <ToggleGroupItem value="left" aria-label="Align left">
-                    <AlignLeft />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="center" aria-label="Align center">
-                    <AlignCenter />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="right" aria-label="Align right">
-                    <AlignRight />
-                </ToggleGroupItem>
-             </ToggleGroup>
+             <h3 className="font-semibold mb-4 text-center">Layout</h3>
+             <div className="space-y-4">
+                <div className='space-y-2'>
+                    <Label>Text Alignment</Label>
+                    <ToggleGroup 
+                        type="single" 
+                        value={designOptions.alignment} 
+                        onValueChange={(value) => {
+                            if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
+                        }}
+                        className="w-full justify-center"
+                    >
+                        <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
+                        <ToggleGroupItem value="center" aria-label="Align center"><AlignCenter /></ToggleGroupItem>
+                        <ToggleGroupItem value="right" aria-label="Align right"><AlignRight /></ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
+                <div className='space-y-2'>
+                    <Label>Line Spacing</Label>
+                     <ToggleGroup 
+                        type="single" 
+                        value={designOptions.lineHeight} 
+                        onValueChange={(value) => {
+                            if (value) setDesignOptions(prev => ({...prev, lineHeight: value as 'compact' | 'standard' | 'relaxed'}))
+                        }}
+                        className="w-full justify-center"
+                    >
+                        <ToggleGroupItem value="compact" aria-label="Compact spacing">Compact</ToggleGroupItem>
+                        <ToggleGroupItem value="standard" aria-label="Standard spacing">Standard</ToggleGroupItem>
+                        <ToggleGroupItem value="relaxed" aria-label="Relaxed spacing">Relaxed</ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
+             </div>
           </>
         );
         break;
@@ -117,7 +149,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
         return null;
     }
     return (
-        <div className="p-4 relative">
+        <div className="p-4 pt-8 relative">
             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setOpenSheet(null)}><X className="h-4 w-4" /></Button>
             {content}
         </div>
@@ -197,8 +229,8 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                         <span>Font</span>
                     </Button>
                      <Button variant={openSheet === 'alignment' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('alignment')}>
-                        <AlignCenter className="mb-1 h-3 w-3" />
-                        <span>Align</span>
+                        <Pilcrow className="mb-1 h-3 w-3" />
+                        <span>Layout</span>
                     </Button>
                 </div>
             </div>

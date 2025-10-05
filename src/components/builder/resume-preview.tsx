@@ -20,6 +20,18 @@ const fontClasses: {[key: string]: string} = {
   Lato: '[font-family:Lato,sans-serif]',
 };
 
+const fontSizeClasses: {[key: string]: string} = {
+    small: 'text-[9.5pt]',
+    medium: 'text-[10pt]',
+    large: 'text-[10.5pt]',
+};
+
+const lineHeightClasses: {[key: string]: string} = {
+    compact: 'leading-snug',
+    standard: 'leading-normal',
+    relaxed: 'leading-relaxed',
+}
+
 // =================================================================
 // Reusable Helper Components & Functions
 // =================================================================
@@ -410,8 +422,10 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
 
 
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
-  const { font, template } = designOptions;
+  const { font, template, fontSize, lineHeight } = designOptions;
   const fontClass = fontClasses[font] || 'font-body';
+  const fontSizeClass = fontSizeClasses[fontSize] || 'text-[10pt]';
+  const lineHeightClass = lineHeightClasses[lineHeight] || 'leading-normal';
 
   const TemplateComponent = match(template)
     .with('classic', () => ClassicTemplate)
@@ -430,7 +444,7 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
         className
       )}
     >
-      <div className={cn("flex flex-col h-full text-[10pt] leading-snug")}>
+      <div className={cn("flex flex-col h-full", fontSizeClass, lineHeightClass)}>
         <TemplateComponent resumeData={resumeData} designOptions={designOptions} />
       </div>
     </div>

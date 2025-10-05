@@ -109,6 +109,8 @@ export const ResumeDataSchema = z.object({
     template: z.enum(['modern', 'classic', 'executive', 'minimal', 'bold']).default('modern'),
     color: z.string().default('#2c3e50'), // default to primary color
     font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
+    fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
+    lineHeight: z.enum(['compact', 'standard', 'relaxed']).default('standard'),
     alignment: z.enum(['left', 'center', 'right']).default('left'),
   }),
   createdAt: z.any().optional(),
@@ -162,6 +164,8 @@ export const DesignOptionsSchema = z.object({
   template: z.enum(['modern', 'classic', 'executive', 'minimal', 'bold']).default('modern'),
   color: z.string().default('#2c3e50'), // default to primary color
   font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
+  fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
+  lineHeight: z.enum(['compact', 'standard', 'relaxed']).default('standard'),
   alignment: z.enum(['left', 'center', 'right']).default('left'),
 });
 
@@ -171,5 +175,7 @@ export const defaultDesignOptions: DesignOptions = {
     template: 'modern',
     color: '#2c3e50',
     font: 'Inter',
+    fontSize: 'medium',
+    lineHeight: 'standard',
     alignment: 'left',
 };
