@@ -65,97 +65,88 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
     switch (openSheet) {
       case 'color':
         content = (
-          <>
-            <h3 className="font-semibold mb-4 text-center">Accent Color</h3>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {colors.map(color => (
-                <button
-                  key={color.value}
-                  title={color.name}
-                  className={`h-8 w-8 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-transparent'}`}
-                  style={{ backgroundColor: color.value }}
-                  onClick={() => setDesignOptions(prev => ({...prev, color: color.value}))}
-                />
-              ))}
-            </div>
-          </>
+          <div className="flex flex-wrap gap-3 justify-center">
+            {colors.map(color => (
+              <button
+                key={color.value}
+                title={color.name}
+                className={`h-8 w-8 rounded-full border-2 transition-all ${designOptions.color === color.value ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-transparent'}`}
+                style={{ backgroundColor: color.value }}
+                onClick={() => setDesignOptions(prev => ({...prev, color: color.value}))}
+              />
+            ))}
+          </div>
         );
         break;
       case 'font':
         content = (
-          <>
-            <h3 className="font-semibold mb-4 text-center">Typography</h3>
-            <div className="space-y-4">
-                <div className='space-y-2'>
-                    <Label>Font Family</Label>
-                    <Select
-                        value={designOptions.font}
-                        onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as DesignOptions['font']}))}
-                    >
-                        <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
-                        <SelectContent>
-                        {fonts.map(font => (
-                            <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className='space-y-2'>
-                    <Label>Font Size</Label>
-                    <ToggleGroup 
-                        type="single" 
-                        value={designOptions.fontSize} 
-                        onValueChange={(value) => {
-                            if (value) setDesignOptions(prev => ({...prev, fontSize: value as 'small' | 'medium' | 'large'}))
-                        }}
-                        className="w-full grid grid-cols-3"
-                    >
-                        <ToggleGroupItem value="small" aria-label="Small font">Small</ToggleGroupItem>
-                        <ToggleGroupItem value="medium" aria-label="Medium font">Medium</ToggleGroupItem>
-                        <ToggleGroupItem value="large" aria-label="Large font">Large</ToggleGroupItem>
-                    </ToggleGroup>
-                </div>
-            </div>
-          </>
+          <div className="space-y-4">
+              <div className='space-y-2'>
+                  <Label>Font Family</Label>
+                  <Select
+                      value={designOptions.font}
+                      onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as DesignOptions['font']}))}
+                  >
+                      <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
+                      <SelectContent>
+                      {fonts.map(font => (
+                          <SelectItem key={font.value} value={font.value}>{font.name}</SelectItem>
+                      ))}
+                      </SelectContent>
+                  </Select>
+              </div>
+              <div className='space-y-2'>
+                  <Label>Font Size</Label>
+                  <ToggleGroup 
+                      type="single" 
+                      value={designOptions.fontSize} 
+                      onValueChange={(value) => {
+                          if (value) setDesignOptions(prev => ({...prev, fontSize: value as 'small' | 'medium' | 'large'}))
+                      }}
+                      className="w-full grid grid-cols-3"
+                  >
+                      <ToggleGroupItem value="small" aria-label="Small font">Small</ToggleGroupItem>
+                      <ToggleGroupItem value="medium" aria-label="Medium font">Medium</ToggleGroupItem>
+                      <ToggleGroupItem value="large" aria-label="Large font">Large</ToggleGroupItem>
+                  </ToggleGroup>
+              </div>
+          </div>
         );
         break;
       case 'layout':
         content = (
-          <>
-             <h3 className="font-semibold mb-4 text-center">Layout</h3>
-             <div className="space-y-4">
-                <div className='space-y-2'>
-                    <Label>Text Alignment</Label>
-                    <ToggleGroup 
-                        type="single" 
-                        value={designOptions.alignment} 
-                        onValueChange={(value) => {
-                            if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
-                        }}
-                        className="w-full grid grid-cols-3"
-                    >
-                        <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
-                        <ToggleGroupItem value="center" aria-label="Align center"><AlignCenter /></ToggleGroupItem>
-                        <ToggleGroupItem value="right" aria-label="Align right"><AlignRight /></ToggleGroupItem>
-                    </ToggleGroup>
-                </div>
-                <div className='space-y-2'>
-                    <Label>Line Spacing</Label>
-                     <ToggleGroup 
-                        type="single" 
-                        value={designOptions.lineHeight} 
-                        onValueChange={(value) => {
-                            if (value) setDesignOptions(prev => ({...prev, lineHeight: value as 'compact' | 'standard' | 'relaxed'}))
-                        }}
-                        className="w-full grid grid-cols-3"
-                    >
-                        <ToggleGroupItem value="compact" aria-label="Compact spacing">Compact</ToggleGroupItem>
-                        <ToggleGroupItem value="standard" aria-label="Standard spacing">Standard</ToggleGroupItem>
-                        <ToggleGroupItem value="relaxed" aria-label="Relaxed spacing">Relaxed</ToggleGroupItem>
-                    </ToggleGroup>
-                </div>
-             </div>
-          </>
+           <div className="space-y-4">
+              <div className='space-y-2'>
+                  <Label>Text Alignment</Label>
+                  <ToggleGroup 
+                      type="single" 
+                      value={designOptions.alignment} 
+                      onValueChange={(value) => {
+                          if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
+                      }}
+                      className="w-full grid grid-cols-3"
+                  >
+                      <ToggleGroupItem value="left" aria-label="Align left"><AlignLeft /></ToggleGroupItem>
+                      <ToggleGroupItem value="center" aria-label="Align center"><AlignCenter /></ToggleGroupItem>
+                      <ToggleGroupItem value="right" aria-label="Align right"><AlignRight /></ToggleGroupItem>
+                  </ToggleGroup>
+              </div>
+              <div className='space-y-2'>
+                  <Label>Line Spacing</Label>
+                   <ToggleGroup 
+                      type="single" 
+                      value={designOptions.lineHeight} 
+                      onValueChange={(value) => {
+                          if (value) setDesignOptions(prev => ({...prev, lineHeight: value as 'compact' | 'standard' | 'relaxed'}))
+                      }}
+                      className="w-full grid grid-cols-3"
+                  >
+                      <ToggleGroupItem value="compact" aria-label="Compact spacing">Compact</ToggleGroupItem>
+                      <ToggleGroupItem value="standard" aria-label="Standard spacing">Standard</ToggleGroupItem>
+                      <ToggleGroupItem value="relaxed" aria-label="Relaxed spacing">Relaxed</ToggleGroupItem>
+                  </ToggleGroup>
+              </div>
+           </div>
         );
         break;
       default:
