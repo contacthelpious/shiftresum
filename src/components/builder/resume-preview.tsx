@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { ResumeFormData, DesignOptions, BulletPoint } from '@/lib/definitions';
+import type { ResumeFormData, DesignOptions, BulletPoint, SectionKey } from '@/lib/definitions';
 import { Mail, Phone, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -34,6 +34,8 @@ const lineHeightClasses: {[key: string]: string} = {
     standard: 'leading-normal',
     relaxed: 'leading-relaxed',
 }
+
+const defaultSectionOrder: SectionKey[] = ['summary', 'experience', 'projects', 'education', 'skills', 'certifications', 'additionalInformation', 'references'];
 
 // =================================================================
 // Reusable Helper Components & Functions
@@ -218,7 +220,7 @@ const sectionTitles: { [key in keyof typeof Sections]: string } = {
 // =================================================================
 
 const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-  const { personalInfo, sectionOrder } = resumeData;
+  const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
   const { color, alignment } = designOptions;
   
   const sidebarSections: React.ReactNode[] = [];
@@ -280,7 +282,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
 
 
 const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
@@ -319,7 +321,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 
 
 const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
 
     const mainSections: React.ReactNode[] = [];
@@ -374,7 +376,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
 
 
 const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
@@ -417,7 +419,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 
 
 const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const headerTextColor = getContrastColor(color);
     
@@ -456,7 +458,7 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
 };
 
 const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const headerTextColor = getContrastColor(color);
 
@@ -513,7 +515,7 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
 };
 
 const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-  const { personalInfo, sectionOrder } = resumeData;
+  const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
   const { color, alignment, font } = designOptions;
 
   const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
@@ -557,7 +559,7 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 
 
 const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     
     const sidebarKeys: (keyof typeof Sections)[] = ['summary', 'skills', 'education', 'certifications', 'references'];
@@ -606,7 +608,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
 
 
 const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder } = resumeData;
     const { color, alignment } = designOptions;
     const sidebarKeys: (keyof typeof Sections)[] = ['skills', 'education', 'certifications', 'references'];
     const headerTextColor = getContrastColor(color);
@@ -635,7 +637,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                         if (key === 'skills') {
                             return (
                                 <section key={key}>
-                                    <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80'}}>Skills</h2>
+                                    <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80', color: headerTextColor}}>Skills</h2>
                                     <div className="flex flex-wrap gap-1">
                                         {resumeData.skills.map(skill => skill.name && 
                                             <span key={skill.id} className="px-2 py-1 rounded text-[0.9em]" style={{ backgroundColor: headerTextColor + '20', color: headerTextColor }}>
@@ -675,7 +677,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
 
 
 const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
-    const { personalInfo, sectionOrder, experience } = resumeData;
+    const { personalInfo, sectionOrder = defaultSectionOrder, experience } = resumeData;
     const { color, alignment } = designOptions;
 
     return (
@@ -762,3 +764,5 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
+
+    
