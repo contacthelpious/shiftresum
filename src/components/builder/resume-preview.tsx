@@ -174,7 +174,7 @@ const Sections = {
     </div>
   ),
   additionalInformation: ({ resumeData }: { resumeData: ResumeFormData }) => (
-    renderFreeform(resumeData.additionalInformation.details)
+    renderFreeform(resumeData.additionalInformation?.details)
   ),
   references: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -191,15 +191,16 @@ const Sections = {
 };
 
 const sectionHasContent = (key: keyof typeof Sections, resumeData: ResumeFormData) => {
+  if (!resumeData) return false;
   switch (key) {
-    case 'summary': return !!resumeData.personalInfo.summary;
-    case 'experience': return resumeData.experience.length > 0 && resumeData.experience.some(e => e.role || e.company);
-    case 'projects': return resumeData.projects.length > 0 && resumeData.projects.some(p => p.name);
-    case 'education': return resumeData.education.length > 0 && resumeData.education.some(e => e.institution || e.degree);
-    case 'skills': return resumeData.skills.length > 0 && resumeData.skills.some(s => s.name);
-    case 'certifications': return resumeData.certifications.length > 0 && resumeData.certifications.some(c => c.name);
-    case 'additionalInformation': return !!resumeData.additionalInformation.details;
-    case 'references': return resumeData.references.length > 0 && resumeData.references.some(r => r.name);
+    case 'summary': return !!resumeData.personalInfo?.summary;
+    case 'experience': return !!resumeData.experience?.length && resumeData.experience.some(e => e.role || e.company);
+    case 'projects': return !!resumeData.projects?.length && resumeData.projects.some(p => p.name);
+    case 'education': return !!resumeData.education?.length && resumeData.education.some(e => e.institution || e.degree);
+    case 'skills': return !!resumeData.skills?.length && resumeData.skills.some(s => s.name);
+    case 'certifications': return !!resumeData.certifications?.length && resumeData.certifications.some(c => c.name);
+    case 'additionalInformation': return !!resumeData.additionalInformation?.details;
+    case 'references': return !!resumeData.references?.length && resumeData.references.some(r => r.name);
     default: return false;
   }
 };
@@ -241,7 +242,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
   );
   
   // Decide which sections go into the sidebar vs main content
-  sectionOrder.forEach(key => {
+  (sectionOrder || defaultSectionOrder).forEach(key => {
     if (!sectionHasContent(key, resumeData)) return;
 
     const Component = Sections[key];
@@ -305,7 +306,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 </div>
             </header>
             <div className="space-y-6">
-                {sectionOrder.map(key => {
+                {(sectionOrder || defaultSectionOrder).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
                     return (
@@ -336,7 +337,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     );
     
     // Dynamic section allocation based on user order
-    sectionOrder.forEach(key => {
+    (sectionOrder || defaultSectionOrder).forEach(key => {
       if (!sectionHasContent(key, resumeData)) return;
       
       const Component = Sections[key];
@@ -401,7 +402,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
             </header>
             
             <div className="space-y-6">
-                {sectionOrder.map(key => {
+                {(sectionOrder || defaultSectionOrder).map(key => {
                      if (!sectionHasContent(key, resumeData) || key === 'summary') return null;
                      const Component = Sections[key];
                      return (
@@ -443,7 +444,7 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
             </header>
             
             <div className="space-y-8">
-                {sectionOrder.map(key => {
+                {(sectionOrder || defaultSectionOrder).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
                     return (
@@ -499,7 +500,7 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
           </div>
         </div>
         <div className="w-2/3 p-8 space-y-6">
-          {sectionOrder.map(key => {
+          {(sectionOrder || defaultSectionOrder).map(key => {
             if (!sectionHasContent(key, resumeData) || ['education', 'skills'].includes(key)) return null;
             const Component = Sections[key];
             return (
@@ -543,7 +544,7 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
           </div>
         </header>
         <div className="space-y-6">
-            {sectionOrder.map(key => {
+            {(sectionOrder || defaultSectionOrder).map(key => {
                 if (!sectionHasContent(key, resumeData)) return null;
                 const Component = Sections[key];
                 return (
@@ -579,7 +580,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                         <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
                     </div>
                 </section>
-                {sectionOrder.filter(k => sidebarKeys.includes(k)).map(key => {
+                {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
                     return (
@@ -591,7 +592,7 @@ const CompactTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 })}
             </div>
             <div className="col-span-8 space-y-6">
-                {sectionOrder.filter(k => !sidebarKeys.includes(k)).map(key => {
+                {(sectionOrder || defaultSectionOrder).filter(k => !sidebarKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
                     return (
@@ -630,7 +631,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                           <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                         </div>
                     </section>
-                     {sectionOrder.filter(k => sidebarKeys.includes(k)).map(key => {
+                     {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
                         if (!sectionHasContent(key, resumeData)) return null;
 
                         // Special rendering for skills in creative template sidebar
@@ -660,7 +661,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                 </div>
             </div>
             <div className="w-2/3 p-8 space-y-6">
-                 {sectionOrder.filter(k => !sidebarKeys.includes(k)).map(key => {
+                 {(sectionOrder || defaultSectionOrder).filter(k => !sidebarKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
                     return (
@@ -713,7 +714,7 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                 )}
 
                 <div className="grid grid-cols-2 gap-8 pt-4">
-                    {sectionOrder.filter(k => k !== 'experience' && k !== 'summary').map(key => {
+                    {(sectionOrder || defaultSectionOrder).filter(k => k !== 'experience' && k !== 'summary').map(key => {
                         if (!sectionHasContent(key, resumeData)) return null;
                         const Component = Sections[key];
                         return (
@@ -764,5 +765,3 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
-
-    
