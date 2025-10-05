@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -68,26 +67,42 @@ export default function BuilderPage() {
     }
   }, [stripeStatus, router, toast, searchParams]);
 
-  useEffect(() => {
+ useEffect(() => {
+    // This effect handles the initial data loading logic for the form.
+    
+    // 1. Check for data from a just-uploaded resume. This is the highest priority.
+    const parsedDataString = sessionStorage.getItem('parsedResumeData');
+    if (parsedDataString) {
+      try {
+        const parsedData = JSON.parse(parsedDataString);
+        methods.reset(parsedData); // Load the uploaded data into the form.
+      } catch (error) {
+        console.error("Error processing sessionStorage data:", error);
+        methods.reset(defaultResumeFormData); // Fallback on error.
+      } finally {
+         // CRITICAL: Clean up sessionStorage immediately after use.
+         // This prevents this block from running again on subsequent renders
+         // and ensures the form isn't accidentally reset.
+        sessionStorage.removeItem('parsedResumeData');
+      }
+      return; // IMPORTANT: Stop execution to prevent other conditions from overwriting the form.
+    }
+
+    // 2. If not from an upload, check if we are loading an existing resume from Firestore.
     if (resumeData) {
       methods.reset(resumeData.data);
       setDesignOptions(resumeData.design);
-    } else if (resumeId === null || resumeId === '__new__') {
-      try {
-        const parsedDataString = sessionStorage.getItem('parsedResumeData');
-        if (parsedDataString) {
-          const parsedData = JSON.parse(parsedDataString);
-          methods.reset(parsedData);
-          sessionStorage.removeItem('parsedResumeData');
-        } else {
-          methods.reset(defaultResumeFormData);
-        }
-      } catch (error) {
-        console.error("Error processing sessionStorage data:", error);
-        methods.reset(defaultResumeFormData);
-      }
+      return; // Stop execution.
     }
-  }, [resumeData, resumeId, methods]);
+
+    // 3. As a last resort, if this is a brand new resume and we aren't loading an existing one,
+    //    use the default placeholder data. This condition is safe because the upload case
+    //    is handled and stopped above.
+    if (resumeId === '__new__' && !isResumeLoading) {
+      methods.reset(defaultResumeFormData);
+    }
+  }, [resumeData, isResumeLoading, resumeId, methods]);
+
 
   useEffect(() => {
     if (action === 'download' && !isSubDataLoading) {

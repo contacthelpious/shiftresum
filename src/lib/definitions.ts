@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const PersonalInfoSchema = z.object({
@@ -100,41 +99,16 @@ export type ResumeFormData = z.infer<typeof ResumeFormSchema>;
 
 export const defaultResumeFormData: ResumeFormData = {
   personalInfo: {
-    name: 'John Doe',
-    email: 'john.doe@email.com',
-    phone: '123-456-7890',
-    location: 'San Francisco, CA',
-    website: 'johndoe.com',
-    summary: 'A passionate Full-Stack Developer with experience in building web applications with React, Node.js, and modern cloud technologies. Eager to contribute to a challenging and innovative environment.',
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    website: '',
+    summary: '',
   },
-  experience: [
-    {
-      id: crypto.randomUUID(),
-      company: 'Tech Solutions Inc.',
-      role: 'Senior Software Engineer',
-      startDate: 'Jan 2020',
-      endDate: 'Present',
-      description: [
-        { id: crypto.randomUUID(), value: 'Led the development of a new client-facing dashboard using React and TypeScript.' },
-        { id: crypto.randomUUID(), value: 'Optimized backend services, resulting in a 30% reduction in API response times.' },
-        { id: crypto.randomUUID(), value: 'Mentored junior engineers and conducted code reviews.' },
-      ]
-    },
-  ],
-  education: [
-    {
-      id: crypto.randomUUID(),
-      institution: 'University of Technology',
-      degree: 'B.S. in Computer Science',
-      graduationDate: 'May 2017',
-      details: 'GPA: 3.8/4.0, Magna Cum Laude',
-    },
-  ],
-  skills: [
-    { id: crypto.randomUUID(), name: 'JavaScript' },
-    { id: crypto.randomUUID(), name: 'TypeScript' },
-    { id: crypto.randomUUID(), name: 'React' },
-  ],
+  experience: [],
+  education: [],
+  skills: [],
   projects: [],
   certifications: [],
 };

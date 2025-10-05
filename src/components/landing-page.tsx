@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +5,6 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wand2, Palette, FileDown, UploadCloud, FilePenLine, CheckCircle2 } from 'lucide-react';
-import { Logo } from './logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { UploadResumeButton } from './upload-resume-button';
 import { SharedHeader } from './shared/header';
@@ -89,7 +87,7 @@ export function LandingPageContent() {
               <Button size="lg" asChild>
                 <Link href={ctaLink}>Create My Resume</Link>
               </Button>
-              <UploadResumeButton />
+              <UploadResumeButton size="lg" />
             </div>
           </motion.div>
         </section>

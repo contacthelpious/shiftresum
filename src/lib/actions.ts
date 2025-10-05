@@ -1,4 +1,3 @@
-
 'use server';
 
 import 'dotenv/config';
@@ -47,15 +46,10 @@ export async function parseResumeAction(formData: FormData) {
         
         // Add unique IDs to array items if they don't have one from the merge
         fullData.experience?.forEach(exp => {
-            if (!exp.id) exp.id = crypto.randomUUID();
+            exp.id = crypto.randomUUID();
             // Handle description conversion from string (old format) to array of objects
-            if (typeof exp.description === 'string') {
-                exp.description = exp.description.split('\n').filter(line => line.trim().startsWith('-')).map(line => ({
-                    id: crypto.randomUUID(),
-                    value: line.trim().substring(1).trim()
-                }));
-            } else if (Array.isArray(exp.description)) {
-                 exp.description.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+            if (Array.isArray(exp.description)) {
+                 exp.description.forEach(item => { item.id = crypto.randomUUID() });
             }
         });
 

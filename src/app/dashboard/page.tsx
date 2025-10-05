@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -8,17 +7,14 @@ import { PlusCircle, Loader2 } from "lucide-react";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import type { ResumeData, ResumeFormData } from "@/lib/definitions";
+import { collection } from "firebase/firestore";
+import type { ResumeData } from "@/lib/definitions";
 import { UploadResumeButton } from '@/components/upload-resume-button';
-import { defaultResumeFormData } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
-    const { toast } = useToast();
 
     const resumesRef = useMemoFirebase(() => {
         if (isUserLoading || !user) return null;
@@ -67,7 +63,7 @@ export default function DashboardPage() {
                     <PlusCircle className="mr-2 h-4 w-4" />
                     New Resume
                 </Button>
-                <UploadResumeButton />
+                <UploadResumeButton className="w-full sm:w-auto" />
             </div>
         </CardHeader>
         <CardContent>

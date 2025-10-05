@@ -19,14 +19,19 @@ const ParseResumeInputSchema = z.object({
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
 // Define a clean, simple output schema for the AI model.
-// All fields are optional, and there are no complex transformations or defaults.
+// This schema matches the application's internal data structure to prevent validation errors.
 const ParseResumeOutputSchema = z.object({
-  personalInfo: PersonalInfoSchema.optional(),
-  experience: z.array(ExperienceSchema).optional(),
-  education: z.array(EducationSchema).optional(),
-  skills: z.array(SkillSchema).optional(),
-  projects: z.array(ProjectSchema).optional(),
-  certifications: z.array(CertificationSchema).optional(),
+  personalInfo: PersonalInfoSchema.default({}),
+  experience: z.array(ExperienceSchema.extend({
+      // The AI provides string descriptions, which will be converted to bullet points on the server.
+      // IDs are generated on the server, so they are not required from the AI.
+      id: z.string().optional(),
+      description: z.array(z.string()).optional().default([]),
+  })).default([]),
+  education: z.array(EducationSchema.omit({ id: true })).default([]),
+  skills: z.array(SkillSchema.omit({ id: true })).default([]),
+  projects: z.array(ProjectSchema.omit({ id: true })).default([]),
+  certifications: z.array(CertificationSchema.omit({ id: true })).default([]),
 }).describe('The structured data extracted from the resume.');
 export type ParseResumeOutput = z.infer<typeof ParseResumeOutputSchema>;
 
@@ -41,7 +46,8 @@ const prompt = ai.definePrompt({
   output: { schema: ParseResumeOutputSchema },
   prompt: `You are an expert resume parser. Analyze the following resume content and extract as much structured information as possible. Provide the output in the requested JSON format.
 
-If a section (like projects or certifications) is not present, omit it from the output. For descriptions, maintain the original line breaks.
+For the 'experience' section, provide the 'description' as an array of strings, where each string is a single bullet point or responsibility.
+If a section (like projects or certifications) is not present, return an empty array for that field.
 
 Resume Content:
 \`\`\`
