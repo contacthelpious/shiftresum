@@ -9,6 +9,9 @@ import { generateSummaryFromPrompt } from '@/ai/flows/generate-summary-from-prom
 import { generateExperienceDescription } from '@/ai/flows/generate-experience-description';
 import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume';
 import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
+import { extractResumeData } from '@/ai/flows/extract-resume-data';
+import mammoth from 'mammoth';
+import pdf from 'pdf-parse';
 
 export async function getInitialResumeDraftAction(prompt: string) {
     try {
@@ -77,5 +80,37 @@ export async function regenerateBulletPointAction(role: string, company: string 
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Failed to regenerate bullet point.' };
+    }
+}
+
+export async function uploadResumeAndExtractDataAction(formData: FormData) {
+    const file = formData.get('resume') as File | null;
+    if (!file) {
+        return { success: false, error: 'No file uploaded.' };
+    }
+
+    try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        let rawText = '';
+
+        if (file.type === 'application/pdf') {
+            const data = await pdf(buffer);
+            rawText = data.text;
+        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            const result = await mammoth.extractRawText({ buffer });
+            rawText = result.value;
+        } else {
+            return { success: false, error: 'Unsupported file type. Please upload a PDF or DOCX file.' };
+        }
+
+        if (!rawText.trim()) {
+            return { success: false, error: 'Could not extract text from the document.' };
+        }
+
+        const structuredData = await extractResumeData({ resumeText: rawText });
+        return { success: true, data: structuredData };
+    } catch (error) {
+        console.error('Error processing resume:', error);
+        return { success: false, error: 'Failed to process the uploaded resume.' };
     }
 }

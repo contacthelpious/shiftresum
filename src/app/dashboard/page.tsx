@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -9,6 +10,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebas
 import { useRouter } from "next/navigation";
 import { collection } from "firebase/firestore";
 import type { ResumeData } from "@/lib/definitions";
+import { UploadResumeCard } from '@/components/dashboard/upload-resume-card';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -51,17 +53,27 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
       </div>
 
+       <div className="grid gap-8 mb-8 md:grid-cols-2">
+            <Card>
+                 <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Create New Resume</CardTitle>
+                        <CardDescription>Start from scratch with a template.</CardDescription>
+                    </div>
+                    <Button onClick={handleNewResume} size="lg">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New
+                    </Button>
+                </CardHeader>
+            </Card>
+            <UploadResumeCard />
+       </div>
+
       <Card>
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <CardHeader>
             <div>
                 <CardTitle>Recent Resumes</CardTitle>
                 <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-                <Button onClick={handleNewResume} className="w-full sm:w-auto">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    New Resume
-                </Button>
             </div>
         </CardHeader>
         <CardContent>
@@ -79,13 +91,7 @@ export default function DashboardPage() {
           ) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">
                 <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
-                <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
-                <div className="flex justify-center gap-2 mt-4">
-                    <Button onClick={handleNewResume}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Create Resume
-                    </Button>
-                </div>
+                <p className="text-sm text-muted-foreground mt-1">Create or upload a resume to get started.</p>
             </div>
           )}
         </CardContent>

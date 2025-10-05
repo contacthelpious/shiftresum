@@ -10,3 +10,4 @@ import '@/ai/flows/generate-summary-from-prompt';
 import '@/ai/flows/generate-experience-description';
 import '@/ai/flows/generate-skills-from-resume';
 import '@/ai/flows/regenerate-bullet-point';
+import '@/ai/flows/extract-resume-data';
