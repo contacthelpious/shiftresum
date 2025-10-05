@@ -184,12 +184,12 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                   transition={{ duration: 0.2 }}
                   className="mb-2"
                 >
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
                     {templates.map(template => (
                         <div 
                             key={template.value}
                             className={cn(
-                                "cursor-pointer border-2 rounded-lg overflow-hidden transition-all bg-background shadow-lg",
+                                "cursor-pointer border-2 rounded-lg overflow-hidden transition-all bg-background shadow-lg w-[100px] shrink-0",
                                 designOptions.template === template.value ? "border-primary ring-2 ring-primary" : "border-transparent hover:border-primary/50"
                             )}
                             onClick={() => setDesignOptions(prev => ({...prev, template: template.value}))}
