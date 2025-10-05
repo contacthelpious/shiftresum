@@ -22,12 +22,12 @@ export function SharedHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
-        <div className="flex-1 flex justify-start">
+        <div className="flex w-1/3 justify-start">
             <Link href="/">
                 <Logo />
             </Link>
         </div>
-        <nav className="hidden md:flex flex-1 justify-center">
+        <nav className="hidden md:flex w-1/3 justify-center">
             <ul className="flex items-center space-x-6">
                 {navLinks.map(link => (
                     <li key={link.href}>
@@ -38,7 +38,7 @@ export function SharedHeader() {
                 ))}
             </ul>
         </nav>
-        <div className="flex-1 flex justify-end">
+        <div className="flex w-1/3 justify-end">
           {isUserLoading ? (
              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           ) : user ? (

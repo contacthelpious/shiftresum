@@ -40,14 +40,14 @@ export function BuilderHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-card no-print">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
-        <div className="flex-1 flex justify-start">
+        <div className="flex justify-start">
             {!isUserLoading && (
               <Link href={user ? "/dashboard" : "/"}>
                   <Logo />
               </Link>
             )}
         </div>
-        <div className="flex-1 flex justify-end">
+        <div className="flex justify-end">
             <div className="flex items-center space-x-4">
               {isUserLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
