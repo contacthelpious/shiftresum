@@ -2,14 +2,16 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { UploadCloud, Loader2 } from 'lucide-react';
 import { parseResumeAction } from '@/lib/actions';
 import { defaultResumeData, ResumeDataSchema } from '@/lib/definitions';
 import { merge } from 'lodash';
+import { cn } from '@/lib/utils';
 
-export function UploadResumeButton() {
+export function UploadResumeButton(props: Omit<ButtonProps, 'onClick' | 'disabled' | 'children' | 'size'> & { size?: ButtonProps['size']}) {
+  const { className, size, ...rest } = props;
   const router = useRouter();
   const { toast } = useToast();
   const [isParsing, setIsParsing] = useState(false);
@@ -29,7 +31,7 @@ export function UploadResumeButton() {
 
       if (result.success && result.data) {
         sessionStorage.setItem('parsedResumeData', JSON.stringify(result.data));
-        router.push('/builder');
+        router.push('/builder?resumeId=__new__');
         
         toast({
           title: 'Resume Parsed!',
@@ -58,6 +60,8 @@ export function UploadResumeButton() {
     fileInputRef.current?.click();
   };
 
+  const isLarge = size === 'lg';
+
   return (
     <>
       <input
@@ -69,15 +73,17 @@ export function UploadResumeButton() {
         disabled={isParsing}
       />
       <Button
-        size="lg"
+        size={size}
         variant="outline"
         onClick={handleButtonClick}
         disabled={isParsing}
+        className={cn("w-full sm:w-auto", className)}
+        {...rest}
       >
         {isParsing ? (
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          <Loader2 className={cn("mr-2", isLarge ? "h-5 w-5" : "h-4 w-4", "animate-spin")} />
         ) : (
-          <UploadCloud className="mr-2 h-5 w-5" />
+          <UploadCloud className={cn("mr-2", isLarge ? "h-5 w-5" : "h-4 w-4")} />
         )}
         <span>{isParsing ? 'Parsing...' : 'Upload Resume'}</span>
       </Button>

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import type { ResumeData } from "@/lib/definitions";
 import { defaultResumeFormData, defaultDesignOptions } from "@/lib/definitions";
+import { UploadResumeButton } from '@/components/upload-resume-button';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -68,15 +69,18 @@ export default function DashboardPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
                 <CardTitle>Recent Resumes</CardTitle>
                 <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
             </div>
-            <Button onClick={handleNewResume}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Resume
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+                <Button onClick={handleNewResume} className="w-full sm:w-auto">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Resume
+                </Button>
+                <UploadResumeButton />
+            </div>
         </CardHeader>
         <CardContent>
           {isResumesLoading && !resumes ? (
@@ -93,11 +97,14 @@ export default function DashboardPage() {
           ) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">
                 <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
-                <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
-                <Button onClick={handleNewResume} className="mt-4">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Resume
-                </Button>
+                <p className="text-sm text-muted-foreground mt-1">Click a button below to create your first one.</p>
+                <div className="flex justify-center gap-2 mt-4">
+                    <Button onClick={handleNewResume}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Resume
+                    </Button>
+                    <UploadResumeButton />
+                </div>
             </div>
           )}
         </CardContent>
