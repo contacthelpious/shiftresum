@@ -635,7 +635,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                         if (key === 'skills') {
                             return (
                                 <section key={key}>
-                                    <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80'}}>{sectionTitles[key]}</h2>
+                                    <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80'}}>Skills</h2>
                                     <div className="flex flex-wrap gap-1">
                                         {resumeData.skills.map(skill => skill.name && 
                                             <span key={skill.id} className="px-2 py-1 rounded text-[0.9em]" style={{ backgroundColor: headerTextColor + '20', color: headerTextColor }}>
@@ -650,7 +650,7 @@ const CreativeTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
                         const Component = Sections[key];
                         return (
                             <section key={key}>
-                                <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80'}}>{sectionTitles[key]}</h2>
+                                <h2 className="text-[11pt] font-bold uppercase tracking-wider border-b pb-1 mb-2" style={{borderColor: headerTextColor+'80', color: headerTextColor}}>{sectionTitles[key]}</h2>
                                 <Component resumeData={resumeData} designOptions={designOptions} />
                             </section>
                         );
