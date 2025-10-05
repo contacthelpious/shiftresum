@@ -20,7 +20,10 @@ const fontClasses: {[key: string]: string} = {
   Lato: '[font-family:Lato,sans-serif]',
 };
 
-// Reusable Helper Functions & Components
+// =================================================================
+// Reusable Helper Components & Functions
+// =================================================================
+
 const renderDescription = (description: string | BulletPoint[] | undefined) => {
   if (!description) return null;
   const items = Array.isArray(description) 
@@ -28,7 +31,7 @@ const renderDescription = (description: string | BulletPoint[] | undefined) => {
     : description.split('\n').map(item => item.replace(/^- /, ''));
   
   return (
-    <ul className="list-disc list-outside pl-5 space-y-1 text-sm">
+    <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
       {items.map((item, index) => item.trim() && <li key={index}>{item}</li>)}
     </ul>
   );
@@ -40,21 +43,26 @@ const renderFreeform = (details: string | undefined) => {
   if (items.length === 0) return null;
   
   return (
-     <ul className="list-disc list-outside pl-5 space-y-1 text-sm">
+     <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
       {items.map((item, index) => <li key={index}>{item.replace(/^- /, '')}</li>)}
     </ul>
   )
 };
 
-const ContactLine: React.FC<{ icon: React.ReactNode; text?: string }> = ({ icon, text }) => {
+const ContactLine: React.FC<{ icon: React.ReactNode; text?: string; link?: string; className?: string }> = ({ icon, text, link, className }) => {
   if (!text) return null;
-  return <span className="flex items-center gap-1.5">{icon}{text}</span>;
+  const content = <span className={cn("flex items-center gap-1.5", className)}>{icon}{text}</span>;
+  if (link) {
+    return <a href={link} target="_blank" rel="noopener noreferrer" className="hover:underline">{content}</a>
+  }
+  return content;
 };
+
 
 // =================================================================
 // SECTION COMPONENTS
-// These are the building blocks for the templates.
 // =================================================================
+
 const Sections = {
   summary: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <p className="text-sm">{resumeData.personalInfo.summary}</p>
@@ -65,7 +73,7 @@ const Sections = {
         <div key={exp.id}>
           <div className="flex justify-between items-baseline">
             <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
-            <div className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate}</div>
+            <div className="text-xs text-muted-foreground whitespace-nowrap">{exp.startDate}{exp.endDate && ` - ${exp.endDate}`}</div>
           </div>
           <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
           {renderDescription(exp.description)}
@@ -122,7 +130,7 @@ const Sections = {
     renderFreeform(resumeData.additionalInformation.details)
   ),
   references: ({ resumeData }: { resumeData: ResumeFormData }) => (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
       {resumeData.references.map(ref => (
         <div key={ref.id} className="text-sm">
           <h3 className="font-semibold">{ref.name}</h3>
@@ -167,39 +175,57 @@ const sectionTitles: { [key in keyof typeof Sections]: string } = {
 const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
   const { personalInfo, sectionOrder } = resumeData;
   const { color, alignment } = designOptions;
+  
+  const sidebarSections: React.ReactNode[] = [];
+  const mainSections: React.ReactNode[] = [];
 
-  const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
-      <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-3" style={{ borderColor: color }}>{title}</h2>
+      <h2 className="text-xl font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
       <div className="space-y-4">{children}</div>
     </section>
   );
 
-  return (
-    <div className={cn("p-8", `text-${alignment}`)}>
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
-        <div className={cn(
-          "flex items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2 flex-wrap",
-           alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
-        )}>
-            <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
-            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
-            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
-        </div>
-      </header>
+  const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+    <section>
+      <h2 className="text-base font-bold uppercase tracking-wider mb-2" style={{color}}>{title}</h2>
+      <div>{children}</div>
+    </section>
+  );
+  
+  const smallSections = ['skills', 'education', 'certifications', 'references'];
 
-      <div className="space-y-6">
-         {sectionOrder.map(key => {
-            if (!sectionHasContent(key, resumeData)) return null;
-            const Component = Sections[key];
-            return (
-                <Section key={key} title={sectionTitles[key]}>
-                    <Component resumeData={resumeData} />
-                </Section>
-            )
-        })}
+  sectionOrder.forEach(key => {
+    if (!sectionHasContent(key, resumeData)) return;
+
+    const Component = Sections[key];
+    const sectionContent = <Component resumeData={resumeData} />;
+    
+    if (smallSections.includes(key)) {
+        sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
+    } else {
+        mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
+    }
+  });
+
+  return (
+    <div className={cn("p-0 flex", `text-${alignment}`)}>
+      <div className="w-1/3 bg-muted/40 p-6 space-y-6">
+          <header className="mb-4">
+            <h1 className="text-3xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
+          </header>
+          <SidebarSection title="Contact">
+             <div className="text-sm space-y-2">
+                <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
+                <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
+                <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={`https://${personalInfo?.website}`} />
+                <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+            </div>
+          </SidebarSection>
+          {sidebarSections}
+      </div>
+      <div className="w-2/3 p-6 space-y-6">
+        {mainSections}
       </div>
     </div>
   );
@@ -212,8 +238,8 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <section>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-center mb-2" style={{ color }}>{title}</h2>
-            <div className="border-t w-1/4 mx-auto mb-4" style={{ borderColor: color }}/>
+            <h2 className="text-sm font-bold uppercase tracking-[.2em] mb-2" style={{ color }}>{title}</h2>
+            <hr className="mb-3" style={{borderColor: color}}/>
             <div className="space-y-4">{children}</div>
         </section>
     );
@@ -221,36 +247,20 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-6 text-center">
-                <h1 className="text-3xl font-bold tracking-normal">{personalInfo?.name || 'Your Name'}</h1>
-                <div className="text-xs text-muted-foreground mt-2">
+                <h1 className="text-4xl font-bold tracking-wide">{personalInfo?.name || 'Your Name'}</h1>
+                <div className="text-sm text-muted-foreground mt-2">
                     <span>{personalInfo?.location}</span>
-                    {personalInfo?.location && personalInfo.email && <span className="mx-2">|</span>}
+                    {personalInfo?.location && (personalInfo.email || personalInfo.phone) && <span className="mx-2">|</span>}
                     <span>{personalInfo?.email}</span>
                     {personalInfo?.email && personalInfo.phone && <span className="mx-2">|</span>}
                     <span>{personalInfo?.phone}</span>
+                    {personalInfo.website && <><span className="mx-2">|</span><span>{personalInfo.website}</span></>}
                 </div>
             </header>
             <div className="space-y-6">
                 {sectionOrder.map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
-                    
-                    if (key === 'skills') {
-                         return (
-                            <Section key={key} title={sectionTitles[key]}>
-                                <p className="text-sm text-center">{resumeData.skills.map(s => s.name).join(' • ')}</p>
-                            </Section>
-                        )
-                    }
-
-                    if (key === 'summary') {
-                         return (
-                            <Section key={key} title={sectionTitles[key]}>
-                                 <p className="text-sm text-center">{personalInfo.summary}</p>
-                            </Section>
-                        )
-                    }
-
                     return (
                         <Section key={key} title={sectionTitles[key]}>
                             <Component resumeData={resumeData} />
@@ -267,94 +277,49 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     const { personalInfo, sectionOrder } = resumeData;
     const { color } = designOptions;
 
-    const sidebarContent: React.ReactNode[] = [];
-    const mainContent: React.ReactNode[] = [];
+    const mainSections: React.ReactNode[] = [];
+    const sidebarSections: React.ReactNode[] = [];
 
-    const RightSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-base font-bold uppercase tracking-wider mb-2">{title}</h2><div className="space-y-4">{children}</div></section>
+    const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-base font-semibold uppercase tracking-wider mb-2 text-muted-foreground">{title}</h2><div className="space-y-4">{children}</div></section>
     );
 
-    const LeftSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-sm font-bold uppercase tracking-wider mb-2">{title}</h2><div>{children}</div></section>
+    const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-sm font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
     );
 
-    let cumulativeMainHeight = 0;
-    
-    // Distribute sections between sidebar and main content
+    const smallSections = ['skills', 'education', 'certifications', 'references'];
+
     sectionOrder.forEach(key => {
-        if (!sectionHasContent(key, resumeData) || key === 'summary') return;
+      if (!sectionHasContent(key, resumeData)) return;
+      
+      const Component = Sections[key];
+      const sectionContent = <Component resumeData={resumeData} />;
 
-        const Component = Sections[key];
-        let sectionContent = <Component resumeData={resumeData} />;
-        
-        let wordCount = 0;
-        try {
-            if (key === 'summary') {
-                wordCount = (resumeData.personalInfo.summary || '').length;
-            } else {
-                 wordCount = JSON.stringify(resumeData[key as keyof typeof resumeData]).length;
-            }
-        } catch (e) {
-            wordCount = 1000; // Default to large if stringify fails
-        }
-        
-        const isSmallSection = key === 'skills' || key === 'education' || key === 'certifications' || key === 'references';
-
-        if (isSmallSection && cumulativeMainHeight > 2000 && sidebarContent.length < 4) {
-             if (key === 'skills') {
-                sidebarContent.push(
-                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>
-                        <ul className="text-sm space-y-1">
-                            {resumeData.skills.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
-                        </ul>
-                    </LeftSection>
-                );
-             } else if (key === 'education') {
-                 sidebarContent.push(
-                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>
-                        {resumeData.education.map(edu => (
-                            <div key={edu.id} className="text-sm mb-2">
-                                <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
-                                <p>{edu.degree || 'Degree'}</p>
-                                <p className="text-xs">{edu.graduationDate}</p>
-                            </div>
-                        ))}
-                    </LeftSection>
-                );
-             } else {
-                sidebarContent.push(
-                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>{sectionContent}</LeftSection>
-                );
-             }
-        } else {
-            cumulativeMainHeight += wordCount;
-            mainContent.push(
-                <RightSection key={`${key}-main`} title={sectionTitles[key]}>{sectionContent}</RightSection>
-            );
-        }
+      if (smallSections.includes(key)) {
+        sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
+      } else {
+        mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
+      }
     });
 
-
     return (
-        <div className="p-0">
-            <header className="p-8 mb-6 text-white" style={{backgroundColor: color}}>
-                <h1 className="text-4xl font-bold">{personalInfo?.name || 'Your Name'}</h1>
-                {sectionHasContent('summary', resumeData) && <p className="text-xl mt-1">{personalInfo.summary}</p>}
-            </header>
-            <div className="grid grid-cols-12 gap-x-8 px-8">
-                <div className="col-span-4 space-y-6">
-                    <LeftSection title="Contact">
-                        <div className="text-sm space-y-1">
-                           <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
-                            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
-                            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
-                            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
-                        </div>
-                    </LeftSection>
-                    {sidebarContent}
+        <div className="p-8">
+            <header className="mb-6 pb-4 border-b-2" style={{ borderColor: color }}>
+                <h1 className="text-5xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
+                 <div className="flex items-center gap-x-4 text-xs mt-3 text-muted-foreground">
+                    <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                    <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
+                    <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
+                    <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
                 </div>
+            </header>
+            <div className="grid grid-cols-12 gap-x-8">
                 <div className="col-span-8 space-y-6">
-                    {mainContent}
+                    {mainSections}
+                </div>
+                <div className="col-span-4 space-y-6">
+                    {sidebarSections}
                 </div>
             </div>
         </div>
@@ -367,17 +332,18 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     const { color, alignment } = designOptions;
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <div className="grid grid-cols-12 gap-x-8">
-            <h2 className="text-xs font-semibold uppercase tracking-widest col-span-3 mb-2 pt-0.5" style={{color}}>{title}</h2>
+        <div className="grid grid-cols-12 gap-x-6">
+            <h2 className="col-span-3 text-xs font-bold uppercase tracking-widest pt-1" style={{color}}>{title}</h2>
             <div className="col-span-9">{children}</div>
         </div>
     );
 
     return (
-        <div className={cn("p-10 space-y-8", `text-${alignment}`)}>
-            <header className="mb-8">
-                <h1 className="text-2xl font-bold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
-                <div className="text-xs text-muted-foreground mt-2">
+        <div className={cn("p-10 space-y-6", `text-${alignment}`)}>
+            <header className="mb-4 text-center">
+                <h1 className="text-3xl font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
+                <p className="text-sm mt-1">{personalInfo.summary}</p>
+                <div className="text-xs text-muted-foreground mt-3">
                     <span>{personalInfo?.email}</span>
                     {personalInfo?.email && personalInfo.website && <span className="mx-2">//</span>}
                     <span>{personalInfo?.website}</span>
@@ -386,20 +352,13 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                 </div>
             </header>
             
-            <div className="space-y-8">
+            <div className="space-y-6">
                 {sectionOrder.map(key => {
-                     if (!sectionHasContent(key, resumeData)) return null;
+                     if (!sectionHasContent(key, resumeData) || key === 'summary') return null;
                      const Component = Sections[key];
-                     if (key === 'skills') {
-                        return (
-                            <Section key={key} title={sectionTitles[key]}>
-                                <p className="text-sm">{resumeData.skills.map(s => s.name).join(', ')}</p>
-                            </Section>
-                        )
-                     }
                      return (
                         <Section key={key} title={sectionTitles[key]}>
-                           <div className="space-y-6">
+                           <div className="space-y-4">
                                 <Component resumeData={resumeData} />
                            </div>
                         </Section>
@@ -416,15 +375,15 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
     const { color, alignment } = designOptions;
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
-        <section><h2 className="text-2xl font-bold tracking-tighter mb-3" style={{color}}>{title}</h2><div className="space-y-5">{children}</div></section>
+        <section><h2 className="text-2xl font-bold tracking-tighter mb-3">{title}</h2><div className="space-y-5">{children}</div></section>
     );
 
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
-            <header className="mb-8 border-b-4 pb-4" style={{borderColor: color}}>
-                <h1 className="text-5xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
+            <header className="mb-8 text-white p-6 rounded-lg" style={{backgroundColor: color}}>
+                <h1 className="text-4xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className={cn(
-                    "flex items-center gap-x-4 text-xs mt-3",
+                    "flex items-center gap-x-4 text-xs mt-3 opacity-90",
                     alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
                  )}>
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
@@ -438,15 +397,6 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
                 {sectionOrder.map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
-                    if (key === 'skills') {
-                        return (
-                           <Section key={key} title={sectionTitles[key]}>
-                               <ul className="columns-2 sm:columns-3 text-sm">
-                               {resumeData.skills.map(s => s.name && <li key={s.id}>{s.name}</li>)}
-                               </ul>
-                           </Section>
-                        )
-                    }
                     return (
                         <Section key={key} title={sectionTitles[key]}>
                             <Component resumeData={resumeData} />
