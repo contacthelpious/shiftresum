@@ -68,10 +68,10 @@ export function LandingPageContent() {
   const ctaLink = user ? "/dashboard" : "/builder?resumeId=__new__";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background items-center">
       <SharedHeader />
 
-      <main className="flex-1">
+      <main className="flex-1 w-full flex flex-col items-center">
         <section className="container py-20 text-center md:py-32">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -151,7 +151,7 @@ export function LandingPageContent() {
           </div>
         </section>
 
-        <section id="how-it-works" className="bg-muted/50 py-20 md:py-32">
+        <section id="how-it-works" className="bg-muted/50 py-20 md:py-32 w-full">
             <div className="container">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-3xl font-bold tracking-tighter font-headline">How It Works</h2>
