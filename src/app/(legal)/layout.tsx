@@ -10,7 +10,7 @@ export default function LegalLayout({
   return (
     <div className="flex min-h-screen flex-col items-center">
       <SharedHeader />
-      <main className="flex-1 w-full">{children}</main>
+      <main className="flex-1 w-full flex flex-col items-center">{children}</main>
       <SharedFooter />
     </div>
   );
