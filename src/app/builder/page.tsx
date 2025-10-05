@@ -85,7 +85,10 @@ export default function BuilderPage() {
          // and ensures the form isn't accidentally reset.
         sessionStorage.removeItem('parsedResumeData');
       }
-      return; // IMPORTANT: Stop execution to prevent other conditions from overwriting the form.
+      // CRITICAL FIX: Stop execution here to prevent other conditions from
+      // overwriting the form data that was just loaded. This eliminates
+      // the race condition.
+      return; 
     }
 
     // 2. If not from an upload, check if we are loading an existing resume from Firestore.
