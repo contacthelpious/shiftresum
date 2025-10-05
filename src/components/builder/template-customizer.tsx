@@ -107,7 +107,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                 </ToggleGroupItem>
                 <ToggleGroupItem value="right" aria-label="Align right">
                     <AlignRight />
-                </ToggleGroupİtem>
+                </ToggleGroupItem>
              </ToggleGroup>
           </>
         );
