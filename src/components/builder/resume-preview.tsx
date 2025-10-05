@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ResumeFormData, DesignOptions, BulletPoint } from '@/lib/definitions';
@@ -137,13 +138,13 @@ const Sections = {
 const sectionHasContent = (key: keyof typeof Sections, resumeData: ResumeFormData) => {
   switch (key) {
     case 'summary': return !!resumeData.personalInfo.summary;
-    case 'experience': return resumeData.experience.length > 0;
-    case 'projects': return resumeData.projects.length > 0;
-    case 'education': return resumeData.education.length > 0;
-    case 'skills': return resumeData.skills.length > 0;
-    case 'certifications': return resumeData.certifications.length > 0;
+    case 'experience': return resumeData.experience.length > 0 && resumeData.experience.some(e => e.role || e.company);
+    case 'projects': return resumeData.projects.length > 0 && resumeData.projects.some(p => p.name);
+    case 'education': return resumeData.education.length > 0 && resumeData.education.some(e => e.institution || e.degree);
+    case 'skills': return resumeData.skills.length > 0 && resumeData.skills.some(s => s.name);
+    case 'certifications': return resumeData.certifications.length > 0 && resumeData.certifications.some(c => c.name);
     case 'additionalInformation': return !!resumeData.additionalInformation.details;
-    case 'references': return resumeData.references.length > 0;
+    case 'references': return resumeData.references.length > 0 && resumeData.references.some(r => r.name);
     default: return false;
   }
 };
@@ -266,9 +267,9 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     const { personalInfo, sectionOrder } = resumeData;
     const { color } = designOptions;
 
-    const mainSections = ['experience', 'projects', 'certifications', 'additionalInformation', 'references', 'summary'];
-    const sidebarSections = ['skills', 'education'];
-    
+    const sidebarContent: React.ReactNode[] = [];
+    const mainContent: React.ReactNode[] = [];
+
     const RightSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <section><h2 className="text-base font-bold uppercase tracking-wider mb-2">{title}</h2><div className="space-y-4">{children}</div></section>
     );
@@ -276,6 +277,63 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     const LeftSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <section><h2 className="text-sm font-bold uppercase tracking-wider mb-2">{title}</h2><div>{children}</div></section>
     );
+
+    let cumulativeMainHeight = 0;
+    
+    // Distribute sections between sidebar and main content
+    sectionOrder.forEach(key => {
+        if (!sectionHasContent(key, resumeData) || key === 'summary') return;
+
+        const Component = Sections[key];
+        let sectionContent = <Component resumeData={resumeData} />;
+        
+        let wordCount = 0;
+        try {
+            if (key === 'summary') {
+                wordCount = (resumeData.personalInfo.summary || '').length;
+            } else {
+                 wordCount = JSON.stringify(resumeData[key as keyof typeof resumeData]).length;
+            }
+        } catch (e) {
+            wordCount = 1000; // Default to large if stringify fails
+        }
+        
+        const isSmallSection = key === 'skills' || key === 'education' || key === 'certifications' || key === 'references';
+
+        if (isSmallSection && cumulativeMainHeight > 2000 && sidebarContent.length < 4) {
+             if (key === 'skills') {
+                sidebarContent.push(
+                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>
+                        <ul className="text-sm space-y-1">
+                            {resumeData.skills.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
+                        </ul>
+                    </LeftSection>
+                );
+             } else if (key === 'education') {
+                 sidebarContent.push(
+                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>
+                        {resumeData.education.map(edu => (
+                            <div key={edu.id} className="text-sm mb-2">
+                                <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
+                                <p>{edu.degree || 'Degree'}</p>
+                                <p className="text-xs">{edu.graduationDate}</p>
+                            </div>
+                        ))}
+                    </LeftSection>
+                );
+             } else {
+                sidebarContent.push(
+                    <LeftSection key={`${key}-sidebar`} title={sectionTitles[key]}>{sectionContent}</LeftSection>
+                );
+             }
+        } else {
+            cumulativeMainHeight += wordCount;
+            mainContent.push(
+                <RightSection key={`${key}-main`} title={sectionTitles[key]}>{sectionContent}</RightSection>
+            );
+        }
+    });
+
 
     return (
         <div className="p-0">
@@ -293,45 +351,10 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
                             <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
                         </div>
                     </LeftSection>
-                    
-                    {sectionOrder.filter(key => sidebarSections.includes(key)).map(key => {
-                        if (!sectionHasContent(key, resumeData)) return null;
-                         const Component = Sections[key];
-                         if (key === 'skills') {
-                            return (
-                                <LeftSection key={key} title={sectionTitles[key]}>
-                                    <ul className="text-sm space-y-1">
-                                        {resumeData.skills.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
-                                    </ul>
-                                </LeftSection>
-                            )
-                         }
-                         if (key === 'education') {
-                            return (
-                                <LeftSection key={key} title={sectionTitles[key]}>
-                                    {resumeData.education.map(edu => (
-                                        <div key={edu.id} className="text-sm mb-2">
-                                            <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
-                                            <p>{edu.degree || 'Degree'}</p>
-                                            <p className="text-xs">{edu.graduationDate}</p>
-                                        </div>
-                                    ))}
-                                </LeftSection>
-                            )
-                         }
-                         return null;
-                    })}
+                    {sidebarContent}
                 </div>
                 <div className="col-span-8 space-y-6">
-                    {sectionOrder.filter(key => mainSections.includes(key)).map(key => {
-                        if (!sectionHasContent(key, resumeData) || key === 'summary') return null;
-                        const Component = Sections[key];
-                        return (
-                            <RightSection key={key} title={sectionTitles[key]}>
-                                <Component resumeData={resumeData} />
-                            </RightSection>
-                        )
-                    })}
+                    {mainContent}
                 </div>
             </div>
         </div>
@@ -345,8 +368,8 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
     
     const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <div className="grid grid-cols-12 gap-x-8">
-            <h2 className="text-xs font-semibold uppercase tracking-widest col-span-2 mb-2 pt-0.5">{title}</h2>
-            <div className="col-span-10">{children}</div>
+            <h2 className="text-xs font-semibold uppercase tracking-widest col-span-3 mb-2 pt-0.5" style={{color}}>{title}</h2>
+            <div className="col-span-9">{children}</div>
         </div>
     );
 
@@ -358,6 +381,8 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
                     <span>{personalInfo?.email}</span>
                     {personalInfo?.email && personalInfo.website && <span className="mx-2">//</span>}
                     <span>{personalInfo?.website}</span>
+                     {personalInfo?.website && personalInfo.location && <span className="mx-2">//</span>}
+                    <span>{personalInfo?.location}</span>
                 </div>
             </header>
             
@@ -394,13 +419,14 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
         <section><h2 className="text-2xl font-bold tracking-tighter mb-3" style={{color}}>{title}</h2><div className="space-y-5">{children}</div></section>
     );
 
-    const twoColumnSections: Array<keyof typeof Sections> = ['education', 'skills'];
-
     return (
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-8 border-b-4 pb-4" style={{borderColor: color}}>
                 <h1 className="text-5xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
-                 <div className="flex items-center gap-x-4 text-xs mt-3">
+                 <div className={cn(
+                    "flex items-center gap-x-4 text-xs mt-3",
+                    alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
+                 )}>
                     <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
                     <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
                     <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
@@ -409,36 +435,24 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeD
             </header>
             
             <div className="space-y-8">
-                {sectionOrder.filter(key => !twoColumnSections.includes(key)).map(key => {
+                {sectionOrder.map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
                     const Component = Sections[key];
+                    if (key === 'skills') {
+                        return (
+                           <Section key={key} title={sectionTitles[key]}>
+                               <ul className="columns-2 sm:columns-3 text-sm">
+                               {resumeData.skills.map(s => s.name && <li key={s.id}>{s.name}</li>)}
+                               </ul>
+                           </Section>
+                        )
+                    }
                     return (
                         <Section key={key} title={sectionTitles[key]}>
                             <Component resumeData={resumeData} />
                         </Section>
                     )
                 })}
-
-                <div className="grid grid-cols-2 gap-8">
-                    {sectionOrder.filter(key => twoColumnSections.includes(key)).map(key => {
-                         if (!sectionHasContent(key, resumeData)) return null;
-                         const Component = Sections[key];
-                         if (key === 'skills') {
-                             return (
-                                <Section key={key} title={sectionTitles[key]}>
-                                    <ul className="columns-2 text-sm">
-                                    {resumeData.skills.map(s => s.name && <li key={s.id}>{s.name}</li>)}
-                                    </ul>
-                                </Section>
-                             )
-                         }
-                         return (
-                            <Section key={key} title={sectionTitles[key]}>
-                                <Component resumeData={resumeData} />
-                            </Section>
-                         )
-                    })}
-                </div>
             </div>
         </div>
     );

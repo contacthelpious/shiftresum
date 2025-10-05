@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
@@ -18,12 +19,12 @@ interface TemplateCustomizerProps {
 }
 
 const colors = [
-  { name: 'Default Blue', value: '#2c3e50' },
+  { name: 'Slate', value: '#2c3e50' },
   { name: 'Graphite', value: '#34495e' },
-  { name: 'Forest Green', value: '#27ae60' },
-  { name: 'Deep Purple', value: '#8e44ad' },
+  { name: 'Forest', value: '#27ae60' },
+  { name: 'Amethyst', value: '#8e44ad' },
   { name: 'Crimson', value: '#c0392b' },
-  { name: 'Modern Teal', value: '#16a085' },
+  { name: 'Teal', value: '#16a085' },
 ];
 
 const fonts = [
