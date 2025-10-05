@@ -2,7 +2,7 @@
 'use client';
 
 import type { ResumeFormData, DesignOptions, BulletPoint } from '@/lib/definitions';
-import { Mail, Phone, Globe, MapPin, Link as LinkIcon, Circle } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React from 'react';
@@ -196,7 +196,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
   const MainSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section>
       <h2 className="text-[14pt] font-bold uppercase tracking-wider mb-3 pb-1 border-b-2" style={{ borderColor: color }}>{title}</h2>
-      <div className="space-y-4">{children}</div>
+      {children}
     </section>
   );
 
@@ -207,15 +207,17 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
     </section>
   );
   
-  const smallSections = ['skills', 'education', 'certifications', 'references'];
-
+  // Decide which sections go into the sidebar vs main content
   sectionOrder.forEach(key => {
     if (!sectionHasContent(key, resumeData)) return;
 
     const Component = Sections[key];
     const sectionContent = <Component resumeData={resumeData} />;
     
-    if (smallSections.includes(key)) {
+    // Heuristic for sidebar vs main. Small, list-like items go to sidebar.
+    const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
+
+    if (isSidebarSection && sidebarSections.length < 4) { // Limit sidebar sections
         sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
     } else {
         mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
@@ -223,7 +225,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
   });
 
   return (
-    <div className={cn("p-0 flex", `text-${alignment}`)}>
+    <div className={cn("p-0 flex h-full", `text-${alignment}`)}>
       <div className="w-1/3 bg-muted/40 p-6 space-y-6">
           <header className="mb-4">
             <h1 className="text-[22pt] font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
@@ -254,7 +256,7 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
         <section>
             <h2 className="text-[15pt] font-bold uppercase tracking-[.2em] mb-2" style={{ color }}>{title}</h2>
             <hr className="mb-3" style={{borderColor: color}}/>
-            <div className="space-y-4">{children}</div>
+            {children}
         </section>
     );
 
@@ -299,7 +301,8 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
     const SidebarSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
         <section><h2 className="text-[12pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
     );
-
+    
+    // Dynamic section allocation based on user order
     sectionOrder.forEach(key => {
       if (!sectionHasContent(key, resumeData)) return;
       
@@ -308,7 +311,7 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
       
       const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
 
-      if (isSidebarSection) {
+      if (isSidebarSection && sidebarSections.length < 4) {
         sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
       } else {
         mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
@@ -354,7 +357,9 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
         <div className={cn("p-10 space-y-6", `text-${alignment}`)}>
             <header className="mb-4 text-center">
                 <h1 className="text-[20pt] font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
-                <p className="mt-1">{personalInfo.summary}</p>
+                {sectionHasContent('summary', resumeData) && (
+                  <p className="mt-1">{personalInfo.summary}</p>
+                )}
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-3">
                     <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                     <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={personalInfo?.website} />
@@ -616,7 +621,7 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
         <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-8 text-center">
                 <h1 className="text-[24pt] font-bold">{personalInfo?.name || 'Your Name'}</h1>
-                <p className="mt-2 text-muted-foreground">{personalInfo?.summary}</p>
+                {sectionHasContent('summary', resumeData) && <p className="mt-2 text-muted-foreground">{personalInfo?.summary}</p>}
                  <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-3">
                     <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                     <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
@@ -696,3 +701,5 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
+
+    

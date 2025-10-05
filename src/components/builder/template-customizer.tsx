@@ -243,3 +243,5 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
     </div>
   );
 }
+
+    
