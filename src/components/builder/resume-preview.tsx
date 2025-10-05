@@ -43,7 +43,7 @@ const renderDescription = (description: string | BulletPoint[] | undefined) => {
     : description.split('\n').map(item => item.replace(/^- /, ''));
   
   return (
-    <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
+    <ul className="list-disc list-outside pl-4 space-y-1">
       {items.map((item, index) => item.trim() && <li key={index}>{item}</li>)}
     </ul>
   );
@@ -55,7 +55,7 @@ const renderFreeform = (details: string | undefined) => {
   if (items.length === 0) return null;
   
   return (
-     <ul className="list-disc list-outside pl-4 space-y-1 text-sm">
+     <ul className="list-disc list-outside pl-4 space-y-1">
       {items.map((item, index) => <li key={index}>{item.replace(/^- /, '')}</li>)}
     </ul>
   )
@@ -77,7 +77,7 @@ const ContactLine: React.FC<{ icon: React.ReactNode; text?: string; link?: strin
 
 const Sections = {
   summary: ({ resumeData }: { resumeData: ResumeFormData }) => (
-    <p className="text-sm">{resumeData.personalInfo.summary}</p>
+    <p>{resumeData.personalInfo.summary}</p>
   ),
   experience: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="space-y-4">
@@ -87,7 +87,7 @@ const Sections = {
             <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
             <div className="text-xs text-muted-foreground whitespace-nowrap">{exp.startDate}{exp.endDate && ` - ${exp.endDate}`}</div>
           </div>
-          <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
+          <div className="italic text-muted-foreground mb-1">{exp.company || 'Company'}</div>
           {renderDescription(exp.description)}
         </div>
       ))}
@@ -114,15 +114,15 @@ const Sections = {
             <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
             <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
           </div>
-          <div className="italic text-sm text-muted-foreground">{edu.degree || 'Degree'}</div>
-          {edu.details && <div className="text-sm">{edu.details}</div>}
+          <div className="italic text-muted-foreground">{edu.degree || 'Degree'}</div>
+          {edu.details && <div>{edu.details}</div>}
         </div>
       ))}
     </div>
   ),
   skills: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="flex flex-wrap gap-2">
-      {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-sm">{skill.name}</span>)}
+      {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded">{skill.name}</span>)}
     </div>
   ),
   certifications: ({ resumeData }: { resumeData: ResumeFormData }) => (
@@ -133,7 +133,7 @@ const Sections = {
                     <h3 className="font-semibold text-base">{cert.name || 'Certification'}</h3>
                     <div className="text-xs text-muted-foreground">{cert.date}</div>
                 </div>
-                <div className="italic text-sm text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</div>
+                <div className="italic text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</div>
             </div>
         ))}
     </div>
@@ -144,7 +144,7 @@ const Sections = {
   references: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
       {resumeData.references.map(ref => (
-        <div key={ref.id} className="text-sm">
+        <div key={ref.id}>
           <h3 className="font-semibold">{ref.name}</h3>
           <p className="text-muted-foreground">{ref.company}</p>
           <p className="text-muted-foreground">{ref.email}</p>
@@ -227,7 +227,7 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
             <h1 className="text-3xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
           </header>
           <SidebarSection title="Contact">
-             <div className="text-sm space-y-2">
+             <div className="space-y-2 text-sm">
                 <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
                 <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} link={`tel:${personalInfo?.phone}`} />
                 <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} link={`https://${personalInfo?.website}`} />
@@ -300,15 +300,16 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
         <section><h2 className="text-sm font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
     );
 
-    const smallSections = ['skills', 'education', 'certifications', 'references'];
-
     sectionOrder.forEach(key => {
       if (!sectionHasContent(key, resumeData)) return;
       
       const Component = Sections[key];
       const sectionContent = <Component resumeData={resumeData} />;
 
-      if (smallSections.includes(key)) {
+      // Define which sections go where
+      const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
+
+      if (isSidebarSection) {
         sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
       } else {
         mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
@@ -354,7 +355,7 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
         <div className={cn("p-10 space-y-6", `text-${alignment}`)}>
             <header className="mb-4 text-center">
                 <h1 className="text-3xl font-semibold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
-                <p className="text-sm mt-1">{personalInfo.summary}</p>
+                <p className="mt-1">{personalInfo.summary}</p>
                 <div className="text-xs text-muted-foreground mt-3">
                     <span>{personalInfo?.email}</span>
                     {personalInfo?.email && personalInfo.website && <span className="mx-2">//</span>}
@@ -444,9 +445,11 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
         className
       )}
     >
-      <div className={cn("flex flex-col h-full", fontSizeClass, lineHeightClass)}>
+      <div className={cn("h-full", fontSizeClass, lineHeightClass)}>
         <TemplateComponent resumeData={resumeData} designOptions={designOptions} />
       </div>
     </div>
   );
 }
+
+    
