@@ -29,7 +29,7 @@ export function BuilderHeader() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    router.push('/');
+    window.location.href = '/';
   };
 
   const getAvatarFallback = (email: string | null | undefined) => {
