@@ -16,11 +16,13 @@ import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
 
 async function getFileContent(file: File): Promise<string> {
     const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     if (file.type === 'application/pdf') {
-        const data = await pdf(Buffer.from(arrayBuffer));
+        const data = await pdf(buffer);
         return data.text;
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        const { value } = await mammoth.extractRawText({ arrayBuffer });
+        const { value } = await mammoth.extractRawText({ buffer });
         return value;
     }
     throw new Error('Unsupported file type. Please upload a PDF or DOCX.');
@@ -63,7 +65,9 @@ export async function parseResumeAction(formData: FormData) {
         
         if (!finalValidation.success) {
             console.error("Final validation failed after merging in action:", finalValidation.error.flatten());
-            throw new Error("Parsed data structure is invalid after processing.");
+            // Instead of throwing a generic error, we can throw the Zod error details.
+            // This will give more context on the client side if needed, though it might be verbose.
+            throw new Error(`Schema validation failed. Parse Errors:\n\n${JSON.stringify(finalValidation.error.flatten().fieldErrors, null, 2)}`);
         }
 
         return { success: true, data: finalValidation.data };
