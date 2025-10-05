@@ -8,9 +8,8 @@ import { PlusCircle, Loader2 } from "lucide-react";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection } from "firebase/firestore";
 import type { ResumeData } from "@/lib/definitions";
-import { defaultResumeFormData, defaultDesignOptions } from "@/lib/definitions";
 import { UploadResumeButton } from '@/components/upload-resume-button';
 
 export default function DashboardPage() {
@@ -33,21 +32,8 @@ export default function DashboardPage() {
     }, [user, isUserLoading, router]);
 
     const handleNewResume = async () => {
-        if (!user || !resumesRef) return;
-        try {
-            const newResumeData = {
-                title: "Untitled Resume",
-                data: defaultResumeFormData,
-                design: defaultDesignOptions,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-            };
-            const docRef = await addDoc(resumesRef, newResumeData);
-            router.push(`/builder?resumeId=${docRef.id}`);
-        } catch (error) {
-            console.error("Error creating new resume:", error);
-            // Optionally, show a toast notification
-        }
+        // Just navigate to the builder with a special ID for a new resume
+        router.push(`/builder?resumeId=__new__`);
     };
 
 
