@@ -68,35 +68,14 @@ export default function BuilderPage() {
   }, [stripeStatus, router, toast, searchParams]);
 
  useEffect(() => {
-    // This effect handles the initial data loading logic for the form, with strict priority.
-
-    // 1. HIGHEST PRIORITY: Check for data from a just-uploaded resume.
-    const parsedDataString = sessionStorage.getItem('parsedResumeData');
-    if (parsedDataString) {
-      try {
-        const parsedData = JSON.parse(parsedDataString);
-        methods.reset(parsedData); // Load the uploaded data into the form.
-      } catch (error) {
-        console.error("Error processing sessionStorage data:", error);
-        methods.reset(defaultResumeFormData); // Fallback on error.
-      } finally {
-         // CRITICAL: Clean up sessionStorage immediately after use to prevent re-use.
-        sessionStorage.removeItem('parsedResumeData');
-      }
-      // CRITICAL FIX: Stop execution here to prevent any other logic from
-      // overwriting the form data that was just loaded from the upload.
-      return; 
-    }
-
-    // 2. SECOND PRIORITY: If not from an upload, check for an existing resume from Firestore.
+    // If we have an existing resume from Firestore, load it.
     if (resumeData) {
       methods.reset(resumeData.data);
       setDesignOptions(resumeData.design);
-      return; // Stop execution after loading Firestore data.
+      return;
     }
 
-    // 3. LOWEST PRIORITY: If this is a new resume and we aren't loading existing data, use the default.
-    // This only runs if the checks above for sessionStorage and resumeData fail.
+    // If this is a new resume and we aren't loading existing data, use the default.
     if (resumeId === '__new__' && !isResumeLoading) {
       methods.reset(defaultResumeFormData);
     }

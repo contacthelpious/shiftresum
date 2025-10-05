@@ -9,7 +9,6 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebas
 import { useRouter } from "next/navigation";
 import { collection } from "firebase/firestore";
 import type { ResumeData } from "@/lib/definitions";
-import { UploadResumeButton } from '@/components/upload-resume-button';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -63,7 +62,6 @@ export default function DashboardPage() {
                     <PlusCircle className="mr-2 h-4 w-4" />
                     New Resume
                 </Button>
-                <UploadResumeButton className="w-full sm:w-auto" />
             </div>
         </CardHeader>
         <CardContent>
@@ -81,13 +79,12 @@ export default function DashboardPage() {
           ) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">
                 <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
-                <p className="text-sm text-muted-foreground mt-1">Click a button below to create your first one.</p>
+                <p className="text-sm text-muted-foreground mt-1">Click the button below to create your first one.</p>
                 <div className="flex justify-center gap-2 mt-4">
                     <Button onClick={handleNewResume}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Resume
                     </Button>
-                    <UploadResumeButton />
                 </div>
             </div>
           )}

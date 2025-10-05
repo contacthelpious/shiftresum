@@ -4,9 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Palette, FileDown, UploadCloud, FilePenLine, CheckCircle2 } from 'lucide-react';
+import { Wand2, Palette, FileDown, FilePenLine, CheckCircle2 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { UploadResumeButton } from './upload-resume-button';
 import { SharedHeader } from './shared/header';
 import { SharedFooter } from './shared/footer';
 import { useUser } from '@/firebase';
@@ -32,27 +31,27 @@ const features = [
     description: 'Download a print-ready PDF of your resume with a single click.',
   },
   {
-    icon: <UploadCloud className="h-8 w-8 text-accent" />,
-    title: 'Parse Existing Resume',
-    description: 'Upload your current resume and let our AI parse it in seconds.',
+    icon: <FilePenLine className="h-8 w-8 text-accent" />,
+    title: 'Intuitive Editor',
+    description: 'Easily add and edit sections with a simple, clean interface.',
   },
 ];
 
 const howItWorksSteps = [
     {
-        icon: <UploadCloud className="h-10 w-10 text-accent" />,
-        title: '1. Start Fresh or Upload',
-        description: 'Begin with a blank slate or upload your existing resume to get a head start.',
+        icon: <FilePenLine className="h-10 w-10 text-accent" />,
+        title: '1. Start with a Template',
+        description: 'Begin with a blank slate on a professionally designed template.',
     },
     {
-        icon: <FilePenLine className="h-10 w-10 text-accent" />,
+        icon: <Wand2 className="h-10 w-10 text-accent" />,
         title: '2. Edit with AI Assistance',
         description: 'Use our AI tools to generate summaries, descriptions, and skills, or fine-tune every detail yourself.',
     },
     {
         icon: <CheckCircle2 className="h-10 w-10 text-accent" />,
         title: '3. Download & Apply',
-        description: 'Choose a template, customize the design, and export a professional PDF ready for job applications.',
+        description: 'Customize the design and export a professional PDF ready for job applications.',
     }
 ]
 
@@ -87,7 +86,6 @@ export function LandingPageContent() {
               <Button size="lg" asChild>
                 <Link href={ctaLink}>Create My Resume</Link>
               </Button>
-              <UploadResumeButton size="lg" />
             </div>
           </motion.div>
         </section>
