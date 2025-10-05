@@ -105,6 +105,9 @@ export const TemplateNameSchema = z.enum([
 ]);
 export type TemplateName = z.infer<typeof TemplateNameSchema>;
 
+export const FontSchema = z.enum(['Inter', 'Roboto', 'Lato', 'Georgia', 'Garamond', 'Verdana']);
+export type Font = z.infer<typeof FontSchema>;
+
 // This is the shape of the data stored in Firestore
 export const ResumeDataSchema = z.object({
   title: z.string().optional(),
@@ -122,7 +125,7 @@ export const ResumeDataSchema = z.object({
   design: z.object({
     template: TemplateNameSchema.default('modern'),
     color: z.string().default('#2c3e50'), // default to primary color
-    font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
+    font: FontSchema.default('Inter'),
     fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
     lineHeight: z.enum(['compact', 'standard', 'relaxed']).default('standard'),
     alignment: z.enum(['left', 'center', 'right']).default('left'),
@@ -177,7 +180,7 @@ export const defaultResumeFormData: ResumeFormData = {
 export const DesignOptionsSchema = z.object({
   template: TemplateNameSchema.default('modern'),
   color: z.string().default('#2c3e50'), // default to primary color
-  font: z.enum(['Inter', 'Roboto', 'Lato']).default('Inter'),
+  font: FontSchema.default('Inter'),
   fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
   lineHeight: z.enum(['compact', 'standard', 'relaxed']).default('standard'),
   alignment: z.enum(['left', 'center', 'right']).default('left'),

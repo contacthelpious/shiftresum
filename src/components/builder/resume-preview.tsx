@@ -18,6 +18,9 @@ const fontClasses: {[key: string]: string} = {
   Inter: 'font-body',
   Roboto: '[font-family:Roboto,sans-serif]',
   Lato: '[font-family:Lato,sans-serif]',
+  Georgia: '[font-family:Georgia,serif]',
+  Garamond: '[font-family:Garamond,serif]',
+  Verdana: '[font-family:Verdana,sans-serif]',
 };
 
 const fontSizeClasses: {[key: string]: string} = {
@@ -477,11 +480,14 @@ const MetroTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
 
 const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
   const { personalInfo, sectionOrder } = resumeData;
-  const { color, alignment } = designOptions;
+  const { color, alignment, font } = designOptions;
 
   const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
       <section>
-          <h2 className="text-center text-[14pt] font-semibold uppercase tracking-[.3em] mb-4" style={{ color }}>{title}</h2>
+          <h2 className={cn(
+              "text-center text-[14pt] font-semibold uppercase tracking-[.3em] mb-4",
+              font === 'Garamond' || font === 'Georgia' ? 'font-serif' : ''
+            )} style={{ color }}>{title}</h2>
           <div className="space-y-4">{children}</div>
       </section>
   );
@@ -489,7 +495,10 @@ const ElegantTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resu
   return (
       <div className={cn("p-10", `text-${alignment}`)}>
         <header className="mb-8 text-center">
-          <h1 className="text-[28pt] font-bold tracking-wide [font-family:serif]">{personalInfo?.name || 'Your Name'}</h1>
+          <h1 className={cn(
+              "text-[28pt] font-bold tracking-wide",
+              font === 'Garamond' || font === 'Georgia' ? 'font-serif' : ''
+            )}>{personalInfo?.name || 'Your Name'}</h1>
           <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
             <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
             <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} link={`mailto:${personalInfo?.email}`} />
@@ -701,7 +710,3 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
-
-    
-
-    

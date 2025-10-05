@@ -32,6 +32,9 @@ const fonts = [
   { name: 'Inter', value: 'Inter' },
   { name: 'Roboto', value: 'Roboto' },
   { name: 'Lato', value: 'Lato' },
+  { name: 'Georgia', value: 'Georgia' },
+  { name: 'Garamond', value: 'Garamond' },
+  { name: 'Verdana', value: 'Verdana' },
 ];
 
 const templates: { name: string, value: TemplateName }[] = [
@@ -82,7 +85,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                     <Label>Font Family</Label>
                     <Select
                         value={designOptions.font}
-                        onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as 'Inter' | 'Roboto' | 'Lato'}))}
+                        onValueChange={(value) => setDesignOptions(prev => ({...prev, font: value as DesignOptions['font']}))}
                     >
                         <SelectTrigger><SelectValue placeholder="Select a font" /></SelectTrigger>
                         <SelectContent>
@@ -243,5 +246,3 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
     </div>
   );
 }
-
-    
