@@ -13,6 +13,12 @@ export default {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
+        inter: ['Inter', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        lato: ['Lato', 'sans-serif'],
+        georgia: ['Georgia', 'serif'],
+        garamond: ['Garamond', 'serif'],
+        verdana: ['Verdana', 'sans-serif'],
         serif: ['Georgia', 'Garamond', 'serif'],
       },
       colors: {

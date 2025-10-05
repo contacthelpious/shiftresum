@@ -15,12 +15,12 @@ interface ResumePreviewProps {
 }
 
 const fontClasses: {[key: string]: string} = {
-  Inter: 'font-body',
-  Roboto: '[font-family:Roboto,sans-serif]',
-  Lato: '[font-family:Lato,sans-serif]',
-  Georgia: '[font-family:Georgia,serif]',
-  Garamond: '[font-family:Garamond,serif]',
-  Verdana: '[font-family:Verdana,sans-serif]',
+  Inter: 'font-inter',
+  Roboto: 'font-roboto',
+  Lato: 'font-lato',
+  Georgia: 'font-georgia',
+  Garamond: 'font-garamond',
+  Verdana: 'font-verdana',
 };
 
 const fontSizeClasses: {[key: string]: string} = {
@@ -730,7 +730,7 @@ const TimelineTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ res
 
 export function ResumePreview({ resumeData, designOptions, className }: ResumePreviewProps) {
   const { font, template, fontSize, lineHeight } = designOptions;
-  const fontClass = fontClasses[font] || 'font-body';
+  const fontClass = fontClasses[font] || 'font-inter';
   const fontSizeClass = fontSizeClasses[fontSize] || 'text-[11pt]';
   const lineHeightClass = lineHeightClasses[lineHeight] || 'leading-normal';
 
@@ -762,5 +762,3 @@ export function ResumePreview({ resumeData, designOptions, className }: ResumePr
     </div>
   );
 }
-
-    
