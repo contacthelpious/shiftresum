@@ -8,14 +8,17 @@ import { PlusCircle, Loader2 } from "lucide-react";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { collection } from "firebase/firestore";
-import type { ResumeData } from "@/lib/definitions";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import type { ResumeData, ResumeFormData } from "@/lib/definitions";
 import { UploadResumeButton } from '@/components/upload-resume-button';
+import { defaultResumeFormData } from '@/lib/definitions';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
+    const { toast } = useToast();
 
     const resumesRef = useMemoFirebase(() => {
         if (isUserLoading || !user) return null;
@@ -32,7 +35,6 @@ export default function DashboardPage() {
     }, [user, isUserLoading, router]);
 
     const handleNewResume = async () => {
-        // Just navigate to the builder with a special ID for a new resume
         router.push(`/builder?resumeId=__new__`);
     };
 
@@ -48,7 +50,7 @@ export default function DashboardPage() {
     const userName = user.displayName || user.email?.split('@')[0] || 'there';
 
   return (
-    <div className="container py-8 px-4 sm:px-8">
+    <div className="container py-8 px-4 sm:px-8 w-full">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome back, {userName}!</h1>
         <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
