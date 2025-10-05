@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'dotenv/config';
@@ -43,15 +44,16 @@ export async function parseResumeAction(formData: FormData) {
 
         const parsedData = await parseResume({ resumeContent });
         
-        // Deep merge partial data from AI with default structure to ensure all keys are present
         const fullData = merge({}, defaultResumeFormData, parsedData);
         
-        // Add unique IDs to array items if they don't have one from the merge
         fullData.experience?.forEach(exp => {
-            exp.id = crypto.randomUUID();
-            // Handle description conversion from string (old format) to array of objects
+            exp.id = exp.id || crypto.randomUUID();
+            // **THE FIX**: Transform the array of strings from the AI into an array of objects.
             if (Array.isArray(exp.description)) {
-                 exp.description.forEach(item => { item.id = crypto.randomUUID() });
+                exp.description = (exp.description as unknown as string[]).map((descString: string) => ({
+                    id: crypto.randomUUID(),
+                    value: descString,
+                }));
             }
         });
 
@@ -60,13 +62,10 @@ export async function parseResumeAction(formData: FormData) {
         fullData.projects?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
         fullData.certifications?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
 
-        // Final validation before sending to client
         const finalValidation = ResumeFormSchema.safeParse(fullData);
         
         if (!finalValidation.success) {
             console.error("Final validation failed after merging in action:", finalValidation.error.flatten());
-            // Instead of throwing a generic error, we can throw the Zod error details.
-            // This will give more context on the client side if needed, though it might be verbose.
             throw new Error(`Schema validation failed. Parse Errors:\n\n${JSON.stringify(finalValidation.error.flatten().fieldErrors, null, 2)}`);
         }
 
