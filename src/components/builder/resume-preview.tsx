@@ -35,11 +35,14 @@ const renderDescription = (description: string | BulletPoint[] | undefined) => {
 
 const renderFreeform = (details: string | undefined) => {
   if (!details) return null;
-  return details.split('\n').map((item, index) => item.trim() && (
-    item.startsWith('- ') 
-      ? <li key={index} className="text-sm">{item.replace(/^- /, '')}</li> 
-      : <p key={index} className="text-sm">{item}</p>
-  ));
+  const items = details.split('\n').filter(item => item.trim());
+  if (items.length === 0) return null;
+  
+  return (
+     <ul className="list-disc list-outside pl-5 space-y-1 text-sm">
+      {items.map((item, index) => <li key={index}>{item.replace(/^- /, '')}</li>)}
+    </ul>
+  )
 };
 
 const ContactLine: React.FC<{ icon: React.ReactNode; text?: string }> = ({ icon, text }) => {
@@ -47,26 +50,138 @@ const ContactLine: React.FC<{ icon: React.ReactNode; text?: string }> = ({ icon,
   return <span className="flex items-center gap-1.5">{icon}{text}</span>;
 };
 
-// Template 1: Modern
-const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-  const { personalInfo, experience, education, skills, projects, certifications, references, additionalInformation } = resumeData;
-  const { color } = designOptions;
+// =================================================================
+// SECTION COMPONENTS
+// These are the building blocks for the templates.
+// =================================================================
+const Sections = {
+  summary: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <p className="text-sm">{resumeData.personalInfo.summary}</p>
+  ),
+  experience: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <div className="space-y-4">
+      {resumeData.experience.map(exp => (
+        <div key={exp.id}>
+          <div className="flex justify-between items-baseline">
+            <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
+            <div className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate}</div>
+          </div>
+          <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
+          {renderDescription(exp.description)}
+        </div>
+      ))}
+    </div>
+  ),
+  projects: ({ resumeData }: { resumeData: ResumeFormData }) => (
+     <div className="space-y-4">
+      {resumeData.projects.map(proj => (
+        <div key={proj.id}>
+            <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
+                {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
+            </div>
+            {renderDescription(proj.description)}
+        </div>
+      ))}
+    </div>
+  ),
+  education: ({ resumeData }: { resumeData: ResumeFormData }) => (
+     <div className="space-y-2">
+      {resumeData.education.map(edu => (
+        <div key={edu.id}>
+          <div className="flex justify-between items-baseline">
+            <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
+            <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
+          </div>
+          <div className="italic text-sm text-muted-foreground">{edu.degree || 'Degree'}</div>
+          {edu.details && <div className="text-sm">{edu.details}</div>}
+        </div>
+      ))}
+    </div>
+  ),
+  skills: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <div className="flex flex-wrap gap-2">
+      {resumeData.skills.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-sm">{skill.name}</span>)}
+    </div>
+  ),
+  certifications: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <div className="space-y-2">
+        {resumeData.certifications.map(cert => (
+            <div key={cert.id}>
+                <div className="flex justify-between items-baseline">
+                    <h3 className="font-semibold text-base">{cert.name || 'Certification'}</h3>
+                    <div className="text-xs text-muted-foreground">{cert.date}</div>
+                </div>
+                <div className="italic text-sm text-muted-foreground">{cert.issuingOrganization || 'Issuing Organization'}</div>
+            </div>
+        ))}
+    </div>
+  ),
+  additionalInformation: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    renderFreeform(resumeData.additionalInformation.details)
+  ),
+  references: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <div className="grid grid-cols-2 gap-4">
+      {resumeData.references.map(ref => (
+        <div key={ref.id} className="text-sm">
+          <h3 className="font-semibold">{ref.name}</h3>
+          <p className="text-muted-foreground">{ref.company}</p>
+          <p className="text-muted-foreground">{ref.email}</p>
+          <p className="text-muted-foreground">{ref.phone}</p>
+        </div>
+      ))}
+    </div>
+  )
+};
 
-  const Section: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, children, show = true }) => {
-    if (!show) return null;
-    return (
-      <section>
-        <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-3" style={{ borderColor: color }}>{title}</h2>
-        <div className="space-y-4">{children}</div>
-      </section>
-    );
-  };
+const sectionHasContent = (key: keyof typeof Sections, resumeData: ResumeFormData) => {
+  switch (key) {
+    case 'summary': return !!resumeData.personalInfo.summary;
+    case 'experience': return resumeData.experience.length > 0;
+    case 'projects': return resumeData.projects.length > 0;
+    case 'education': return resumeData.education.length > 0;
+    case 'skills': return resumeData.skills.length > 0;
+    case 'certifications': return resumeData.certifications.length > 0;
+    case 'additionalInformation': return !!resumeData.additionalInformation.details;
+    case 'references': return resumeData.references.length > 0;
+    default: return false;
+  }
+};
+
+const sectionTitles: { [key in keyof typeof Sections]: string } = {
+  summary: 'Summary',
+  experience: 'Experience',
+  projects: 'Projects',
+  education: 'Education',
+  skills: 'Skills',
+  certifications: 'Certifications',
+  additionalInformation: 'Additional Information',
+  references: 'References',
+};
+
+// =================================================================
+// TEMPLATES
+// =================================================================
+
+const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+  const { personalInfo, sectionOrder } = resumeData;
+  const { color, alignment } = designOptions;
+
+  const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+    <section>
+      <h2 className="text-lg font-bold uppercase tracking-wider border-b-2 pb-1 mb-3" style={{ borderColor: color }}>{title}</h2>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
 
   return (
-    <div className="p-8">
-      <header className="text-center mb-8">
+    <div className={cn("p-8", `text-${alignment}`)}>
+      <header className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
-        <div className="flex justify-center items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2 flex-wrap">
+        <div className={cn(
+          "flex items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2 flex-wrap",
+           alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'
+        )}>
             <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
             <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
             <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
@@ -75,74 +190,35 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className' | 'resumeDat
       </header>
 
       <div className="space-y-6">
-        <Section title="Summary" show={!!personalInfo?.summary}><p className="text-sm">{personalInfo?.summary}</p></Section>
-        
-        <Section title="Experience" show={experience && experience.length > 0}>
-          {experience?.map(exp => (
-            <div key={exp.id}>
-              <div className="flex justify-between items-baseline">
-                <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
-                <div className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate}</div>
-              </div>
-              <div className="italic text-sm text-muted-foreground mb-1">{exp.company || 'Company'}</div>
-              {renderDescription(exp.description)}
-            </div>
-          ))}
-        </Section>
-        
-        <Section title="Projects" show={projects && projects.length > 0}>
-           {projects?.map(proj => (
-                <div key={proj.id}>
-                    <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
-                        {proj.link && <Link href={proj.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline"><LinkIcon size={12} /></Link>}
-                    </div>
-                    {renderDescription(proj.description)}
-                </div>
-            ))}
-        </Section>
-
-        <Section title="Education" show={education && education.length > 0}>
-          {education?.map(edu => (
-            <div key={edu.id}>
-              <div className="flex justify-between items-baseline">
-                <h3 className="font-semibold text-base">{edu.institution || 'Institution'}</h3>
-                <div className="text-xs text-muted-foreground">{edu.graduationDate}</div>
-              </div>
-              <div className="italic text-sm text-muted-foreground">{edu.degree || 'Degree'}</div>
-              {edu.details && <div className="text-sm">{edu.details}</div>}
-            </div>
-          ))}
-        </Section>
-
-        <Section title="Skills" show={skills && skills.length > 0}>
-          <div className="flex flex-wrap gap-2">
-            {skills?.map(skill => skill.name && <span key={skill.id} className="bg-muted px-2 py-1 rounded text-sm">{skill.name}</span>)}
-          </div>
-        </Section>
+         {sectionOrder.map(key => {
+            if (!sectionHasContent(key, resumeData)) return null;
+            const Component = Sections[key];
+            return (
+                <Section key={key} title={sectionTitles[key]}>
+                    <Component resumeData={resumeData} />
+                </Section>
+            )
+        })}
       </div>
     </div>
   );
 };
 
-// Template 2: Classic
-const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects } = resumeData;
-    const { color } = designOptions;
+
+const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
     
-    const Section: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, show = true, children }) => {
-        if (!show) return null;
-        return (
-            <section>
-                <h2 className="text-sm font-bold uppercase tracking-widest text-center mb-2" style={{ color }}>{title}</h2>
-                <div className="border-t w-1/4 mx-auto mb-4" style={{ borderColor: color }}/>
-                <div className="space-y-4">{children}</div>
-            </section>
-        );
-    };
+    const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-center mb-2" style={{ color }}>{title}</h2>
+            <div className="border-t w-1/4 mx-auto mb-4" style={{ borderColor: color }}/>
+            <div className="space-y-4">{children}</div>
+        </section>
+    );
 
     return (
-        <div className="p-8">
+        <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-6 text-center">
                 <h1 className="text-3xl font-bold tracking-normal">{personalInfo?.name || 'Your Name'}</h1>
                 <div className="text-xs text-muted-foreground mt-2">
@@ -154,130 +230,128 @@ const ClassicTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
                 </div>
             </header>
             <div className="space-y-6">
-                <Section title="Summary" show={!!personalInfo?.summary}>
-                    <p className="text-sm text-center">{personalInfo?.summary}</p>
-                </Section>
-                <Section title="Experience" show={experience && experience.length > 0}>
-                    {experience?.map(exp => (
-                        <div key={exp.id}>
-                            <div className="flex justify-between items-baseline">
-                                <h3 className="font-semibold text-base">{exp.company || 'Company'}</h3>
-                                <div className="text-xs font-mono">{exp.startDate} - {exp.endDate}</div>
-                            </div>
-                            <div className="italic text-sm mb-1">{exp.role || 'Role'}</div>
-                            {renderDescription(exp.description)}
-                        </div>
-                    ))}
-                </Section>
-                 <Section title="Projects" show={projects && projects.length > 0}>
-                    {projects?.map(proj => (
-                        <div key={proj.id}>
-                            <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
-                            {renderDescription(proj.description)}
-                        </div>
-                    ))}
-                </Section>
-                <Section title="Education" show={education && education.length > 0}>
-                    {education?.map(edu => (
-                        <div key={edu.id} className="flex justify-between items-baseline">
-                            <div>
-                                <h3 className="font-semibold text-base">{edu.degree || 'Degree'}</h3>
-                                <div className="italic text-sm">{edu.institution || 'Institution'}</div>
-                            </div>
-                            <div className="text-xs font-mono">{edu.graduationDate}</div>
-                        </div>
-                    ))}
-                </Section>
-                <Section title="Skills" show={skills && skills.length > 0}>
-                    <p className="text-sm text-center">{skills?.map(s => s.name).join(' • ')}</p>
-                </Section>
+                {sectionOrder.map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    
+                    if (key === 'skills') {
+                         return (
+                            <Section key={key} title={sectionTitles[key]}>
+                                <p className="text-sm text-center">{resumeData.skills.map(s => s.name).join(' • ')}</p>
+                            </Section>
+                        )
+                    }
+
+                    if (key === 'summary') {
+                         return (
+                            <Section key={key} title={sectionTitles[key]}>
+                                 <p className="text-sm text-center">{personalInfo.summary}</p>
+                            </Section>
+                        )
+                    }
+
+                    return (
+                        <Section key={key} title={sectionTitles[key]}>
+                            <Component resumeData={resumeData} />
+                        </Section>
+                    )
+                })}
             </div>
         </div>
     );
 };
 
-// Template 3: Executive
-const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects } = resumeData;
+
+const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
     const { color } = designOptions;
 
-    const RightSection: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, show = true, children }) => {
-        if (!show) return null;
-        return <section><h2 className="text-base font-bold uppercase tracking-wider mb-2">{title}</h2><div className="space-y-4">{children}</div></section>;
-    };
+    const mainSections = ['experience', 'projects', 'certifications', 'additionalInformation', 'references', 'summary'];
+    const sidebarSections = ['skills', 'education'];
+    
+    const RightSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-base font-bold uppercase tracking-wider mb-2">{title}</h2><div className="space-y-4">{children}</div></section>
+    );
 
-    const LeftSection: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, show = true, children }) => {
-        if (!show) return null;
-        return <section><h2 className="text-sm font-bold uppercase tracking-wider mb-2">{title}</h2><div>{children}</div></section>;
-    };
+    const LeftSection: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-sm font-bold uppercase tracking-wider mb-2">{title}</h2><div>{children}</div></section>
+    );
 
     return (
         <div className="p-0">
             <header className="p-8 mb-6 text-white" style={{backgroundColor: color}}>
                 <h1 className="text-4xl font-bold">{personalInfo?.name || 'Your Name'}</h1>
-                <p className="text-xl mt-1">{personalInfo?.summary || 'Professional Summary'}</p>
+                {sectionHasContent('summary', resumeData) && <p className="text-xl mt-1">{personalInfo.summary}</p>}
             </header>
             <div className="grid grid-cols-12 gap-x-8 px-8">
                 <div className="col-span-4 space-y-6">
                     <LeftSection title="Contact">
                         <div className="text-sm space-y-1">
-                            {personalInfo?.location && <p>{personalInfo.location}</p>}
-                            {personalInfo?.email && <p>{personalInfo.email}</p>}
-                            {personalInfo?.phone && <p>{personalInfo.phone}</p>}
-                            {personalInfo?.website && <p>{personalInfo.website}</p>}
+                           <ContactLine icon={<MapPin size={12}/>} text={personalInfo?.location} />
+                            <ContactLine icon={<Mail size={12}/>} text={personalInfo?.email} />
+                            <ContactLine icon={<Phone size={12}/>} text={personalInfo?.phone} />
+                            <ContactLine icon={<Globe size={12}/>} text={personalInfo?.website} />
                         </div>
                     </LeftSection>
-                    <LeftSection title="Skills" show={skills && skills.length > 0}>
-                        <ul className="text-sm space-y-1">
-                            {skills?.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
-                        </ul>
-                    </LeftSection>
-                    <LeftSection title="Education" show={education && education.length > 0}>
-                         {education?.map(edu => (
-                            <div key={edu.id} className="text-sm">
-                                <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
-                                <p>{edu.degree || 'Degree'}</p>
-                                <p className="text-xs">{edu.graduationDate}</p>
-                            </div>
-                        ))}
-                    </LeftSection>
+                    
+                    {sectionOrder.filter(key => sidebarSections.includes(key)).map(key => {
+                        if (!sectionHasContent(key, resumeData)) return null;
+                         const Component = Sections[key];
+                         if (key === 'skills') {
+                            return (
+                                <LeftSection key={key} title={sectionTitles[key]}>
+                                    <ul className="text-sm space-y-1">
+                                        {resumeData.skills.map(skill => skill.name && <li key={skill.id}>{skill.name}</li>)}
+                                    </ul>
+                                </LeftSection>
+                            )
+                         }
+                         if (key === 'education') {
+                            return (
+                                <LeftSection key={key} title={sectionTitles[key]}>
+                                    {resumeData.education.map(edu => (
+                                        <div key={edu.id} className="text-sm mb-2">
+                                            <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
+                                            <p>{edu.degree || 'Degree'}</p>
+                                            <p className="text-xs">{edu.graduationDate}</p>
+                                        </div>
+                                    ))}
+                                </LeftSection>
+                            )
+                         }
+                         return null;
+                    })}
                 </div>
                 <div className="col-span-8 space-y-6">
-                    <RightSection title="Experience" show={experience && experience.length > 0}>
-                        {experience?.map(exp => (
-                            <div key={exp.id}>
-                                <h3 className="font-semibold text-base">{exp.role || 'Role'}</h3>
-                                <p className="text-sm mb-1">{exp.company || 'Company'} | {exp.startDate} - {exp.endDate}</p>
-                                {renderDescription(exp.description)}
-                            </div>
-                        ))}
-                    </RightSection>
-                    <RightSection title="Projects" show={projects && projects.length > 0}>
-                        {projects?.map(proj => (
-                            <div key={proj.id}>
-                                <h3 className="font-semibold text-base">{proj.name || 'Project Name'}</h3>
-                                {renderDescription(proj.description)}
-                            </div>
-                        ))}
-                    </RightSection>
+                    {sectionOrder.filter(key => mainSections.includes(key)).map(key => {
+                        if (!sectionHasContent(key, resumeData) || key === 'summary') return null;
+                        const Component = Sections[key];
+                        return (
+                            <RightSection key={key} title={sectionTitles[key]}>
+                                <Component resumeData={resumeData} />
+                            </RightSection>
+                        )
+                    })}
                 </div>
             </div>
         </div>
     );
 };
 
-// Template 4: Minimal
-const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects } = resumeData;
-    const { color } = designOptions;
+
+const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
     
-    const Section: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, show = true, children }) => {
-        if (!show) return null;
-        return <section><h2 className="text-xs font-semibold uppercase tracking-widest col-span-2 mb-2">{title}</h2><div className="col-span-10">{children}</div></section>;
-    };
+    const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <div className="grid grid-cols-12 gap-x-8">
+            <h2 className="text-xs font-semibold uppercase tracking-widest col-span-2 mb-2 pt-0.5">{title}</h2>
+            <div className="col-span-10">{children}</div>
+        </div>
+    );
 
     return (
-        <div className="p-10 space-y-8">
+        <div className={cn("p-10 space-y-8", `text-${alignment}`)}>
             <header className="mb-8">
                 <h1 className="text-2xl font-bold tracking-wider">{personalInfo?.name || 'Your Name'}</h1>
                 <div className="text-xs text-muted-foreground mt-2">
@@ -288,64 +362,42 @@ const MinimalTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeDat
             </header>
             
             <div className="space-y-8">
-                <div className="grid grid-cols-12 gap-x-8">
-                    <Section title="Summary" show={!!personalInfo?.summary}>
-                        <p className="text-sm leading-relaxed">{personalInfo?.summary}</p>
-                    </Section>
-                </div>
-                <div className="grid grid-cols-12 gap-x-8">
-                     <Section title="Experience" show={experience && experience.length > 0}>
-                        <div className="space-y-6">
-                            {experience?.map(exp => (
-                                <div key={exp.id}>
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="font-semibold">{exp.company || 'Company'}</h3>
-                                        <div className="text-xs font-mono">{exp.startDate} - {exp.endDate}</div>
-                                    </div>
-                                    <div className="text-sm mb-1">{exp.role || 'Role'}</div>
-                                    {renderDescription(exp.description)}
-                                </div>
-                            ))}
-                        </div>
-                    </Section>
-                </div>
-                <div className="grid grid-cols-12 gap-x-8">
-                    <Section title="Education" show={education && education.length > 0}>
-                        <div className="space-y-4">
-                            {education?.map(edu => (
-                                <div key={edu.id} className="flex justify-between">
-                                    <div>
-                                        <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
-                                        <p className="text-sm">{edu.degree || 'Degree'}</p>
-                                    </div>
-                                    <p className="text-xs font-mono">{edu.graduationDate}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </Section>
-                </div>
-                <div className="grid grid-cols-12 gap-x-8">
-                    <Section title="Skills" show={skills && skills.length > 0}>
-                        <p className="text-sm">{skills?.map(s => s.name).join(', ')}</p>
-                    </Section>
-                </div>
+                {sectionOrder.map(key => {
+                     if (!sectionHasContent(key, resumeData)) return null;
+                     const Component = Sections[key];
+                     if (key === 'skills') {
+                        return (
+                            <Section key={key} title={sectionTitles[key]}>
+                                <p className="text-sm">{resumeData.skills.map(s => s.name).join(', ')}</p>
+                            </Section>
+                        )
+                     }
+                     return (
+                        <Section key={key} title={sectionTitles[key]}>
+                           <div className="space-y-6">
+                                <Component resumeData={resumeData} />
+                           </div>
+                        </Section>
+                     )
+                })}
             </div>
         </div>
     );
 };
 
-// Template 5: Bold
-const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'> & {resumeData: Partial<ResumeFormData>}> = ({ resumeData, designOptions }) => {
-    const { personalInfo, experience, education, skills, projects } = resumeData;
-    const { color } = designOptions;
+
+const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resumeData, designOptions }) => {
+    const { personalInfo, sectionOrder } = resumeData;
+    const { color, alignment } = designOptions;
     
-    const Section: React.FC<{ title: string; children: React.ReactNode, show?: boolean }> = ({ title, show = true, children }) => {
-        if (!show) return null;
-        return <section><h2 className="text-2xl font-bold tracking-tighter mb-3" style={{color}}>{title}</h2><div className="space-y-5">{children}</div></section>;
-    };
+    const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ children, title }) => (
+        <section><h2 className="text-2xl font-bold tracking-tighter mb-3" style={{color}}>{title}</h2><div className="space-y-5">{children}</div></section>
+    );
+
+    const twoColumnSections: Array<keyof typeof Sections> = ['education', 'skills'];
 
     return (
-        <div className="p-8">
+        <div className={cn("p-8", `text-${alignment}`)}>
             <header className="mb-8 border-b-4 pb-4" style={{borderColor: color}}>
                 <h1 className="text-5xl font-extrabold tracking-tighter">{personalInfo?.name || 'Your Name'}</h1>
                  <div className="flex items-center gap-x-4 text-xs mt-3">
@@ -357,43 +409,35 @@ const BoldTemplate: React.FC<Omit<ResumePreviewProps, 'className'| 'resumeData'>
             </header>
             
             <div className="space-y-8">
-                <Section title="Professional Summary" show={!!personalInfo?.summary}>
-                    <p className="text-sm">{personalInfo?.summary}</p>
-                </Section>
-                <Section title="Work Experience" show={experience && experience.length > 0}>
-                    {experience?.map(exp => (
-                        <div key={exp.id}>
-                            <div className="flex justify-between items-baseline">
-                                <h3 className="text-lg font-semibold">{exp.role || 'Role'}</h3>
-                                <div className="text-sm font-medium">{exp.startDate} - {exp.endDate}</div>
-                            </div>
-                            <div className="text-base font-medium mb-1">{exp.company || 'Company'}</div>
-                            {renderDescription(exp.description)}
-                        </div>
-                    ))}
-                </Section>
-                <Section title="Projects" show={projects && projects.length > 0}>
-                    {projects?.map(proj => (
-                        <div key={proj.id}>
-                            <h3 className="text-lg font-semibold">{proj.name || 'Project Name'}</h3>
-                            {renderDescription(proj.description)}
-                        </div>
-                    ))}
-                </Section>
+                {sectionOrder.filter(key => !twoColumnSections.includes(key)).map(key => {
+                    if (!sectionHasContent(key, resumeData)) return null;
+                    const Component = Sections[key];
+                    return (
+                        <Section key={key} title={sectionTitles[key]}>
+                            <Component resumeData={resumeData} />
+                        </Section>
+                    )
+                })}
+
                 <div className="grid grid-cols-2 gap-8">
-                    <Section title="Education" show={education && education.length > 0}>
-                        {education?.map(edu => (
-                            <div key={edu.id}>
-                                <h3 className="font-semibold">{edu.institution || 'Institution'}</h3>
-                                <p className="text-sm">{edu.degree || 'Degree'}, {edu.graduationDate}</p>
-                            </div>
-                        ))}
-                    </Section>
-                    <Section title="Skills" show={skills && skills.length > 0}>
-                        <ul className="columns-2 text-sm">
-                        {skills?.map(s => s.name && <li key={s.id}>{s.name}</li>)}
-                        </ul>
-                    </Section>
+                    {sectionOrder.filter(key => twoColumnSections.includes(key)).map(key => {
+                         if (!sectionHasContent(key, resumeData)) return null;
+                         const Component = Sections[key];
+                         if (key === 'skills') {
+                             return (
+                                <Section key={key} title={sectionTitles[key]}>
+                                    <ul className="columns-2 text-sm">
+                                    {resumeData.skills.map(s => s.name && <li key={s.id}>{s.name}</li>)}
+                                    </ul>
+                                </Section>
+                             )
+                         }
+                         return (
+                            <Section key={key} title={sectionTitles[key]}>
+                                <Component resumeData={resumeData} />
+                            </Section>
+                         )
+                    })}
                 </div>
             </div>
         </div>

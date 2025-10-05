@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { DesignOptions, ResumeFormData } from '@/lib/definitions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Palette, Pen, Type, X } from 'lucide-react';
+import { Palette, Pen, Type, X, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { ResumePreview } from './resume-preview';
 import { cn } from '@/lib/utils';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 
 interface TemplateCustomizerProps {
   resumeData: ResumeFormData;
@@ -39,7 +40,7 @@ const templates: { name: string, value: DesignOptions['template'] }[] = [
     { name: 'Bold', value: 'bold' },
 ];
 
-type OpenSheet = 'template' | 'color' | 'font' | null;
+type OpenSheet = 'template' | 'color' | 'font' | 'alignment' | null;
 
 export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions }: TemplateCustomizerProps) {
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
@@ -83,6 +84,31 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                 </SelectContent>
               </Select>
             </div>
+          </>
+        );
+        break;
+      case 'alignment':
+        content = (
+          <>
+             <h3 className="font-semibold mb-4">Text Alignment</h3>
+             <ToggleGroup 
+                type="single" 
+                value={designOptions.alignment} 
+                onValueChange={(value) => {
+                    if (value) setDesignOptions(prev => ({...prev, alignment: value as 'left' | 'center' | 'right'}))
+                }}
+                className="w-full justify-center"
+            >
+                <ToggleGroupItem value="left" aria-label="Align left">
+                    <AlignLeft />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="center" aria-label="Align center">
+                    <AlignCenter />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="right" aria-label="Align right">
+                    <AlignRight />
+                </ToggleGroupİtem>
+             </ToggleGroup>
           </>
         );
         break;
@@ -156,7 +182,7 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                 )}
             </AnimatePresence>
             <div className="p-1 bg-background border rounded-lg shadow-lg">
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-4 gap-1">
                     <Button variant={openSheet === 'template' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('template')}>
                         <Pen className="mb-1 h-3 w-3"/>
                         <span>Template</span>
@@ -168,6 +194,10 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
                     <Button variant={openSheet === 'font' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('font')}>
                         <Type className="mb-1 h-3 w-3" />
                         <span>Font</span>
+                    </Button>
+                     <Button variant={openSheet === 'alignment' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('alignment')}>
+                        <AlignCenter className="mb-1 h-3 w-3" />
+                        <span>Align</span>
                     </Button>
                 </div>
             </div>
