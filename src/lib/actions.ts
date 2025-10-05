@@ -11,7 +11,7 @@ import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume
 import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
 import { extractResumeData } from '@/ai/flows/extract-resume-data';
 import mammoth from 'mammoth';
-import { unpdf } from 'unpdf';
+import unpdf from 'unpdf';
 
 export async function getInitialResumeDraftAction(prompt: string) {
     try {
