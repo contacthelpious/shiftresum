@@ -11,7 +11,7 @@ import { ResumeFormData, ResumeFormSchema, defaultResumeFormData, DesignOptions,
 import { ResumeEditor } from '@/components/builder/resume-editor';
 import { TemplateCustomizer } from '@/components/builder/template-customizer';
 import { ResumePreview } from '@/components/builder/resume-preview';
-import { Download, LayoutTemplate, Feather, Loader2 } from 'lucide-react';
+import { Download, LayoutTemplate, Feather, Loader2, Home } from 'lucide-react';
 import { DownloadTab } from '@/components/builder/download-tab';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -19,6 +19,8 @@ import { doc } from 'firebase/firestore';
 import type { ResumeData } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { type ExtractResumeDataOutput } from '@/ai/flows/extract-resume-data';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function BuilderPage() {
   const router = useRouter();
@@ -132,7 +134,7 @@ export default function BuilderPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
       </div>
     );
@@ -140,9 +142,14 @@ export default function BuilderPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-screen">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <div className="px-4 py-2 border-b no-print w-full flex justify-center">
+          <div className="px-4 py-2 border-b no-print w-full flex items-center justify-between">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/dashboard" aria-label="Go to Dashboard">
+                    <Home className="h-5 w-5 text-muted-foreground" />
+                </Link>
+            </Button>
             <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger value="content">
                 <Feather className="mr-2 h-4 w-4" /> Content
@@ -154,6 +161,7 @@ export default function BuilderPage() {
                 <Download className="mr-2 h-4 w-4" /> Download
               </TabsTrigger>
             </TabsList>
+            <div className="w-10"></div> {/* Spacer to balance the home icon */}
           </div>
 
           <div className={cn(
