@@ -220,20 +220,20 @@ export function TemplateCustomizer({ resumeData, designOptions, setDesignOptions
             </AnimatePresence>
             <div className="p-1 bg-background border rounded-lg shadow-lg">
                 <div className="grid grid-cols-4 gap-1">
-                    <Button variant={openSheet === 'template' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('template')}>
-                        <Pen className="mb-1 h-3 w-3"/>
+                    <Button variant={openSheet === 'template' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => toggleSheet('template')}>
+                        <Pen />
                         <span>Template</span>
                     </Button>
-                    <Button variant={openSheet === 'color' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('color')}>
-                        <Palette className="mb-1 h-3 w-3" />
+                    <Button variant={openSheet === 'color' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => toggleSheet('color')}>
+                        <Palette />
                         <span>Color</span>
                     </Button>
-                    <Button variant={openSheet === 'font' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('font')}>
-                        <Type className="mb-1 h-3 w-3" />
+                    <Button variant={openSheet === 'font' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => toggleSheet('font')}>
+                        <Type />
                         <span>Font</span>
                     </Button>
-                     <Button variant={openSheet === 'layout' ? 'secondary' : 'ghost'} className="flex-col h-11 text-xs" onClick={() => toggleSheet('layout')}>
-                        <Pilcrow className="mb-1 h-3 w-3" />
+                     <Button variant={openSheet === 'layout' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => toggleSheet('layout')}>
+                        <Pilcrow />
                         <span>Layout</span>
                     </Button>
                 </div>
