@@ -44,28 +44,35 @@ export async function parseResumeAction(formData: FormData) {
 
         const parsedData = await parseResume({ resumeContent });
         
+        // Create a clean data structure, starting with defaults.
         const fullData = merge({}, defaultResumeFormData, parsedData);
         
+        // **THE FIX**: Rigorously sanitize and assign valid UUIDs to all items.
+        // This ensures that any placeholder or invalid IDs from the AI are replaced.
+        
+        // Sanitize Experience section, including nested descriptions
         fullData.experience?.forEach(exp => {
-            exp.id = exp.id || crypto.randomUUID();
-            // **THE FIX**: Transform the array of strings from the AI into an array of objects.
+            exp.id = crypto.randomUUID(); // Assign new valid UUID
             if (Array.isArray(exp.description)) {
-                exp.description = (exp.description as unknown as string[]).map((descString: string) => ({
-                    id: crypto.randomUUID(),
-                    value: descString,
+                 // The AI returns an array of strings, transform it to the required object structure.
+                exp.description = (exp.description as unknown as string[]).map((descValue: string) => ({
+                    id: crypto.randomUUID(), // Assign new valid UUID to each bullet point
+                    value: descValue,
                 }));
             }
         });
 
-        fullData.education?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.skills?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.projects?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
-        fullData.certifications?.forEach(item => { if (!item.id) item.id = crypto.randomUUID() });
+        // Sanitize all other top-level array sections
+        fullData.education?.forEach(item => { item.id = crypto.randomUUID() });
+        fullData.skills?.forEach(item => { item.id = crypto.randomUUID() });
+        fullData.projects?.forEach(item => { item.id = crypto.randomUUID() });
+        fullData.certifications?.forEach(item => { item.id = crypto.randomUUID() });
 
+        // Perform a final validation against the schema to be absolutely sure.
         const finalValidation = ResumeFormSchema.safeParse(fullData);
         
         if (!finalValidation.success) {
-            console.error("Final validation failed after merging in action:", finalValidation.error.flatten());
+            console.error("Final validation failed after merging and sanitizing:", finalValidation.error.flatten());
             throw new Error(`Schema validation failed. Parse Errors:\n\n${JSON.stringify(finalValidation.error.flatten().fieldErrors, null, 2)}`);
         }
 
