@@ -68,9 +68,9 @@ export default function BuilderPage() {
   }, [stripeStatus, router, toast, searchParams]);
 
  useEffect(() => {
-    // This effect handles the initial data loading logic for the form.
-    
-    // 1. Check for data from a just-uploaded resume. This is the highest priority.
+    // This effect handles the initial data loading logic for the form, with strict priority.
+
+    // 1. HIGHEST PRIORITY: Check for data from a just-uploaded resume.
     const parsedDataString = sessionStorage.getItem('parsedResumeData');
     if (parsedDataString) {
       try {
@@ -80,27 +80,23 @@ export default function BuilderPage() {
         console.error("Error processing sessionStorage data:", error);
         methods.reset(defaultResumeFormData); // Fallback on error.
       } finally {
-         // CRITICAL: Clean up sessionStorage immediately after use.
-         // This prevents this block from running again on subsequent renders
-         // and ensures the form isn't accidentally reset.
+         // CRITICAL: Clean up sessionStorage immediately after use to prevent re-use.
         sessionStorage.removeItem('parsedResumeData');
       }
-      // CRITICAL FIX: Stop execution here to prevent other conditions from
-      // overwriting the form data that was just loaded. This eliminates
-      // the race condition.
+      // CRITICAL FIX: Stop execution here to prevent any other logic from
+      // overwriting the form data that was just loaded from the upload.
       return; 
     }
 
-    // 2. If not from an upload, check if we are loading an existing resume from Firestore.
+    // 2. SECOND PRIORITY: If not from an upload, check for an existing resume from Firestore.
     if (resumeData) {
       methods.reset(resumeData.data);
       setDesignOptions(resumeData.design);
-      return; // Stop execution.
+      return; // Stop execution after loading Firestore data.
     }
 
-    // 3. As a last resort, if this is a brand new resume and we aren't loading an existing one,
-    //    use the default placeholder data. This condition is safe because the upload case
-    //    is handled and stopped above.
+    // 3. LOWEST PRIORITY: If this is a new resume and we aren't loading existing data, use the default.
+    // This only runs if the checks above for sessionStorage and resumeData fail.
     if (resumeId === '__new__' && !isResumeLoading) {
       methods.reset(defaultResumeFormData);
     }
