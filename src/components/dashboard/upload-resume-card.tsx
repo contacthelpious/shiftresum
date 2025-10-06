@@ -63,18 +63,16 @@ export function UploadResumeCard() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Upload Existing Resume</CardTitle>
-          <CardDescription>Prefill the builder from a DOCX or PDF file.</CardDescription>
-        </div>
-        <Button onClick={handleUploadClick} disabled={isUploading} size="lg">
+      <CardHeader>
+        <CardTitle>Upload Existing Resume</CardTitle>
+        <CardDescription>Prefill the builder from a DOCX or PDF file.</CardDescription>
+        <Button onClick={handleUploadClick} disabled={isUploading} className="mt-2 w-full sm:w-auto">
           {isUploading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <UploadCloud className="mr-2 h-4 w-4" />
           )}
-          Upload
+          Upload Resume
         </Button>
         <input
           type="file"

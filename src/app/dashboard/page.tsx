@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -56,16 +57,14 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
       </div>
 
-       <div className="grid gap-8 mb-8 md:grid-cols-2">
+       <div className="grid gap-4 mb-8 md:grid-cols-2">
             <Card>
-                 <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Create New Resume</CardTitle>
-                        <CardDescription>Start from scratch with a template.</CardDescription>
-                    </div>
-                    <Button onClick={handleNewResume} size="lg">
+                 <CardHeader>
+                    <CardTitle>Create New Resume</CardTitle>
+                    <CardDescription>Start from scratch with a template.</CardDescription>
+                    <Button onClick={handleNewResume} className="mt-2 w-full sm:w-auto">
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        New
+                        New Resume
                     </Button>
                 </CardHeader>
             </Card>
