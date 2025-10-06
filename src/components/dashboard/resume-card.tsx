@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface ResumeCardProps {
   resume: WithId<ResumeData>;
@@ -33,7 +34,6 @@ export function ResumeCard({ resume }: ResumeCardProps) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const router = useRouter();
 
   const lastEdited = resume.updatedAt?.toDate
     ? `Updated ${format(resume.updatedAt.toDate(), 'dd MMM yyyy')}`
@@ -62,14 +62,29 @@ export function ResumeCard({ resume }: ResumeCardProps) {
       description: 'Sharing options will be available in a future update.',
     });
   }
+  
+  const ActionButton = ({ href, onClick, children, className, 'aria-label': ariaLabel }: { href?: string, onClick?: () => void, children: React.ReactNode, className?: string, 'aria-label'?: string }) => {
+    const content = (
+      <Button variant="ghost" size="icon" className={cn("rounded-full h-10 w-10 md:h-9 md:w-auto md:px-4 md:rounded-md", className)} aria-label={ariaLabel}>
+        {children}
+      </Button>
+    );
+
+    if (href) {
+      return <Link href={href}>{content}</Link>
+    }
+    return <div onClick={onClick}>{content}</div>;
+  };
+
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg w-full">
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+      <CardContent className="p-4 md:p-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
+          
           {/* Thumbnail */}
-          <Link href={`/builder?resumeId=${resume.id}`} className="block shrink-0 mx-auto sm:mx-0">
-            <div className="relative w-[150px] h-[212px] overflow-hidden bg-muted/30 flex items-center justify-center rounded-lg border">
+          <Link href={`/builder?resumeId=${resume.id}`} className="block shrink-0 group">
+            <div className="relative w-[150px] h-[212px] overflow-hidden bg-muted/30 flex items-center justify-center rounded-lg border group-hover:ring-2 group-hover:ring-primary transition-all">
               <div className="transform scale-[0.18] origin-center pointer-events-none">
                 <ResumePreview resumeData={resume.data} designOptions={resume.design} isInteractive={false} />
               </div>
@@ -77,38 +92,35 @@ export function ResumeCard({ resume }: ResumeCardProps) {
           </Link>
 
           {/* Details & Actions */}
-          <div className="flex flex-col flex-1">
-            <div className="flex-1">
-              <h3 className="text-xl font-bold font-headline">{resume.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{lastEdited}</p>
+          <div className="flex flex-col flex-1 w-full items-center md:items-start">
+            <div className="text-center md:text-left">
+                <h3 className="text-xl font-bold font-headline">{resume.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{lastEdited}</p>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/builder?resumeId=${resume.id}&action=download`}>
-                    <Download />
-                    <span className="ml-2">Download</span>
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/builder?resumeId=${resume.id}`}>
-                    <Edit />
-                     <span className="ml-2">Edit</span>
-                  </Link>
-                </Button>
-                 <Button variant="outline" size="sm" onClick={handleCopy}>
-                    <Copy />
-                     <span className="ml-2">Copy</span>
-                 </Button>
-                 <Button variant="outline" size="sm" onClick={handleShare}>
-                    <Share2 />
-                     <span className="ml-2">Share</span>
-                 </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-1 justify-center mb-6">
+                <ActionButton href={`/builder?resumeId=${resume.id}`} aria-label="Edit Resume">
+                    <Edit className="h-5 w-5 md:mr-2" />
+                    <span className="hidden md:inline">Edit</span>
+                </ActionButton>
+                 <ActionButton href={`/builder?resumeId=${resume.id}&action=download`} aria-label="Download Resume">
+                    <Download className="h-5 w-5 md:mr-2" />
+                    <span className="hidden md:inline">Download</span>
+                </ActionButton>
+                 <ActionButton onClick={handleCopy} aria-label="Copy Resume">
+                    <Copy className="h-5 w-5 md:mr-2" />
+                     <span className="hidden md:inline">Copy</span>
+                 </ActionButton>
+                 <ActionButton onClick={handleShare} aria-label="Share Resume">
+                    <Share2 className="h-5 w-5 md:mr-2" />
+                     <span className="hidden md:inline">Share</span>
+                 </ActionButton>
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                            <Trash2 />
-                             <span className="ml-2">Delete</span>
+                       <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive rounded-full h-10 w-10 md:h-9 md:w-auto md:px-4 md:rounded-md" aria-label="Delete Resume">
+                            <Trash2 className="h-5 w-5 md:mr-2" />
+                             <span className="hidden md:inline">Delete</span>
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -124,20 +136,19 @@ export function ResumeCard({ resume }: ResumeCardProps) {
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-              </div>
             </div>
-
+            
             {/* Tailor CTA */}
-            <div className="mt-auto bg-primary/5 border border-primary/20 rounded-lg p-4 text-center">
+            <div className="mt-auto bg-primary/5 border border-primary/20 rounded-lg p-4 text-center w-full">
                <div className="flex items-center justify-center gap-2 mb-3">
                    <Sparkles className="h-5 w-5 text-accent"/>
-                   <p className="text-sm font-medium text-foreground">
-                       Customizing your resume for each job can triple your chances of getting an interview.
+                   <p className="text-sm font-medium text-foreground text-center md:text-left">
+                       Tailor this resume for a specific job to triple your chances.
                    </p>
                </div>
                <Button className="w-full" onClick={() => toast({ title: 'Coming Soon!' })}>
                    Tailor this resume
-                   <ArrowRight className="ml-2" />
+                   <ArrowRight className="ml-2 h-4 w-4" />
                </Button>
             </div>
           </div>
