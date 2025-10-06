@@ -90,20 +90,22 @@ export async function uploadResumeAndExtractDataAction(formData: FormData) {
 
     try {
         const buffer = Buffer.from(await file.arrayBuffer());
-        let rawText = '';
+        let structuredData;
 
         if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             const result = await mammoth.extractRawText({ buffer });
-            rawText = result.value;
+            const rawText = result.value;
+             if (!rawText.trim()) {
+                return { success: false, error: 'Could not extract text from the document.' };
+            }
+            structuredData = await extractResumeData({ resumeText: rawText });
+        } else if (file.type === 'application/pdf') {
+            const dataUri = `data:application/pdf;base64,${buffer.toString('base64')}`;
+            structuredData = await extractResumeData({ resumeFileUri: dataUri });
         } else {
-            return { success: false, error: 'Unsupported file type. Please upload a DOCX file.' };
+            return { success: false, error: 'Unsupported file type. Please upload a DOCX or PDF file.' };
         }
 
-        if (!rawText.trim()) {
-            return { success: false, error: 'Could not extract text from the document.' };
-        }
-
-        const structuredData = await extractResumeData({ resumeText: rawText });
         return { success: true, data: structuredData };
     } catch (error) {
         console.error('Error processing resume:', error);

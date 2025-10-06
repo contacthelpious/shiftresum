@@ -47,7 +47,7 @@ export function UploadResumeCard() {
       });
       // Store the parsed data in sessionStorage to pass it to the builder
       sessionStorage.setItem('prefill-data', JSON.stringify(result.data));
-      router.push('/builder?resumeId=__new__');
+      router.push('/builder?resumeId=__new__&source=import');
     } else {
       toast({
         variant: 'destructive',
@@ -62,7 +62,7 @@ export function UploadResumeCard() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Upload Existing Resume</CardTitle>
-          <CardDescription>Prefill the builder from a DOCX file.</CardDescription>
+          <CardDescription>Prefill the builder from a DOCX or PDF file.</CardDescription>
         </div>
         <Button onClick={handleUploadClick} disabled={isUploading} size="lg">
           {isUploading ? (
@@ -77,7 +77,7 @@ export function UploadResumeCard() {
           ref={fileInputRef}
           className="hidden"
           onChange={handleFileChange}
-          accept=".docx"
+          accept=".docx,.pdf"
         />
       </CardHeader>
     </Card>
