@@ -33,7 +33,7 @@ export const EducationSchema = z.object({
   id: z.string().uuid().optional(),
   institution: z.string().optional(),
   degree: z.string().optional(),
-  graduationDate: z 'string'.optional(),
+  graduationDate: z.string().optional(),
   details: z.string().optional(),
 });
 
