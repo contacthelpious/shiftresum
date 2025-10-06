@@ -81,6 +81,11 @@ export function DownloadTab({ resumeId: initialResumeId, designOptions }: Downlo
             const newDocRef = await addDoc(resumesColRef, { ...dataToSave, createdAt: serverTimestamp() });
             
             setResumeId(newDocRef.id);
+            
+            // Clean up session storage after a successful save
+            sessionStorage.removeItem('draft-resume-data');
+            sessionStorage.removeItem('prefill-data');
+
             // Update URL without reloading page to reflect the new resume ID
             const newParams = new URLSearchParams(searchParams.toString());
             newParams.set('resumeId', newDocRef.id);

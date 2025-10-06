@@ -28,37 +28,47 @@ const getInitialFormData = (): ResumeFormData => {
   if (typeof window === 'undefined') {
     return defaultResumeFormData;
   }
+  // 1. Prioritize loading an in-progress draft.
+  const draftDataString = sessionStorage.getItem('draft-resume-data');
+  if (draftDataString) {
+    try {
+      return JSON.parse(draftDataString);
+    } catch (e) {
+      console.error('Failed to parse draft data:', e);
+      sessionStorage.removeItem('draft-resume-data');
+    }
+  }
+
+  // 2. If no draft, look for newly imported pre-fill data.
   const prefillDataString = sessionStorage.getItem('prefill-data');
-  if (!prefillDataString) {
-    return defaultResumeFormData;
+  if (prefillDataString) {
+    try {
+      const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
+      sessionStorage.setItem('prefill-data-processed', 'true');
+
+      const transformedData: ResumeFormData = {
+        ...defaultResumeFormData,
+        personalInfo: prefillData.personalInfo || defaultResumeFormData.personalInfo,
+        experience: (prefillData.experience || []).map(exp => ({
+          ...exp,
+          id: crypto.randomUUID(),
+          description: exp.description ? exp.description.map(d => ({ id: crypto.randomUUID(), value: d })) : []
+        })),
+        education: (prefillData.education || []).map(edu => ({ ...edu, id: crypto.randomUUID() })),
+        skills: (prefillData.skills || []).map(skill => ({ ...skill, id: crypto.randomUUID() })),
+        projects: (prefillData.projects || []).map(proj => ({ ...proj, id: crypto.randomUUID() })),
+        certifications: (prefillData.certifications || []).map(cert => ({ ...cert, id: crypto.randomUUID() })),
+        references: (prefillData.references || []).map(ref => ({ ...ref, id: crypto.randomUUID() })),
+      };
+      return transformedData;
+    } catch (e) {
+      console.error('Failed to parse prefill data:', e);
+      sessionStorage.removeItem('prefill-data');
+    }
   }
 
-  try {
-    const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
-    // Set a flag that we've processed this data for the current session.
-    sessionStorage.setItem('prefill-data-processed', 'true');
-
-    // Transform AI output to form data format
-    const transformedData: ResumeFormData = {
-      ...defaultResumeFormData, // Start with defaults
-      personalInfo: prefillData.personalInfo || defaultResumeFormData.personalInfo,
-      experience: (prefillData.experience || []).map(exp => ({
-        ...exp,
-        id: crypto.randomUUID(),
-        description: exp.description ? exp.description.map(d => ({ id: crypto.randomUUID(), value: d })) : []
-      })),
-      education: (prefillData.education || []).map(edu => ({ ...edu, id: crypto.randomUUID() })),
-      skills: (prefillData.skills || []).map(skill => ({ ...skill, id: crypto.randomUUID() })),
-      projects: (prefillData.projects || []).map(proj => ({ ...proj, id: crypto.randomUUID() })),
-      certifications: (prefillData.certifications || []).map(cert => ({ ...cert, id: crypto.randomUUID() })),
-      references: (prefillData.references || []).map(ref => ({ ...ref, id: crypto.randomUUID() })),
-    };
-    return transformedData;
-  } catch (e) {
-    console.error('Failed to parse prefill data:', e);
-    sessionStorage.removeItem('prefill-data'); // Clean up on error
-    return defaultResumeFormData;
-  }
+  // 3. Fallback to default placeholder data.
+  return defaultResumeFormData;
 };
 
 
@@ -78,34 +88,41 @@ export default function BuilderPage() {
   
   const methods = useForm<ResumeFormData>({
     resolver: zodResolver(ResumeFormSchema),
-    // Initialize the form synchronously with data from session storage or defaults
+    // Initialize the form synchronously with the best available data
     defaultValues: getInitialFormData(),
     mode: 'onBlur',
   });
   
   const resumeRef = useMemoFirebase(() => {
-    // Do not fetch from firestore if we just imported data
-    if (!user || !resumeId || resumeId === '__new__' || isUserLoading || sessionStorage.getItem('prefill-data-processed')) return null;
+    // Do not fetch from firestore if it's a new resume being edited
+    if (!user || !resumeId || resumeId === '__new__' || isUserLoading) return null;
     return doc(firestore, `users/${user.uid}/resumes`, resumeId);
   }, [firestore, user, resumeId, isUserLoading]);
 
   const { data: resumeData, isLoading: isResumeLoading } = useDoc<ResumeData>(resumeRef);
 
   useEffect(() => {
-    // This effect now only handles loading data from Firestore for existing resumes.
+    // This effect now only handles loading data from Firestore for existing, saved resumes.
     if (resumeData) {
-      // Only reset form if it's not a new resume from an import
-      const isImport = searchParams.get('source') === 'import';
-      if (!isImport) {
-        methods.reset(resumeData.data);
-        setDesignOptions(resumeData.design);
-      }
+      methods.reset(resumeData.data);
+      setDesignOptions(resumeData.design);
     }
-    // Clean up the flag after the effect runs
+    // Clean up the import flag after initial load
     if (sessionStorage.getItem('prefill-data-processed')) {
         sessionStorage.removeItem('prefill-data-processed');
+        // Now that the initial data is loaded into the form, remove the source prefill data
+        // so it doesn't get re-loaded on refresh. The draft data will take over.
+        sessionStorage.removeItem('prefill-data');
     }
-  }, [resumeData, searchParams, methods]);
+  }, [resumeData, methods]);
+  
+  const watchedData = methods.watch();
+  // Auto-save to session storage for new resumes
+  useEffect(() => {
+    if (resumeId === '__new__') {
+        sessionStorage.setItem('draft-resume-data', JSON.stringify(watchedData));
+    }
+  }, [watchedData, resumeId]);
 
 
   useEffect(() => {
@@ -140,7 +157,6 @@ export default function BuilderPage() {
     }
   }, [action, isSubDataLoading, router, searchParams]);
 
-  const watchedData = methods.watch();
   const isLoading = isUserLoading || (!!resumeId && resumeId !== '__new__' && isResumeLoading);
 
   if (isLoading) {
