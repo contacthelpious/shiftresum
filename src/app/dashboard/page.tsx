@@ -32,6 +32,10 @@ export default function DashboardPage() {
     }, [user, isUserLoading, router]);
 
     const handleNewResume = async () => {
+        // Clear any old drafts or pre-fill data to ensure a clean start
+        sessionStorage.removeItem('draft-resume-data');
+        sessionStorage.removeItem('prefill-data');
+        sessionStorage.removeItem('prefill-data-processed');
         router.push(`/builder?resumeId=__new__`);
     };
 

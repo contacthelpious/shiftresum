@@ -28,7 +28,7 @@ const getInitialFormData = (): ResumeFormData => {
   if (typeof window === 'undefined') {
     return defaultResumeFormData;
   }
-  // 1. Prioritize loading an in-progress draft.
+  // 1. Prioritize loading an in-progress draft. This handles refreshes.
   const draftDataString = sessionStorage.getItem('draft-resume-data');
   if (draftDataString) {
     try {
@@ -44,6 +44,8 @@ const getInitialFormData = (): ResumeFormData => {
   if (prefillDataString) {
     try {
       const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
+      // Mark as processed but do NOT remove the data itself,
+      // so it can be reloaded on refresh if no edits have been made yet.
       sessionStorage.setItem('prefill-data-processed', 'true');
 
       const transformedData: ResumeFormData = {
@@ -102,17 +104,14 @@ export default function BuilderPage() {
   const { data: resumeData, isLoading: isResumeLoading } = useDoc<ResumeData>(resumeRef);
 
   useEffect(() => {
-    // This effect now only handles loading data from Firestore for existing, saved resumes.
+    // This effect handles loading data from Firestore for existing, saved resumes.
     if (resumeData) {
       methods.reset(resumeData.data);
       setDesignOptions(resumeData.design);
     }
-    // Clean up the import flag after initial load
+    // This handles cleaning up the initial import flag. It no longer removes the data itself.
     if (sessionStorage.getItem('prefill-data-processed')) {
         sessionStorage.removeItem('prefill-data-processed');
-        // Now that the initial data is loaded into the form, remove the source prefill data
-        // so it doesn't get re-loaded on refresh. The draft data will take over.
-        sessionStorage.removeItem('prefill-data');
     }
   }, [resumeData, methods]);
   
