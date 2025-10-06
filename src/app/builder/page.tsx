@@ -35,7 +35,8 @@ const getInitialFormData = (): ResumeFormData => {
 
   try {
     const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
-    sessionStorage.removeItem('prefill-data'); // Clean up immediately
+    // Set a flag that we've processed this data for the current session.
+    sessionStorage.setItem('prefill-data-processed', 'true');
 
     // Transform AI output to form data format
     const transformedData: ResumeFormData = {
