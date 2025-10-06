@@ -10,6 +10,8 @@ import { generateExperienceDescription } from '@/ai/flows/generate-experience-de
 import { generateSkillsFromResume } from '@/ai/flows/generate-skills-from-resume';
 import { regenerateBulletPoint } from '@/ai/flows/regenerate-bullet-point';
 import { extractResumeData } from '@/ai/flows/extract-resume-data';
+import { tailorResume } from '@/ai/flows/tailor-resume';
+import type { ResumeFormData } from './definitions';
 import mammoth from 'mammoth';
 
 export async function getInitialResumeDraftAction(prompt: string) {
@@ -110,5 +112,16 @@ export async function uploadResumeAndExtractDataAction(formData: FormData) {
     } catch (error) {
         console.error('Error processing resume:', error);
         return { success: false, error: 'Failed to process the uploaded resume.' };
+    }
+}
+
+
+export async function tailorResumeAction(resumeData: ResumeFormData, jobDescription: string) {
+    try {
+        const result = await tailorResume({ resumeData, jobDescription });
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Error tailoring resume:', error);
+        return { success: false, error: 'Failed to tailor the resume with AI.' };
     }
 }
