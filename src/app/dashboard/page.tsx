@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -51,7 +50,7 @@ export default function DashboardPage() {
     const userName = user.displayName || user.email?.split('@')[0] || 'there';
 
   return (
-    <div className="container py-8 px-4 sm:px-8 w-full">
+    <div className="container py-8 px-4 sm:px-8 w-full max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome back, {userName}!</h1>
         <p className="text-muted-foreground">Here's your dashboard. Ready to land that next job?</p>
@@ -73,33 +72,30 @@ export default function DashboardPage() {
             <UploadResumeCard />
        </div>
 
-      <Card>
-        <CardHeader>
-            <div>
-                <CardTitle>Recent Resumes</CardTitle>
-                <CardDescription>Your saved resumes. Click one to start editing.</CardDescription>
+      <div>
+        <div className="mb-4">
+            <h2 className="text-2xl font-bold tracking-tight">Recent Resumes</h2>
+            <p className="text-muted-foreground">Your saved resumes. Click one to start editing.</p>
+        </div>
+        
+        {isResumesLoading && !resumes ? (
+            <div className="text-center py-12">
+            <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+            <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
             </div>
-        </CardHeader>
-        <CardContent>
-          {isResumesLoading && !resumes ? (
-             <div className="text-center py-12">
-               <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
-               <p className="mt-2 text-sm text-muted-foreground">Loading your resumes...</p>
-             </div>
-          ) : resumes && resumes.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {resumes.map((resume) => (
+        ) : resumes && resumes.length > 0 ? (
+            <div className="flex flex-col gap-6">
+            {resumes.map((resume) => (
                 <ResumeCard key={resume.id} resume={resume} />
-              ))}
+            ))}
             </div>
-          ) : (
-            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+        ) : (
+            <div className="text-center py-20 border-2 border-dashed rounded-lg">
                 <h3 className="text-lg font-medium text-muted-foreground">No resumes yet!</h3>
                 <p className="text-sm text-muted-foreground mt-1">Create or upload a resume to get started.</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 }
