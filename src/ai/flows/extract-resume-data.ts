@@ -40,7 +40,7 @@ const AiProjectSchema = ProjectSchema.omit({ id: true });
 const AiCertificationSchema = CertificationSchema.omit({ id: true });
 const AiReferenceSchema = ReferenceSchema.omit({ id: true });
 
-const ExtractResumeDataOutputSchema = z.object({
+export const ExtractResumeDataOutputSchema = z.object({
   personalInfo: PersonalInfoSchema.describe('The personal contact information from the resume.'),
   experience: z.array(AiExperienceSchema).describe('The work experience section of the resume.'),
   education: z.array(AiEducationSchema).describe('The education section of the resume.'),
