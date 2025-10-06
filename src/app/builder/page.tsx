@@ -22,6 +22,45 @@ import { type ExtractResumeDataOutput } from '@/ai/flows/extract-resume-data';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+// Helper function to get initial form data.
+// This runs synchronously before the component renders.
+const getInitialFormData = (): ResumeFormData => {
+  if (typeof window === 'undefined') {
+    return defaultResumeFormData;
+  }
+  const prefillDataString = sessionStorage.getItem('prefill-data');
+  if (!prefillDataString) {
+    return defaultResumeFormData;
+  }
+
+  try {
+    const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
+    sessionStorage.removeItem('prefill-data'); // Clean up immediately
+
+    // Transform AI output to form data format
+    const transformedData: ResumeFormData = {
+      ...defaultResumeFormData, // Start with defaults
+      personalInfo: prefillData.personalInfo || defaultResumeFormData.personalInfo,
+      experience: (prefillData.experience || []).map(exp => ({
+        ...exp,
+        id: crypto.randomUUID(),
+        description: exp.description ? exp.description.map(d => ({ id: crypto.randomUUID(), value: d })) : []
+      })),
+      education: (prefillData.education || []).map(edu => ({ ...edu, id: crypto.randomUUID() })),
+      skills: (prefillData.skills || []).map(skill => ({ ...skill, id: crypto.randomUUID() })),
+      projects: (prefillData.projects || []).map(proj => ({ ...proj, id: crypto.randomUUID() })),
+      certifications: (prefillData.certifications || []).map(cert => ({ ...cert, id: crypto.randomUUID() })),
+      references: (prefillData.references || []).map(ref => ({ ...ref, id: crypto.randomUUID() })),
+    };
+    return transformedData;
+  } catch (e) {
+    console.error('Failed to parse prefill data:', e);
+    sessionStorage.removeItem('prefill-data'); // Clean up on error
+    return defaultResumeFormData;
+  }
+};
+
+
 export default function BuilderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,16 +77,35 @@ export default function BuilderPage() {
   
   const methods = useForm<ResumeFormData>({
     resolver: zodResolver(ResumeFormSchema),
-    defaultValues: defaultResumeFormData,
+    // Initialize the form synchronously with data from session storage or defaults
+    defaultValues: getInitialFormData(),
     mode: 'onBlur',
   });
   
   const resumeRef = useMemoFirebase(() => {
-    if (!user || !resumeId || resumeId === '__new__' || isUserLoading) return null;
+    // Do not fetch from firestore if we just imported data
+    if (!user || !resumeId || resumeId === '__new__' || isUserLoading || sessionStorage.getItem('prefill-data-processed')) return null;
     return doc(firestore, `users/${user.uid}/resumes`, resumeId);
   }, [firestore, user, resumeId, isUserLoading]);
 
   const { data: resumeData, isLoading: isResumeLoading } = useDoc<ResumeData>(resumeRef);
+
+  useEffect(() => {
+    // This effect now only handles loading data from Firestore for existing resumes.
+    if (resumeData) {
+      // Only reset form if it's not a new resume from an import
+      const isImport = searchParams.get('source') === 'import';
+      if (!isImport) {
+        methods.reset(resumeData.data);
+        setDesignOptions(resumeData.design);
+      }
+    }
+    // Clean up the flag after the effect runs
+    if (sessionStorage.getItem('prefill-data-processed')) {
+        sessionStorage.removeItem('prefill-data-processed');
+    }
+  }, [resumeData, searchParams, methods]);
+
 
   useEffect(() => {
     if (stripeStatus) {
@@ -70,54 +128,6 @@ export default function BuilderPage() {
       router.replace(`${window.location.pathname}?${newParams.toString()}`);
     }
   }, [stripeStatus, router, toast, searchParams]);
-
-  useEffect(() => {
-    // Check for prefill data from upload
-    const prefillDataString = sessionStorage.getItem('prefill-data');
-    if (prefillDataString) {
-      try {
-        const prefillData: ExtractResumeDataOutput = JSON.parse(prefillDataString);
-        
-        // Transform AI output to form data format
-        const transformedData: ResumeFormData = {
-          ...defaultResumeFormData, // Start with defaults
-          personalInfo: prefillData.personalInfo || defaultResumeFormData.personalInfo,
-          experience: prefillData.experience.map(exp => ({
-            ...exp,
-            id: crypto.randomUUID(),
-            description: exp.description ? exp.description.map(d => ({ id: crypto.randomUUID(), value: d })) : []
-          })),
-          education: prefillData.education.map(edu => ({ ...edu, id: crypto.randomUUID() })),
-          skills: prefillData.skills.map(skill => ({ ...skill, id: crypto.randomUUID() })),
-          projects: prefillData.projects.map(proj => ({ ...proj, id: crypto.randomUUID() })),
-          certifications: prefillData.certifications.map(cert => ({ ...cert, id: crypto.randomUUID() })),
-          references: prefillData.references.map(ref => ({ ...ref, id: crypto.randomUUID() })),
-        };
-
-        methods.reset(transformedData);
-        toast({ title: 'Success', description: 'Your resume data has been pre-filled.'});
-      } catch (e) {
-        console.error('Failed to parse prefill data:', e);
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not load the extracted resume data.'});
-      } finally {
-        sessionStorage.removeItem('prefill-data');
-      }
-      return; // Stop further processing
-    }
-
-
-    // If we have an existing resume from Firestore, load it.
-    if (resumeData) {
-      methods.reset(resumeData.data);
-      setDesignOptions(resumeData.design);
-      return;
-    }
-
-    // If this is a new resume and we aren't loading existing data, use the default.
-    if (resumeId === '__new__' && !isResumeLoading && !prefillDataString) {
-      methods.reset(defaultResumeFormData);
-    }
-  }, [resumeData, isResumeLoading, resumeId, methods, toast]);
 
 
   useEffect(() => {
