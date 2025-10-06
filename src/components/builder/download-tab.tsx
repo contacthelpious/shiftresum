@@ -32,11 +32,8 @@ export function DownloadTab({ resumeId: initialResumeId, designOptions }: Downlo
   const [isSaving, setIsSaving] = useState(false);
 
   const handleExportClick = () => {
-    if (user && isPro) {
-      handlePrint();
-    } else {
-      setIsAuthGateOpen(true);
-    }
+    // Temporarily bypass the isPro check
+    handlePrint();
   };
   
   const handlePrint = () => {
@@ -126,7 +123,7 @@ export function DownloadTab({ resumeId: initialResumeId, designOptions }: Downlo
               </Button>
             </div>
             <p className="text-xs text-muted-foreground pt-2">
-              Saving requires an account. Exporting to PDF requires a subscription.
+              Saving requires an account. Exporting to PDF is currently open to all users.
             </p>
           </CardContent>
         </Card>

@@ -47,15 +47,15 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
       setView('loading');
       return;
     }
-
-    if (!user) {
-      sessionStorage.setItem('loginRedirect', window.location.href);
-      setView('auth');
-    } else if (isPro) {
+    
+    // TEMPORARY: Allow all logged-in users to download
+    if (user) {
       setView('confirm');
     } else {
-      setView('pricing');
+      sessionStorage.setItem('loginRedirect', window.location.href);
+      setView('auth');
     }
+
   }, [isOpen, user, isPro, isUserLoading, isSubDataLoading]);
 
   const handleAuthSuccess = () => {
@@ -196,7 +196,7 @@ export function AuthGate({ isOpen, onClose, onSubscribed }: AuthGateProps) {
             <DialogHeader className="text-center">
               <DialogTitle>Ready to Download</DialogTitle>
               <DialogDescription>
-                You have an active subscription. Your download will start shortly.
+                Your download will start shortly.
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-center p-8">
