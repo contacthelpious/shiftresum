@@ -13,12 +13,9 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import {
   ResumeFormSchema,
-  type ResumeFormData,
-} from '@/lib/definitions';
-import {
-  type ExtractResumeDataOutput,
   ExtractResumeDataOutputSchema,
-} from './extract-resume-data';
+  type ExtractResumeDataOutput,
+} from '@/lib/definitions';
 
 const TailorResumeInputSchema = z.object({
   resumeData: ResumeFormSchema.describe('The current structured data of the user\'s resume.'),

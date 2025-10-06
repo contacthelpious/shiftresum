@@ -12,14 +12,10 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import {
-  PersonalInfoSchema,
-  ExperienceSchema,
-  EducationSchema,
-  SkillSchema,
-  ProjectSchema,
-  CertificationSchema,
-  ReferenceSchema,
+  ExtractResumeDataOutputSchema,
+  type ExtractResumeDataOutput,
 } from '@/lib/definitions';
+
 
 const ExtractResumeDataInputSchema = z.object({
   resumeText: z.string().optional().describe('The full raw text content of a resume.'),
@@ -27,30 +23,6 @@ const ExtractResumeDataInputSchema = z.object({
 });
 export type ExtractResumeDataInput = z.infer<
   typeof ExtractResumeDataInputSchema
->;
-
-// We have to redefine the schemas here without the .uuid() for AI to work correctly
-// as the AI doesn't know how to generate UUIDs.
-const AiExperienceSchema = ExperienceSchema.omit({ id: true, description: true }).extend({
-  description: z.array(z.string()).optional().describe('An array of bullet points describing the experience.'),
-});
-const AiEducationSchema = EducationSchema.omit({ id: true });
-const AiSkillSchema = SkillSchema.omit({ id: true });
-const AiProjectSchema = ProjectSchema.omit({ id: true });
-const AiCertificationSchema = CertificationSchema.omit({ id: true });
-const AiReferenceSchema = ReferenceSchema.omit({ id: true });
-
-export const ExtractResumeDataOutputSchema = z.object({
-  personalInfo: PersonalInfoSchema.describe('The personal contact information from the resume.'),
-  experience: z.array(AiExperienceSchema).describe('The work experience section of the resume.'),
-  education: z.array(AiEducationSchema).describe('The education section of the resume.'),
-  skills: z.array(AiSkillSchema).describe('The skills section of the resume.'),
-  projects: z.array(AiProjectSchema).describe('The projects section of the resume.'),
-  certifications: z.array(AiCertificationSchema).describe('The certifications section of the resume.'),
-  references: z.array(AiReferenceSchema).describe('The references section of the resume.'),
-});
-export type ExtractResumeDataOutput = z.infer<
-  typeof ExtractResumeDataOutputSchema
 >;
 
 export async function extractResumeData(

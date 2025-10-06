@@ -33,7 +33,7 @@ export const EducationSchema = z.object({
   id: z.string().uuid().optional(),
   institution: z.string().optional(),
   degree: z.string().optional(),
-  graduationDate: z.string().optional(),
+  graduationDate: z 'string'.optional(),
   details: z.string().optional(),
 });
 
@@ -77,6 +77,29 @@ export const AdditionalInformationSchema = z.object({
   details: z.string().optional(),
 });
 export type AdditionalInformation = z.infer<typeof AdditionalInformationSchema>;
+
+
+// Schemas for AI Data Extraction (without UUIDs for AI generation)
+export const AiExperienceSchema = ExperienceSchema.omit({ id: true, description: true }).extend({
+  description: z.array(z.string()).optional().describe('An array of bullet points describing the experience.'),
+});
+export const AiEducationSchema = EducationSchema.omit({ id: true });
+export const AiSkillSchema = SkillSchema.omit({ id: true });
+export const AiProjectSchema = ProjectSchema.omit({ id: true });
+export const AiCertificationSchema = CertificationSchema.omit({ id: true });
+export const AiReferenceSchema = ReferenceSchema.omit({ id: true });
+
+export const ExtractResumeDataOutputSchema = z.object({
+  personalInfo: PersonalInfoSchema.describe('The personal contact information from the resume.'),
+  experience: z.array(AiExperienceSchema).describe('The work experience section of the resume.'),
+  education: z.array(AiEducationSchema).describe('The education section of the resume.'),
+  skills: z.array(AiSkillSchema).describe('The skills section of the resume.'),
+  projects: z.array(AiProjectSchema).describe('The projects section of the resume.'),
+  certifications: z.array(AiCertificationSchema).describe('The certifications section of the resume.'),
+  references: z.array(AiReferenceSchema).describe('The references section of the resume.'),
+});
+export type ExtractResumeDataOutput = z.infer<typeof ExtractResumeDataOutputSchema>;
+
 
 export const SectionKeySchema = z.enum([
   'experience',
