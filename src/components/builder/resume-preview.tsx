@@ -163,6 +163,13 @@ const Sections = {
         </div>
     );
   },
+  skillsVertical: ({ resumeData }: { resumeData: ResumeFormData }) => (
+    <ul className="space-y-1">
+        {resumeData.skills.map(skill => skill.name && 
+            <li key={skill.id} className="text-sm">{skill.name}</li>
+        )}
+    </ul>
+  ),
   certifications: ({ resumeData }: { resumeData: ResumeFormData }) => (
     <div className="space-y-2">
         {resumeData.certifications.map(cert => (
@@ -214,6 +221,7 @@ const sectionTitles: { [key in keyof typeof Sections]: string } = {
   projects: 'Projects',
   education: 'Education',
   skills: 'Skills',
+  skillsVertical: 'Skills',
   certifications: 'Certifications',
   additionalInformation: 'Additional Information',
   references: 'References',
@@ -244,26 +252,30 @@ const ModernTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resum
     </section>
   );
   
-  // Decide which sections go into the sidebar vs main content
   (sectionOrder || defaultSectionOrder).forEach(key => {
     if (!sectionHasContent(key, resumeData)) return;
 
-    const Component = Sections[key];
-    const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
-    
-    // Heuristic for sidebar vs main. Small, list-like items go to sidebar.
     const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
 
-    if (isSidebarSection && sidebarSections.length < 4) { // Limit sidebar sections
-        sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
+    let Component, sectionContent;
+    if (key === 'skills' && isSidebarSection) {
+      Component = Sections['skillsVertical'];
+      sectionContent = <Component resumeData={resumeData} />;
     } else {
-        mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
+      Component = Sections[key as keyof typeof Sections];
+      sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
+    }
+    
+    if (isSidebarSection && sidebarSections.length < 4) {
+      sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
+    } else {
+      mainSections.push(<MainSection key={key} title={sectionTitles[key]}>{sectionContent}</MainSection>);
     }
   });
 
   return (
-    <div className={cn("p-0 flex h-full", `text-${alignment}`)}>
-      <div className="w-1/3 bg-muted/40 p-6 space-y-6">
+    <div className={cn("p-0 flex h-full items-stretch", `text-${alignment}`)}>
+      <div className="w-1/3 bg-muted/30 p-6 space-y-6">
           <header className="mb-4">
             <h1 className="text-[22pt] font-bold tracking-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
           </header>
@@ -339,14 +351,19 @@ const ExecutiveTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ re
         <section><h2 className="text-[12pt] font-semibold uppercase tracking-wider mb-2" style={{color}}>{title}</h2><div>{children}</div></section>
     );
     
-    // Dynamic section allocation based on user order
     (sectionOrder || defaultSectionOrder).forEach(key => {
       if (!sectionHasContent(key, resumeData)) return;
       
-      const Component = Sections[key];
-      const sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
-      
       const isSidebarSection = ['skills', 'education', 'certifications', 'references'].includes(key);
+
+      let Component, sectionContent;
+      if (key === 'skills' && isSidebarSection) {
+        Component = Sections['skillsVertical'];
+        sectionContent = <Component resumeData={resumeData} />;
+      } else {
+        Component = Sections[key as keyof typeof Sections];
+        sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
+      }
 
       if (isSidebarSection && sidebarSections.length < 4) {
         sidebarSections.push(<SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>);
@@ -434,7 +451,7 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
     );
 
     return (
-        <div className={cn("grid grid-cols-12 gap-x-8 p-8 h-full", `text-${alignment}`)}>
+        <div className={cn("grid grid-cols-12 gap-x-8 p-8 h-full items-stretch", `text-${alignment}`)}>
             <div className="col-span-3 space-y-6">
                 <header>
                     <h1 className="text-[24pt] font-bold leading-tight" style={{ color }}>{personalInfo?.name || 'Your Name'}</h1>
@@ -449,8 +466,17 @@ const ProfessionalTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({
                 </SidebarSection>
                 {(sectionOrder || defaultSectionOrder).filter(k => sidebarKeys.includes(k)).map(key => {
                     if (!sectionHasContent(key, resumeData)) return null;
-                    const Component = Sections[key];
-                    return <SidebarSection key={key} title={sectionTitles[key]}><Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} /></SidebarSection>
+
+                    let Component, sectionContent;
+                    if (key === 'skills') {
+                      Component = Sections['skillsVertical'];
+                      sectionContent = <Component resumeData={resumeData} />;
+                    } else {
+                      Component = Sections[key as keyof typeof Sections];
+                      sectionContent = <Component resumeData={resumeData} designOptions={designOptions} isInteractive={isInteractive} />;
+                    }
+
+                    return <SidebarSection key={key} title={sectionTitles[key]}>{sectionContent}</SidebarSection>
                 })}
             </div>
             <div className="col-span-9 pl-8 border-l space-y-6">
@@ -469,7 +495,7 @@ const FocusTemplate: React.FC<Omit<ResumePreviewProps, 'className'>> = ({ resume
     const { color, alignment } = designOptions;
 
     return (
-        <div className="flex h-full">
+        <div className="flex h-full items-stretch">
             <div className="w-1.5 h-full" style={{backgroundColor: color}}></div>
             <div className={cn("p-8 flex-1", `text-${alignment}`)}>
                 <header className="mb-8">
