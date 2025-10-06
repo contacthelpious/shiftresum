@@ -45,6 +45,8 @@ export function UploadResumeCard() {
         title: 'Resume Processed!',
         description: 'Your data has been extracted. Redirecting to the builder...',
       });
+      // Clear any previous unsaved draft before setting the new prefill data
+      sessionStorage.removeItem('draft-resume-data');
       // Store the parsed data in sessionStorage to pass it to the builder
       sessionStorage.setItem('prefill-data', JSON.stringify(result.data));
       router.push('/builder?resumeId=__new__&source=import');
