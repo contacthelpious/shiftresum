@@ -149,20 +149,16 @@ export type ResumeFormData = z.infer<typeof ResumeFormSchema>;
 
 export const defaultResumeFormData: ResumeFormData = {
   personalInfo: {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '123-456-7890',
-    location: 'San Francisco, CA',
-    website: 'johndoe.com',
-    summary: 'A highly motivated and skilled software engineer with experience in building web applications.',
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    website: '',
+    summary: '',
   },
-  experience: [
-    { id: crypto.randomUUID(), company: 'Tech Corp', role: 'Software Engineer', startDate: 'Jan 2020', endDate: 'Present', description: [{id: crypto.randomUUID(), value: 'Developed and maintained web applications using React and Node.js.'}] },
-  ],
-  education: [
-     { id: crypto.randomUUID(), institution: 'State University', degree: 'B.S. in Computer Science', graduationDate: 'May 2019', details: '' },
-  ],
-  skills: [ {id: crypto.randomUUID(), name: 'React'}, {id: crypto.randomUUID(), name: 'Node.js'} ],
+  experience: [],
+  education: [],
+  skills: [],
   projects: [],
   certifications: [],
   references: [],
