@@ -41,18 +41,9 @@ const templates: { name: string, value: TemplateName }[] = [
     { name: 'Modern', value: 'modern' },
     { name: 'Classic', value: 'classic' },
     { name: 'Executive', value: 'executive' },
-    { name: 'Minimal', value: 'minimal' },
     { name: 'Bold', value: 'bold' },
-    { name: 'Metro', value: 'metro' },
-    { name: 'Elegant', value: 'elegant' },
-    { name: 'Compact', value: 'compact' },
-    { name: 'Creative', value: 'creative' },
-    { name: 'Timeline', value: 'timeline' },
     { name: 'Professional', value: 'professional' },
-    { name: 'Startup', value: 'startup' },
-    { name: 'Nordic', value: 'nordic' },
     { name: 'Focus', value: 'focus' },
-    { name: 'Signature', value: 'signature' },
 ];
 
 type OpenSheet = 'template' | 'color' | 'font' | 'layout' | null;

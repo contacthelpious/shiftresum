@@ -95,18 +95,9 @@ export const TemplateNameSchema = z.enum([
   'modern', 
   'classic', 
   'executive', 
-  'minimal', 
   'bold',
-  'metro',
-  'elegant',
-  'compact',
-  'creative',
-  'timeline',
   'professional',
-  'startup',
-  'nordic',
   'focus',
-  'signature',
 ]);
 export type TemplateName = z.infer<typeof TemplateNameSchema>;
 
