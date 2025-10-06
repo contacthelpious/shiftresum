@@ -92,15 +92,11 @@ export async function uploadResumeAndExtractDataAction(formData: FormData) {
         const buffer = Buffer.from(await file.arrayBuffer());
         let rawText = '';
 
-        if (file.type === 'application/pdf') {
-            const unpdf = (await import('unpdf')).default;
-            const data = await unpdf(buffer);
-            rawText = data.text;
-        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             const result = await mammoth.extractRawText({ buffer });
             rawText = result.value;
         } else {
-            return { success: false, error: 'Unsupported file type. Please upload a PDF or DOCX file.' };
+            return { success: false, error: 'Unsupported file type. Please upload a DOCX file.' };
         }
 
         if (!rawText.trim()) {

@@ -62,7 +62,7 @@ export function UploadResumeCard() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Upload Existing Resume</CardTitle>
-          <CardDescription>Prefill the builder from a DOCX or PDF.</CardDescription>
+          <CardDescription>Prefill the builder from a DOCX file.</CardDescription>
         </div>
         <Button onClick={handleUploadClick} disabled={isUploading} size="lg">
           {isUploading ? (
@@ -77,7 +77,7 @@ export function UploadResumeCard() {
           ref={fileInputRef}
           className="hidden"
           onChange={handleFileChange}
-          accept=".pdf,.docx"
+          accept=".docx"
         />
       </CardHeader>
     </Card>
