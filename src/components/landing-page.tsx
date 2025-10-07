@@ -160,7 +160,7 @@ const TemplatesSection = () => {
                             <div className="p-1">
                                 <Card className="overflow-hidden group">
                                     <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden flex justify-center items-center">
-                                        <div className="transform scale-[0.25] origin-center pointer-events-none">
+                                        <div className="transform scale-[0.4] origin-center pointer-events-none">
                                             <ResumePreview 
                                                 resumeData={sample.data}
                                                 designOptions={{ ...defaultDesignOptions, template: sample.template, color: sample.color }}
