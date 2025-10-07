@@ -14,7 +14,7 @@ const softwareEngineerData: ResumeFormData = {
         phone: '123-456-7890',
         location: 'San Francisco, CA',
         website: 'github.com/alexdoe',
-        summary: 'Innovative and results-driven Software Engineer with over 8 years of experience in building and scaling modern web applications. Proficient in TypeScript, React, and Node.js, with a proven track record of delivering high-quality, performant, and user-centric solutions. Passionate about clean code, system architecture, and collaborative problem-solving.'
+        summary: 'Innovative and results-driven Software Engineer with over 8 years of experience in building and scaling modern web applications. Proficient in TypeScript, React, and Node.js, with a proven track record of delivering high-quality, performant, and user-centric solutions.'
     },
     experience: [
         {
@@ -24,11 +24,21 @@ const softwareEngineerData: ResumeFormData = {
             startDate: 'Jan 2021',
             endDate: 'Present',
             description: [
-                {id: 'd1', value: 'Led the development of a new microservices architecture using Node.js and Docker, improving system scalability by 40% and reducing latency by 20%.'},
+                {id: 'd1', value: 'Led the development of a new microservices architecture using Node.js and Docker, improving system scalability by 40%.'},
                 {id: 'd2', value: 'Engineered a complete redesign of the main dashboard using React and TypeScript, resulting in a 30% increase in user engagement.'},
-                {id: 'd3', value: 'Mentored a team of 3 junior engineers, conducting code reviews and fostering their growth, which improved team velocity by 15%.'},
             ],
         },
+        {
+            id: 'exp2',
+            company: 'Innovate LLC',
+            role: 'Software Engineer',
+            startDate: 'Jun 2018',
+            endDate: 'Dec 2020',
+            description: [
+                {id: 'd3', value: 'Developed and maintained core features for a SaaS platform with over 100,000 active users.'},
+                {id: 'd4', value: 'Collaborated with a team of 5 engineers to deliver features in an agile environment.'}
+            ],
+        }
     ],
     education: [
         {
@@ -48,8 +58,6 @@ const softwareEngineerData: ResumeFormData = {
         {id: 's6', name: 'AWS'},
         {id: 's7', name: 'PostgreSQL'},
         {id: 's8', name: 'CI/CD'},
-        {id: 's9', name: 'System Design'},
-        {id: 's10', name: 'Agile Methodologies'},
     ],
     projects: [
         {
@@ -77,7 +85,7 @@ const uxDesignerData: ResumeFormData = {
         phone: '987-654-3210',
         location: 'New York, NY',
         website: 'samcarter-designs.com',
-        summary: 'Creative and empathetic UX/UI Designer with a strong portfolio of successful projects across mobile and web platforms. Specializes in user-centered design methodologies, from initial research and wireframing to high-fidelity prototyping and usability testing. Skilled in Figma, Sketch, and Adobe Creative Suite.'
+        summary: 'Creative and empathetic UX/UI Designer with a strong portfolio of successful projects across mobile and web platforms. Specializes in user-centered design methodologies, from initial research and wireframing to high-fidelity prototyping and usability testing.'
     },
     experience: [
         {
@@ -110,7 +118,7 @@ const uxDesignerData: ResumeFormData = {
             institution: 'Design Institute',
             degree: 'M.A. in Interaction Design',
             graduationDate: 'Jun 2019',
-            details: 'Thesis on Accessible Design in E-commerce'
+            details: ''
         },
         {
             id: 'edu2',
@@ -134,18 +142,11 @@ const uxDesignerData: ResumeFormData = {
         {
             id: 'proj1',
             name: 'Mobile Banking App Redesign',
-            description: 'A personal concept project to improve the user experience of a popular mobile banking application. Focused on simplifying navigation and transaction flows.',
+            description: 'A personal concept project to improve the user experience of a popular mobile banking application.',
             link: 'behance.net/samcarter/banking-app'
         }
     ],
-    certifications: [
-        {
-            id: 'cert1',
-            name: 'Certified Usability Analyst (CUA)',
-            issuingOrganization: 'Human Factors International',
-            date: '2021'
-        }
-    ],
+    certifications: [],
     references: [],
 };
 
@@ -156,7 +157,7 @@ const marketingManagerData: ResumeFormData = {
         phone: '555-555-5555',
         location: 'Chicago, IL',
         website: 'linkedin.com/in/michaelchen',
-        summary: 'Results-driven Marketing Manager with 8+ years of experience developing and executing successful, data-informed marketing campaigns. Expert in digital marketing, SEO/SEM, and content strategy. Adept at leveraging data analytics and market research to drive brand growth, engagement, and ROI.'
+        summary: 'Results-driven Marketing Manager with 8+ years of experience developing and executing successful, data-informed marketing campaigns. Expert in digital marketing, SEO/SEM, and content strategy.'
     },
     experience: [
         {
@@ -166,9 +167,8 @@ const marketingManagerData: ResumeFormData = {
             startDate: 'Aug 2020',
             endDate: 'Present',
             description: [
-                {id: 'd1', value: 'Developed and managed a multi-channel content marketing strategy that increased organic traffic by 150% and generated over 5,000 qualified leads in one year.'},
-                {id: 'd2', value: 'Managed a marketing budget of $500K, optimizing ad spend across Google Ads and social media to achieve a 3:1 return on investment.'},
-                {id: 'd3', value: 'Led a team of 4 marketing specialists, providing mentorship and direction to achieve departmental goals.'},
+                {id: 'd1', value: 'Developed and managed a multi-channel content marketing strategy that increased organic traffic by 150%.'},
+                {id: 'd2', value: 'Managed a marketing budget of $500K, optimizing ad spend across Google Ads and social media.'},
             ],
         }
     ],
@@ -188,14 +188,12 @@ const marketingManagerData: ResumeFormData = {
         {id: 's4', name: 'Email Marketing'},
         {id: 's5', name: 'Social Media Advertising'},
         {id: 's6', name: 'HubSpot'},
-        {id: 's7', name: 'Market Research'},
-        {id: 's8', name: 'A/B Testing'},
     ],
     projects: [
         {
             id: 'proj1',
             name: 'Brand Awareness Campaign',
-            description: 'Launched a brand awareness campaign targeting a new demographic, resulting in a 200% increase in social media engagement and a 15% growth in market share.',
+            description: 'Launched a brand awareness campaign targeting a new demographic, resulting in a 200% increase in social media engagement.',
             link: ''
         }
     ],
@@ -220,31 +218,31 @@ export const sampleData: TemplateSample[] = [
     {
         template: 'modern',
         data: softwareEngineerData,
-        color: '#2563EB', // Shift Blue
+        color: '#2563EB', // Blue
     },
     {
         template: 'executive',
         data: uxDesignerData,
-        color: '#4338CA', // Deep Indigo
+        color: '#8B5CF6', // Purple
     },
     {
         template: 'classic',
         data: marketingManagerData,
-        color: '#06B6D4', // Electric Cyan
+        color: '#059669', // Green
     },
     {
         template: 'bold',
         data: softwareEngineerData,
-        color: '#10B981', // Emerald Green
+        color: '#DB2777', // Pink
     },
     {
         template: 'professional',
         data: uxDesignerData,
-        color: '#F59E0B', // Amber
+        color: '#475569', // Slate
     },
     {
         template: 'focus',
         data: marketingManagerData,
-        color: '#EF4444', // Coral Red
+        color: '#EA580C', // Orange
     },
 ];
