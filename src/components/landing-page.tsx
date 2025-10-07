@@ -137,56 +137,54 @@ const HeroSection = () => {
 
 const TemplatesSection = () => {
     return (
-        <section className="bg-muted/40 w-full py-20 md:py-32">
-            <div className="container">
-                <div className="mx-auto max-w-3xl text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tighter font-headline">
-                        Start with a Professional Template
-                    </h2>
-                    <p className="mt-4 text-lg text-muted-foreground">
-                        Choose from a variety of field-tested templates. Change colors, fonts, and layouts to make it your own.
-                    </p>
-                </div>
-                <Carousel
-                    opts={{
-                        align: "start",
-                        loop: true,
-                    }}
-                    className="w-full"
-                >
-                    <CarouselContent>
-                        {sampleData.map((sample: TemplateSample, index) => (
-                            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                                <div className="p-1">
-                                    <Card className="overflow-hidden group">
-                                        <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden">
-                                            <div className="transform scale-[0.28] origin-top-left pointer-events-none">
-                                                <ResumePreview 
-                                                    resumeData={sample.data}
-                                                    designOptions={{ ...defaultDesignOptions, template: sample.template }}
-                                                    isInteractive={false}
-                                                />
-                                            </div>
-                                        </CardContent>
-                                        <div className="p-4 border-t">
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="font-semibold capitalize">{sample.template}</h3>
-                                                <Button asChild size="sm" variant="secondary" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                                    <Link href={`/builder?resumeId=__new__&template=${sample.template}`}>
-                                                        Use Template <ArrowRight className="ml-2 h-4 w-4"/>
-                                                    </Link>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="hidden lg:flex" />
-                    <CarouselNext className="hidden lg:flex" />
-                </Carousel>
+        <section className="container py-20 md:py-32">
+            <div className="mx-auto max-w-3xl text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tighter font-headline">
+                    Start with a Professional Template
+                </h2>
+                <p className="mt-4 text-lg text-muted-foreground">
+                    Choose from a variety of field-tested templates. Change colors, fonts, and layouts to make it your own.
+                </p>
             </div>
+            <Carousel
+                opts={{
+                    align: "start",
+                    loop: true,
+                }}
+                className="w-full"
+            >
+                <CarouselContent>
+                    {sampleData.map((sample: TemplateSample, index) => (
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                            <div className="p-1">
+                                <Card className="overflow-hidden group">
+                                    <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden">
+                                        <div className="transform scale-[0.28] origin-top-left pointer-events-none">
+                                            <ResumePreview 
+                                                resumeData={sample.data}
+                                                designOptions={{ ...defaultDesignOptions, template: sample.template }}
+                                                isInteractive={false}
+                                            />
+                                        </div>
+                                    </CardContent>
+                                    <div className="p-4 border-t">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-semibold capitalize">{sample.template}</h3>
+                                            <Button asChild size="sm" variant="secondary" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                                <Link href={`/builder?resumeId=__new__&template=${sample.template}`}>
+                                                    Use Template <ArrowRight className="ml-2 h-4 w-4"/>
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden lg:flex" />
+                <CarouselNext className="hidden lg:flex" />
+            </Carousel>
         </section>
     )
 }
