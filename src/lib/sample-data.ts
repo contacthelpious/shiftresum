@@ -29,18 +29,6 @@ const softwareEngineerData: ResumeFormData = {
                 {id: 'd3', value: 'Mentored a team of 3 junior engineers, conducting code reviews and fostering their growth, which improved team velocity by 15%.'},
             ],
         },
-        {
-            id: 'exp2',
-            company: 'Web Innovators',
-            role: 'Software Engineer',
-            startDate: 'Jun 2018',
-            endDate: 'Dec 2020',
-            description: [
-                {id: 'd4', value: 'Developed and maintained full-stack features for a high-traffic e-commerce platform.'},
-                {id: 'd5', value: 'Collaborated with UX designers to implement responsive and accessible user interfaces that improved customer satisfaction scores by 10%.'},
-                {id: 'd6', value: 'Wrote and maintained unit and integration tests, increasing code coverage from 60% to 85%.'},
-            ],
-        },
     ],
     education: [
         {
@@ -69,12 +57,6 @@ const softwareEngineerData: ResumeFormData = {
             name: 'Real-time Chat Application',
             description: 'Built a full-stack real-time chat app using WebSockets, React, and a Node.js backend. Implemented features like private messaging and user authentication.',
             link: 'github.com/alexdoe/chat-app'
-        },
-        {
-            id: 'proj2',
-            name: 'E-commerce Analytics Dashboard',
-            description: 'Designed and built an analytics dashboard for an e-commerce client to track sales, user behavior, and inventory. Utilized D3.js for data visualization.',
-            link: 'github.com/alexdoe/analytics-dashboard'
         }
     ],
     certifications: [
@@ -187,17 +169,6 @@ const marketingManagerData: ResumeFormData = {
                 {id: 'd1', value: 'Developed and managed a multi-channel content marketing strategy that increased organic traffic by 150% and generated over 5,000 qualified leads in one year.'},
                 {id: 'd2', value: 'Managed a marketing budget of $500K, optimizing ad spend across Google Ads and social media to achieve a 3:1 return on investment.'},
                 {id: 'd3', value: 'Led a team of 4 marketing specialists, providing mentorship and direction to achieve departmental goals.'},
-            ],
-        },
-        {
-            id: 'exp2',
-            company: 'Growth Solutions',
-            role: 'Digital Marketing Specialist',
-            startDate: 'Jul 2017',
-            endDate: 'Aug 2020',
-            description: [
-                {id: 'd4', value: 'Executed successful email marketing campaigns with an average open rate of 25% and click-through rate of 5%.'},
-                {id: 'd5', value: 'Managed and optimized PPC campaigns on Google Ads, improving conversion rates by 20%.'},
             ],
         }
     ],
