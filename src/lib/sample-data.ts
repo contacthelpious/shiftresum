@@ -4,6 +4,7 @@ import { type ResumeFormData, type TemplateName } from './definitions';
 export interface TemplateSample {
     template: TemplateName;
     data: ResumeFormData;
+    color: string;
 }
 
 const softwareEngineerData: ResumeFormData = {
@@ -13,7 +14,7 @@ const softwareEngineerData: ResumeFormData = {
         phone: '123-456-7890',
         location: 'San Francisco, CA',
         website: 'github.com/alexdoe',
-        summary: 'Innovative and results-driven Software Engineer with over 5 years of experience in building and scaling modern web applications. Proficient in TypeScript, React, and Node.js, with a proven track record of delivering high-quality, performant, and user-centric solutions. Passionate about clean code, system architecture, and collaborative problem-solving.'
+        summary: 'Innovative and results-driven Software Engineer with over 8 years of experience in building and scaling modern web applications. Proficient in TypeScript, React, and Node.js, with a proven track record of delivering high-quality, performant, and user-centric solutions. Passionate about clean code, system architecture, and collaborative problem-solving.'
     },
     experience: [
         {
@@ -36,7 +37,8 @@ const softwareEngineerData: ResumeFormData = {
             endDate: 'Dec 2020',
             description: [
                 {id: 'd4', value: 'Developed and maintained full-stack features for a high-traffic e-commerce platform.'},
-                {id: 'd5', value: 'Collaborated with UX designers to implement responsive and accessible user interfaces.'},
+                {id: 'd5', value: 'Collaborated with UX designers to implement responsive and accessible user interfaces that improved customer satisfaction scores by 10%.'},
+                {id: 'd6', value: 'Wrote and maintained unit and integration tests, increasing code coverage from 60% to 85%.'},
             ],
         },
     ],
@@ -58,6 +60,8 @@ const softwareEngineerData: ResumeFormData = {
         {id: 's6', name: 'AWS'},
         {id: 's7', name: 'PostgreSQL'},
         {id: 's8', name: 'CI/CD'},
+        {id: 's9', name: 'System Design'},
+        {id: 's10', name: 'Agile Methodologies'},
     ],
     projects: [
         {
@@ -65,6 +69,12 @@ const softwareEngineerData: ResumeFormData = {
             name: 'Real-time Chat Application',
             description: 'Built a full-stack real-time chat app using WebSockets, React, and a Node.js backend. Implemented features like private messaging and user authentication.',
             link: 'github.com/alexdoe/chat-app'
+        },
+        {
+            id: 'proj2',
+            name: 'E-commerce Analytics Dashboard',
+            description: 'Designed and built an analytics dashboard for an e-commerce client to track sales, user behavior, and inventory. Utilized D3.js for data visualization.',
+            link: 'github.com/alexdoe/analytics-dashboard'
         }
     ],
     certifications: [
@@ -100,6 +110,17 @@ const uxDesignerData: ResumeFormData = {
                 {id: 'd3', value: 'Developed and maintained a comprehensive design system in Figma, ensuring brand consistency and accelerating the design-to-development workflow.'},
             ],
         },
+        {
+            id: 'exp2',
+            company: 'Innovate Apparel',
+            role: 'UX/UI Designer',
+            startDate: 'Mar 2017',
+            endDate: 'May 2019',
+            description: [
+                {id: 'd4', value: 'Designed and prototyped a new mobile shopping app from concept to launch, resulting in a 4.8-star rating on the App Store.'},
+                {id: 'd5', value: 'Collaborated with product managers and engineers to deliver pixel-perfect designs and ensure seamless implementation.'},
+            ],
+        }
     ],
     education: [
         {
@@ -108,6 +129,13 @@ const uxDesignerData: ResumeFormData = {
             degree: 'M.A. in Interaction Design',
             graduationDate: 'Jun 2019',
             details: 'Thesis on Accessible Design in E-commerce'
+        },
+        {
+            id: 'edu2',
+            institution: 'State Art College',
+            degree: 'B.F.A. in Graphic Design',
+            graduationDate: 'May 2017',
+            details: ''
         }
     ],
     skills: [
@@ -118,6 +146,7 @@ const uxDesignerData: ResumeFormData = {
         {id: 's5', name: 'Design Systems'},
         {id: 's6', name: 'Usability Testing'},
         {id: 's7', name: 'Adobe XD'},
+        {id: 's8', name: 'Journey Mapping'},
     ],
     projects: [
         {
@@ -189,14 +218,28 @@ const marketingManagerData: ResumeFormData = {
         {id: 's5', name: 'Social Media Advertising'},
         {id: 's6', name: 'HubSpot'},
         {id: 's7', name: 'Market Research'},
+        {id: 's8', name: 'A/B Testing'},
     ],
-    projects: [],
+    projects: [
+        {
+            id: 'proj1',
+            name: 'Brand Awareness Campaign',
+            description: 'Launched a brand awareness campaign targeting a new demographic, resulting in a 200% increase in social media engagement and a 15% growth in market share.',
+            link: ''
+        }
+    ],
     certifications: [
         {
             id: 'cert1',
             name: 'Google Ads Search Certification',
             issuingOrganization: 'Google',
             date: 'Renewed 2023'
+        },
+        {
+            id: 'cert2',
+            name: 'HubSpot Inbound Marketing Certified',
+            issuingOrganization: 'HubSpot Academy',
+            date: '2022'
         }
     ],
     references: [],
@@ -206,25 +249,31 @@ export const sampleData: TemplateSample[] = [
     {
         template: 'modern',
         data: softwareEngineerData,
+        color: '#2563EB', // Shift Blue
     },
     {
         template: 'executive',
         data: uxDesignerData,
+        color: '#4338CA', // Deep Indigo
     },
     {
         template: 'classic',
         data: marketingManagerData,
+        color: '#06B6D4', // Electric Cyan
     },
     {
         template: 'bold',
         data: softwareEngineerData,
+        color: '#10B981', // Emerald Green
     },
     {
         template: 'professional',
         data: uxDesignerData,
+        color: '#F59E0B', // Amber
     },
     {
         template: 'focus',
         data: marketingManagerData,
+        color: '#EF4444', // Coral Red
     },
 ];
