@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Star } from 'lucide-react';
+import { Sparkles, Star } from 'lucide-react';
 import { SharedHeader } from './shared/header';
 import { SharedFooter } from './shared/footer';
 import { useUser } from '@/firebase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AnimatedBuilderPreview } from './builder/animated-builder-preview';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
@@ -97,15 +97,15 @@ const HeroSection = () => {
             <div className="mt-8 flex items-center gap-4">
                 <div className="flex -space-x-2">
                     <Avatar className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src="https://picsum.photos/seed/1/100" alt="User" />
+                        <AvatarImage src="https://picsum.photos/seed/1/100" alt="User" data-ai-hint="person face" />
                         <AvatarFallback>A</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src="https://picsum.photos/seed/2/100" alt="User" />
+                        <AvatarImage src="https://picsum.photos/seed/2/100" alt="User" data-ai-hint="person face" />
                         <AvatarFallback>B</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src="https://picsum.photos/seed/3/100" alt="User" />
+                        <AvatarImage src="https://picsum.photos/seed/3/100" alt="User" data-ai-hint="person face" />
                         <AvatarFallback>C</AvatarFallback>
                     </Avatar>
                 </div>
@@ -116,7 +116,7 @@ const HeroSection = () => {
              <div className="mt-4 flex items-center gap-2">
                 <span className="font-semibold">Trustpilot</span>
                 <div className="flex items-center gap-0.5">
-                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < 4 ? 'text-green-500 fill-green-500' : 'text-gray-300'}`} />)}
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < 4 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
                 </div>
                 <span className="text-sm font-semibold">4.5</span>
             </div>
