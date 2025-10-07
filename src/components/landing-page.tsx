@@ -138,7 +138,7 @@ const HeroSection = () => {
 
 const TemplatesSection = () => {
     return (
-        <section className="w-full bg-muted/50 py-20 md:py-32">
+        <section className="w-full py-20 md:py-32">
             <div className="container">
                 <div className="mx-auto max-w-3xl text-center mb-12">
                     <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4">
@@ -188,8 +188,8 @@ const TemplatesSection = () => {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="hidden lg:flex" />
-                    <CarouselNext className="hidden lg:flex" />
+                    <CarouselPrevious className="hidden lg:flex left-0 transform -translate-x-1/2 h-12 w-12" />
+                    <CarouselNext className="hidden lg:flex right-0 transform translate-x-1/2 h-12 w-12" />
                 </Carousel>
             </div>
         </section>
