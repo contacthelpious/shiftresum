@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -158,8 +159,8 @@ const TemplatesSection = () => {
                         <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                             <div className="p-1">
                                 <Card className="overflow-hidden group">
-                                    <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden">
-                                        <div className="transform scale-[0.28] origin-top-left pointer-events-none">
+                                    <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden flex justify-center items-center">
+                                        <div className="transform scale-[0.4] origin-center pointer-events-none">
                                             <ResumePreview 
                                                 resumeData={sample.data}
                                                 designOptions={{ ...defaultDesignOptions, template: sample.template }}
