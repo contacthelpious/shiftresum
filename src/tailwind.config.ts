@@ -11,13 +11,14 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Georgia', 'serif'],
+        headline: ['"Open Sans"', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
         lato: ['Lato', 'sans-serif'],
         georgia: ['Georgia', 'serif'],
         garamond: ['Garamond', 'serif'],
         verdana: ['Verdana', 'sans-serif'],
+        'open-sans': ['"Open Sans"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
