@@ -138,7 +138,7 @@ const HeroSection = () => {
 
 const TemplatesSection = () => {
     return (
-        <section className="w-full py-20 md:py-32">
+        <section className="w-full py-20 md:py-32 bg-muted/30">
             <div className="container">
                 <div className="mx-auto max-w-3xl text-center mb-12">
                     <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4">
@@ -157,7 +157,7 @@ const TemplatesSection = () => {
                         align: "start",
                         loop: true,
                     }}
-                    className="w-full max-w-7xl mx-auto"
+                    className="w-full max-w-6xl mx-auto"
                 >
                     <CarouselContent className="-ml-4">
                         {sampleData.map((sample: TemplateSample, index) => (
@@ -165,7 +165,7 @@ const TemplatesSection = () => {
                                 <div className="p-1">
                                     <Card className="overflow-hidden group">
                                         <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden flex justify-center items-center">
-                                            <div className="transform scale-[0.4] origin-center pointer-events-none">
+                                            <div className="transform scale-[0.35] origin-center pointer-events-none">
                                                 <ResumePreview 
                                                     resumeData={sample.data}
                                                     designOptions={{ ...defaultDesignOptions, template: sample.template, color: sample.color }}
@@ -188,8 +188,8 @@ const TemplatesSection = () => {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="hidden lg:flex left-0 transform -translate-x-1/2 h-12 w-12" />
-                    <CarouselNext className="hidden lg:flex right-0 transform translate-x-1/2 h-12 w-12" />
+                    <CarouselPrevious className="hidden lg:flex left-0 h-12 w-12" />
+                    <CarouselNext className="hidden lg:flex right-0 h-12 w-12" />
                 </Carousel>
             </div>
         </section>
