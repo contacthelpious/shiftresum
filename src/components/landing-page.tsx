@@ -152,15 +152,15 @@ const TemplatesSection = () => {
                     align: "start",
                     loop: true,
                 }}
-                className="w-full"
+                className="w-full max-w-6xl mx-auto"
             >
-                <CarouselContent>
+                <CarouselContent className="-ml-4">
                     {sampleData.map((sample: TemplateSample, index) => (
-                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 pl-4">
                             <div className="p-1">
                                 <Card className="overflow-hidden group">
                                     <CardContent className="p-4 bg-muted/20 aspect-[1/1.414] overflow-hidden flex justify-center items-center">
-                                        <div className="transform scale-[0.4] origin-center pointer-events-none">
+                                        <div className="transform scale-[0.45] origin-center pointer-events-none">
                                             <ResumePreview 
                                                 resumeData={sample.data}
                                                 designOptions={{ ...defaultDesignOptions, template: sample.template, color: sample.color }}
