@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -11,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { collection } from "firebase/firestore";
 import type { ResumeData } from "@/lib/definitions";
 import { UploadResumeCard } from '@/components/dashboard/upload-resume-card';
+import { LoadingSplash } from '@/components/ui/loading-splash';
 
 export default function DashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -41,11 +41,7 @@ export default function DashboardPage() {
 
 
     if (isUserLoading || !user) {
-        return (
-          <div className="flex h-screen items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
-          </div>
-        );
+        return <LoadingSplash messages={['Loading your dashboard...', 'Getting your documents ready...']} />;
     }
 
     const userName = user.displayName || user.email?.split('@')[0] || 'there';

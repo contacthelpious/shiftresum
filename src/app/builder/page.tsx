@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ResumeFormData, ResumeFormSchema, defaultResumeFormData, DesignOptions, defaultDesignOptions } from '@/lib/definitions';
+import { ResumeFormData, ResumeFormSchema, defaultResumeFormData, DesignOptions, defaultDesignOptions, TemplateNameSchema, type TemplateName } from '@/lib/definitions';
 import { ResumeEditor } from '@/components/builder/resume-editor';
 import { TemplateCustomizer } from '@/components/builder/template-customizer';
 import { ResumePreview } from '@/components/builder/resume-preview';
@@ -21,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type ExtractResumeDataOutput } from '@/ai/flows/extract-resume-data';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { LoadingSplash } from '@/components/ui/loading-splash';
 
 // Helper function to get initial form data.
 // This runs synchronously before the component renders.
@@ -73,6 +73,15 @@ const getInitialFormData = (): ResumeFormData => {
   return defaultResumeFormData;
 };
 
+const getInitialDesignOptions = (searchParams: URLSearchParams): DesignOptions => {
+  const templateParam = searchParams.get('template');
+  const parsed = TemplateNameSchema.safeParse(templateParam);
+  if (parsed.success) {
+    return { ...defaultDesignOptions, template: parsed.data };
+  }
+  return defaultDesignOptions;
+}
+
 
 export default function BuilderPage() {
   const router = useRouter();
@@ -85,7 +94,7 @@ export default function BuilderPage() {
   const { user, isUserLoading, isPro, isSubDataLoading } = useUser();
   const firestore = useFirestore();
 
-  const [designOptions, setDesignOptions] = useState<DesignOptions>(defaultDesignOptions);
+  const [designOptions, setDesignOptions] = useState<DesignOptions>(() => getInitialDesignOptions(searchParams));
   const [activeTab, setActiveTab] = useState('content');
   
   const methods = useForm<ResumeFormData>({
@@ -159,11 +168,7 @@ export default function BuilderPage() {
   const isLoading = isUserLoading || (!!resumeId && resumeId !== '__new__' && isResumeLoading);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <LoadingSplash messages={['Loading your workspace...', 'Polishing the pixels...']} />;
   }
 
   return (
