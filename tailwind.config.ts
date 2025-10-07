@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -11,13 +12,14 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        headline: ['Poppins', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
         lato: ['Lato', 'sans-serif'],
         georgia: ['Georgia', 'serif'],
         garamond: ['Garamond', 'serif'],
         verdana: ['Verdana', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
